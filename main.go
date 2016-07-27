@@ -4,44 +4,49 @@ import (
 	"net/http"
 	"log"
 	"github.com/gorilla/mux"
-	"github.com/mrtomyum/nava-stock/controllers"
-	"github.com/mrtomyum/nava-stock/models"
+	c "github.com/mrtomyum/nava-stock/controller"
+	m "github.com/mrtomyum/nava-stock/model"
+	"encoding/json"
+	"os"
 )
 
-//TODO: Move Config to JSON file and Create Config{} to handle DB const.
-const (
-	DB_HOST = "tcp(nava.work:3306)"
-	//TODO: เมื่อรันจริงต้องเปลี่ยนเป็น Docker Network Bridge IP เช่น 172.17.0.3 เป็นต้น
-	DB_NAME = "system"
-	DB_USER = "root"
-	DB_PASS = "mypass"
-)
-
-var dsn = DB_USER + ":" + DB_PASS + "@" + DB_HOST + "/" + DB_NAME + "?charset=utf8"
-
+type Config struct {
+	DBHost string `json:"db_host"`
+	DBName string `json:"db_name"`
+	DBUser string `json:"db_user"`
+	DBPass string `json:"db_pass"`
+}
 
 func main() {
-	db, err := models.NewDB(dsn)
+	// Read configuration file from "cofig.json"
+	file, _ := os.Open("config.json")
+	decoder := json.NewDecoder(file)
+	config := Config{}
+	err := decoder.Decode(&config)
 	if err != nil {
-		log.Panic("NewDB() Error:", err)
+		log.Println("error:", err)
 	}
 
-	c := controllers.Env{DB:db}
+	var dsn = config.DBUser + ":" + config.DBPass + "@" + config.DBHost + "/" + config.DBName + "?parseTime=true"
+
+	db := m.NewDB(dsn)
+	c := c.Env{DB:db}
 	defer db.Close()
 
-	r := mux.NewRouter()
-	s := r.PathPrefix("/api/v1/user").Subrouter()
-	s.HandleFunc("/", c.ItemIndex).Methods("GET"); log.Println("/api/v1/item GET ItemIndex")
-	s.HandleFunc("/", c.ItemInsert).Methods("POST"); log.Println("/api/v1/item POST ItemInsert")
-	s.HandleFunc("/{id:[0-9]+}", c.ItemShow).Methods("GET"); log.Println("/api/v1/item/:id GET ItemShow")
-	s.HandleFunc("/{id:[0-9]+}", c.ItemUpdate).Methods("PUT"); log.Println("/api/v1/item/:id PUT ItemUpdate ")
-	s.HandleFunc("/search", c.ItemSearch).Methods("POST"); log.Println("/api/v1/item/search POST ItemSearch")
-	s.HandleFunc("/{id:[0-9]+}", c.ItemDelete).Methods("DELETE"); log.Println("start '/api/v1/item/:id' DELETE UserDelete")
-	s.HandleFunc("/{id:[0-9]+}/undelete", c.ItemUndelete).Methods("PUT"); log.Println("start '/api/v1/item/:id/undelete' PUT UserUndelete")
-	// Menu
-	// # Stock
+	r := mux.NewRouter().StrictSlash(true)
 
 	// ## Item
+	s := r.PathPrefix("/api/v1/item").Subrouter()
+	s.HandleFunc("/", c.AllItem).Methods("GET"); log.Println("/api/v1/item GET AllItem")
+	s.HandleFunc("/", c.NewItem).Methods("POST"); log.Println("/api/v1/item POST NewItem")
+	s.HandleFunc("/{id:[0-9]+}", c.ShowItem).Methods("GET"); log.Println("/api/v1/item/:id GET ShowItem")
+	s.HandleFunc("/{id:[0-9]+}", c.UpdateItem).Methods("PUT"); log.Println("/api/v1/item/:id PUT UpdateItem ")
+	s.HandleFunc("/search", c.FindItem).Methods("POST"); log.Println("/api/v1/item/search POST FindItem")
+	s.HandleFunc("/{id:[0-9]+}", c.DelItem).Methods("DELETE"); log.Println("/api/v1/item/:id DELETE ItemDelete")
+	s.HandleFunc("/{id:[0-9]+}/undelete", c.UndelItem).Methods("PUT"); log.Println("/api/v1/item/:id/undelete PUT ItemUndelete")
+
+	// # Stock
+
 
 	// ## Location
 
