@@ -35,7 +35,7 @@ func main() {
 
 	r := mux.NewRouter().StrictSlash(true)
 
-	// ## Item
+	// # Item
 	s := r.PathPrefix("/api/v1/item").Subrouter()
 	s.HandleFunc("/", c.AllItem).Methods("GET"); log.Println("/api/v1/item GET AllItem")
 	s.HandleFunc("/", c.NewItem).Methods("POST"); log.Println("/api/v1/item POST NewItem")
@@ -44,8 +44,11 @@ func main() {
 	s.HandleFunc("/search", c.FindItem).Methods("POST"); log.Println("/api/v1/item/search POST FindItem")
 	s.HandleFunc("/{id:[0-9]+}", c.DelItem).Methods("DELETE"); log.Println("/api/v1/item/:id DELETE ItemDelete")
 	s.HandleFunc("/{id:[0-9]+}/undelete", c.UndelItem).Methods("PUT"); log.Println("/api/v1/item/:id/undelete PUT ItemUndelete")
-
+	// ## ItemPrice
+	s.HandleFunc("/{id:[0-9]+}/price", c.ItemPrice).Methods("GET"); log.Println("/api/v1/item/:id/price GET PriceByItemID")
 	// # Stock
+	s = r.PathPrefix("/api/v1/order").Subrouter()
+	// s.HandleFunc("/", c.AllOrder).Methods("GET"); log.Println("/api/v1/order/")
 
 
 	// ## Location

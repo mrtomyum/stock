@@ -31,7 +31,7 @@ func (i *Item) All(db *sqlx.DB) ([]*Item, error) {
 		name,
 		std_price,
 		std_cost,
-		base_unit_id,
+		baseunit_id,
 		category_id
 		FROM item
 		`
@@ -73,4 +73,41 @@ func (i *Item) FindItemByID(db *sqlx.DB) ([]*Item, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+func (i *Item) New(db *sqlx.DB) error {
+	sql := `
+		INSERT INTO item (
+			sku,
+			name,
+			std_price,
+			std_cost,
+			baseunit_id,
+			category_id
+		) VALUES(
+			?,?,?,?,?,?
+		)
+		`
+	rs, err := db.Exec(sql,
+		i.SKU,
+		i.Name,
+		i.StdPrice,
+		i.StdCost,
+		i.BaseUnitID,
+		i.CategoryID,
+	)
+	if err != nil {
+		log.Println("Error=>Item.New/db.Exec:> ", err)
+		return err
+	}
+	lastID, _ := rs.LastInsertId()
+
+	// Check result
+	err = db.QueryRowx("SELECT * FROM item WHERE id =?", lastID).
+		StructScan(&i)
+	if err != nil {
+		return err
+	}
+	log.Println("Success Insert New Item: ", i)
+	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"math"
 	"log"
+	"github.com/jmoiron/sqlx"
 )
 
 type Price struct {
@@ -29,4 +30,9 @@ func (p JsonPrice) MashalJSON() ([]byte, error) {
 		return nil, err
 	}
 	return output, nil
+}
+
+func (ip *ItemPrice) AllPrice(db *sqlx.DB) ([]*ItemPrice, error) {
+	ips := []*ItemPrice{}
+	return ips, nil
 }
