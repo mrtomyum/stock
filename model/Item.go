@@ -25,27 +25,35 @@ type ItemBarcode struct {
 type Items []*Item
 
 func (i *Item) All(db *sqlx.DB) ([]*Item, error) {
-	sql := `SELECT
-		id,
-		sku,
-		name,
-		std_price,
-		std_cost,
-		baseunit_id,
-		category_id
-		FROM item
-		`
+	//sql := `SELECT
+	//	id,
+	//	sku,
+	//	name,
+	//	std_price,
+	//	std_cost,
+	//	baseunit_id,
+	//	category_id
+	//	FROM item
+	//	`
+	sql := `SELECT * FROM item`
 	rows, err := db.Queryx(sql)
 	if err != nil {
-		log.Println(err)
+		log.Println("Error: db.Queryx in Item.All(): ", err)
 	}
 	defer rows.Close()
-
 	var items Items
 	for rows.Next() {
 		i := new(Item)
+		//err = rows.StructScan(&i)
+		//if err != nil {
+		//	log.Println("Error: rows.StructScan in Item.All(): ", err)
+		//	return nil, err
+		//}
 		rows.Scan(
 			&i.ID,
+			&i.Created,
+			&i.Updated,
+			&i.Deleted,
 			&i.SKU,
 			&i.Name,
 			&i.StdPrice,
@@ -54,8 +62,9 @@ func (i *Item) All(db *sqlx.DB) ([]*Item, error) {
 			&i.CategoryID,
 		)
 		items = append(items, i)
+		log.Println("Read item:", i)
 	}
-	return items, err
+	return items, nil
 }
 
 func (i *Item) FindItemByID(db *sqlx.DB) ([]*Item, error) {
