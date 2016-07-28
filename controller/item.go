@@ -39,17 +39,18 @@ func (e *Env) ShowItem(w http.ResponseWriter, r *http.Request) {
 	i.ID, _ = strconv.ParseUint(id, 10, 64)
 	log.Println("item.ID = ", i.ID)
 
-	items, err := i.All(e.DB)
+	var item m.Item
+	item, err := i.FindItemByID(e.DB)
 
 	rs := new(api.Response)
 	if err != nil {
 		rs.Status = "204"
-		rs.Message = "NO CONTENT"
+		rs.Message = "NOT_FOUND"
 		rs.Result = nil
 	} else {
 		rs.Status = "200"
-		rs.Message = "SUCCESS return All Item Price "
-		rs.Result = items
+		rs.Message = "SUCCESS return Item."
+		rs.Result = item
 	}
 	o, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(o))

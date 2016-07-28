@@ -9,10 +9,10 @@ type Item struct {
 	Base
 	SKU        string `json:"sku"`
 	Name       string `json:"name"`
-	StdPrice   int64  `json:"std_price"`
-	StdCost    int64  `json:"std_cost"`
-	BaseUnitID uint64 `json:"baseunit_id"`
-	CategoryID uint64 `json:"category_id"`
+	StdPrice   int64  `json:"std_price" db:"std_price"`
+	StdCost    int64  `json:"std_cost" db:"std_cost"`
+	BaseUnitID uint64 `json:"baseunit_id" db:"baseunit_id"`
+	CategoryID uint64 `json:"category_id" db:"category_id"`
 }
 
 type ItemBarcode struct {
@@ -24,17 +24,7 @@ type ItemBarcode struct {
 
 type Items []*Item
 
-func (i *Item) All(db *sqlx.DB) ([]*Item, error) {
-	//sql := `SELECT
-	//	id,
-	//	sku,
-	//	name,
-	//	std_price,
-	//	std_cost,
-	//	baseunit_id,
-	//	category_id
-	//	FROM item
-	//	`
+func (i *Item) All(db *sqlx.DB) (Items, error) {
 	sql := `SELECT * FROM item`
 	rows, err := db.Queryx(sql)
 	if err != nil {
@@ -44,44 +34,26 @@ func (i *Item) All(db *sqlx.DB) ([]*Item, error) {
 	var items Items
 	for rows.Next() {
 		i := new(Item)
-		//err = rows.StructScan(&i)
-		//if err != nil {
-		//	log.Println("Error: rows.StructScan in Item.All(): ", err)
-		//	return nil, err
-		//}
-		rows.Scan(
-			&i.ID,
-			&i.Created,
-			&i.Updated,
-			&i.Deleted,
-			&i.SKU,
-			&i.Name,
-			&i.StdPrice,
-			&i.StdCost,
-			&i.BaseUnitID,
-			&i.CategoryID,
-		)
+		err = rows.StructScan(&i)
+		if err != nil {
+			log.Println("Error: rows.StructScan in Item.All(): ", err)
+			return nil, err
+		}
 		items = append(items, i)
 		log.Println("Read item:", i)
 	}
 	return items, nil
 }
 
-func (i *Item) FindItemByID(db *sqlx.DB) ([]*Item, error) {
+func (i *Item) FindItemByID(db *sqlx.DB) (Item, error) {
+	var item Item
 	sql := "SELECT * FROM item WHERE id = ?"
-	rows, err := db.Queryx(sql)
+	err := db.QueryRowx(sql, i.ID).StructScan(&item)
 	if err != nil {
-		log.Println("FindItemByID/Query Error", err)
+		log.Println("Error: FindItemByID/Query Error", err)
+		return item, err
 	}
-	defer rows.Close()
-
-	var items Items
-	err = rows.StructScan(&items)
-	if err != nil {
-		log.Println("FindItemByID/rows.StructScan:", err)
-		return nil, err
-	}
-	return items, nil
+	return item, nil
 }
 
 func (i *Item) New(db *sqlx.DB) error {
