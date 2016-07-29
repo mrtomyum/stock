@@ -51,8 +51,8 @@ func (e *Env) ShowItem(w http.ResponseWriter, r *http.Request) {
 	i.ID, _ = strconv.ParseUint(id, 10, 64)
 	log.Println("item.ID = ", i.ID)
 
-	var item m.Item
-	item, err := i.FindItemByID(e.DB)
+	var iv m.ItemView
+	iv, err := i.FindItemByID(e.DB)
 
 	rs := new(api.Response)
 	if err != nil {
@@ -64,7 +64,7 @@ func (e *Env) ShowItem(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusFound)
 		rs.Status = "302"
 		rs.Message = "SUCCESS return Item."
-		rs.Result = item
+		rs.Result = iv
 	}
 	o, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(o))
