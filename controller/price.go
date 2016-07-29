@@ -1,14 +1,14 @@
 package controller
 
 import (
-	"net/http"
-	"github.com/gorilla/mux"
-	m "github.com/mrtomyum/nava-stock/model"
-	"strconv"
-	"log"
-	"github.com/mrtomyum/nava-stock/api"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
+	"github.com/mrtomyum/nava-stock/api"
+	m "github.com/mrtomyum/nava-stock/model"
+	"log"
+	"net/http"
+	"strconv"
 )
 
 func (e *Env) ItemPrice(w http.ResponseWriter, r *http.Request) {
@@ -35,4 +35,3 @@ func (e *Env) ItemPrice(w http.ResponseWriter, r *http.Request) {
 	o, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(o))
 }
-

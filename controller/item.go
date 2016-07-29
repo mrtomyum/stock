@@ -1,17 +1,24 @@
 package controller
 
 import (
-	"net/http"
-	"fmt"
-	"log"
 	"encoding/json"
-	m "github.com/mrtomyum/nava-stock/model"
+	"fmt"
 	"github.com/gorilla/mux"
-	"strconv"
 	"github.com/mrtomyum/nava-stock/api"
+	m "github.com/mrtomyum/nava-stock/model"
+	"log"
+	"net/http"
+	"strconv"
 )
 
 func (e *Env) AllItem(w http.ResponseWriter, r *http.Request) {
+	log.Println("call GET AllItem")
+
+	if r.Method != "GET" {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
 	i := m.Item{}
 	items, err := i.All(e.DB)
 	rs := m.APIResponse{}
@@ -58,6 +65,12 @@ func (e *Env) ShowItem(w http.ResponseWriter, r *http.Request) {
 
 func (e *Env) NewItem(w http.ResponseWriter, r *http.Request) {
 	log.Println("call POST NewItem")
+
+	if r.Method != "POST" {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
 	i := new(m.Item)
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&i)
@@ -65,7 +78,7 @@ func (e *Env) NewItem(w http.ResponseWriter, r *http.Request) {
 		log.Println("NewItem: Error decode.Decode(&i) >>", err)
 	}
 	err = i.New(e.DB)
-
+	log.Println("i= ", i)
 	rs := new(api.Response)
 	if err != nil {
 		rs.Status = "XXX"

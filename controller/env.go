@@ -7,4 +7,3 @@ import (
 type Env struct {
 	DB *sqlx.DB
 }
-

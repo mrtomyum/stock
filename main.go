@@ -38,18 +38,18 @@ func main() {
 	// # Item
 	s := r.PathPrefix("/api/v1/item").Subrouter()
 	s.HandleFunc("/", c.AllItem).Methods("GET"); log.Println("/api/v1/item GET AllItem")
+	// Todo: Bug when router /api/v1/item/ POST program call GET instated?
 	s.HandleFunc("/", c.NewItem).Methods("POST"); log.Println("/api/v1/item POST NewItem")
 	s.HandleFunc("/{id:[0-9]+}", c.ShowItem).Methods("GET"); log.Println("/api/v1/item/:id GET ShowItem")
-	s.HandleFunc("/{id:[0-9]+}", c.UpdateItem).Methods("PUT"); log.Println("/api/v1/item/:id PUT UpdateItem ")
-	s.HandleFunc("/search", c.FindItem).Methods("POST"); log.Println("/api/v1/item/search POST FindItem")
-	s.HandleFunc("/{id:[0-9]+}", c.DelItem).Methods("DELETE"); log.Println("/api/v1/item/:id DELETE ItemDelete")
-	s.HandleFunc("/{id:[0-9]+}/undelete", c.UndelItem).Methods("PUT"); log.Println("/api/v1/item/:id/undelete PUT ItemUndelete")
+	//s.HandleFunc("/{id:[0-9]+}", c.UpdateItem).Methods("PUT"); log.Println("/api/v1/item/:id PUT UpdateItem ")
+	//s.HandleFunc("/search", c.FindItem).Methods("POST"); log.Println("/api/v1/item/search POST FindItem")
+	//s.HandleFunc("/{id:[0-9]+}", c.DelItem).Methods("DELETE"); log.Println("/api/v1/item/:id DELETE ItemDelete")
+	//s.HandleFunc("/{id:[0-9]+}/undelete", c.UndelItem).Methods("PUT"); log.Println("/api/v1/item/:id/undelete PUT ItemUndelete")
 	// ## ItemPrice
-	s.HandleFunc("/{id:[0-9]+}/price", c.ItemPrice).Methods("GET"); log.Println("/api/v1/item/:id/price GET PriceByItemID")
+	//s.HandleFunc("/{id:[0-9]+}/price", c.ItemPrice).Methods("GET"); log.Println("/api/v1/item/:id/price GET PriceByItemID")
 	// # Stock
-	s = r.PathPrefix("/api/v1/order").Subrouter()
+	//s = r.PathPrefix("/api/v1/order").Subrouter()
 	// s.HandleFunc("/", c.AllOrder).Methods("GET"); log.Println("/api/v1/order/")
-
 
 	// ## Location
 
