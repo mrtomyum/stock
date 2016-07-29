@@ -15,6 +15,11 @@ type Item struct {
 	CategoryID uint64 `json:"category_id" db:"category_id"`
 }
 
+type ItemView struct {
+	Item
+	CategoryEN string `json:"category_en" db:"category_en"`
+}
+
 type ItemBarcode struct {
 	ItemID uint64
 	UnitID uint64
@@ -45,15 +50,35 @@ func (i *Item) All(db *sqlx.DB) (Items, error) {
 	return items, nil
 }
 
-func (i *Item) FindItemByID(db *sqlx.DB) (Item, error) {
-	var item Item
-	sql := "SELECT * FROM item WHERE id = ?"
-	err := db.QueryRowx(sql, i.ID).StructScan(&item)
+func (i *Item) FindItemByID(db *sqlx.DB) (ItemView, error) {
+	var iv ItemView
+	sql := `SELECT
+		item.sku,
+		item.name,
+		item.std_price,
+		item.std_cost,
+		item.baseunit_id,
+		item.category_id,
+		category.EN as category_en
+		FROM item LEFT JOIN category
+		ON item.category_id = category_id
+		WHERE item.id = ?
+	`
+	err := db.QueryRowx(sql, i.ID).StructScan(&iv)
+	//err := db.QueryRow(sql, i.ID).Scan(
+	//	&i.SKU,
+	//	&i.Name,
+	//	&i.StdPrice,
+	//	&i.StdCost,
+	//	&i.BaseUnitID,
+	//	&i.Category.EN,
+	//)
 	if err != nil {
 		log.Println("Error: FindItemByID/Query Error", err)
-		return item, err
+		return iv, err
 	}
-	return item, nil
+
+	return iv, nil
 }
 
 func (i *Item) New(db *sqlx.DB) (Item, error) {
