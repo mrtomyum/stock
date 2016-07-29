@@ -56,7 +56,7 @@ func (i *Item) FindItemByID(db *sqlx.DB) (Item, error) {
 	return item, nil
 }
 
-func (i *Item) New(db *sqlx.DB) error {
+func (i *Item) New(db *sqlx.DB) (Item, error) {
 	sql := `
 		INSERT INTO item (
 			sku,
@@ -77,18 +77,19 @@ func (i *Item) New(db *sqlx.DB) error {
 		i.BaseUnitID,
 		i.CategoryID,
 	)
+	var item Item
 	if err != nil {
 		log.Println("Error=>Item.New/db.Exec:> ", err)
-		return err
+		return item, err
 	}
 	lastID, _ := rs.LastInsertId()
 
 	// Check result
 	err = db.QueryRowx("SELECT * FROM item WHERE id =?", lastID).
-		StructScan(&i)
+		StructScan(&item)
 	if err != nil {
-		return err
+		return item, err
 	}
 	log.Println("Success Insert New Item: ", i)
-	return nil
+	return item, nil
 }

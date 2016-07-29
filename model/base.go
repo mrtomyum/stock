@@ -22,8 +22,8 @@ const (
 // returned by the nava's REST API.
 type Base struct {
 	ID      uint64         `json:"id"`
-	Created JsonNullTime `json:"created"`
 	//Created mysql.NullTime `json:"created"`
+	Created JsonNullTime `json:"created"`
 	Updated JsonNullTime `json:"updated"`
 	Deleted JsonNullTime `json:"deleted"`
 }

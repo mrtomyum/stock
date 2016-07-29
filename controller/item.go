@@ -12,12 +12,14 @@ import (
 )
 
 func (e *Env) AllItem(w http.ResponseWriter, r *http.Request) {
-	log.Println("call GET AllItem")
-
+	log.Println("call GET AllItem123")
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
+
+	w.Header().Set("Server", "nava Stock")
+	w.Header().Set("Content-Type", "application/json")
 
 	i := m.Item{}
 	items, err := i.All(e.DB)
@@ -27,7 +29,8 @@ func (e *Env) AllItem(w http.ResponseWriter, r *http.Request) {
 		rs.Status = "500"
 		rs.Message = err.Error()
 	} else {
-		rs.Status = "200"
+		w.WriteHeader(http.StatusFound)
+		rs.Status = "302"
 		rs.Message = "SUCCESS"
 		rs.Result = items
 	}
@@ -40,6 +43,8 @@ func (e *Env) AllItem(w http.ResponseWriter, r *http.Request) {
 
 func (e *Env) ShowItem(w http.ResponseWriter, r *http.Request) {
 	log.Println("call GET ShowItem (by id)")
+	w.Header().Set("Content-Type", "application/json")
+
 	v := mux.Vars(r)
 	id := v["id"]
 	i := new(m.Item)
@@ -51,11 +56,13 @@ func (e *Env) ShowItem(w http.ResponseWriter, r *http.Request) {
 
 	rs := new(api.Response)
 	if err != nil {
-		rs.Status = "204"
-		rs.Message = "NOT_FOUND"
+		w.WriteHeader(http.StatusNotFound)
+		rs.Status = "404"
+		rs.Message = "NOT_FOUND>> " + err.Error()
 		rs.Result = nil
 	} else {
-		rs.Status = "200"
+		w.WriteHeader(http.StatusFound)
+		rs.Status = "302"
 		rs.Message = "SUCCESS return Item."
 		rs.Result = item
 	}
@@ -65,6 +72,7 @@ func (e *Env) ShowItem(w http.ResponseWriter, r *http.Request) {
 
 func (e *Env) NewItem(w http.ResponseWriter, r *http.Request) {
 	log.Println("call POST NewItem")
+	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != "POST" {
 		http.Error(w, http.StatusText(500), 500)
@@ -77,17 +85,20 @@ func (e *Env) NewItem(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("NewItem: Error decode.Decode(&i) >>", err)
 	}
-	err = i.New(e.DB)
+	newItem, err := i.New(e.DB)
 	log.Println("i= ", i)
 	rs := new(api.Response)
 	if err != nil {
-		rs.Status = "XXX"
-		rs.Message = "CANNOT_UPDATE"
+		log.Println(err)
+		w.WriteHeader(http.StatusConflict)
+		rs.Status = "409"
+		rs.Message = "CANNOT_UPDATE >>" + err.Error()
 		rs.Result = nil
 	} else {
-		rs.Status = "200"
-		rs.Message = "SUCCESS UPDATE ITEM"
-		rs.Result = i
+		w.WriteHeader(http.StatusCreated)
+		rs.Status = "201"
+		rs.Message = "SUCCESS CREATED"
+		rs.Result = newItem
 	}
 	o, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(o))
