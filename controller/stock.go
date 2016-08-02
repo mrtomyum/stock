@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"log"
 	"encoding/json"
+	"github.com/mrtomyum/nava-stock/api"
 )
 
 func (e *Env) AllStock(w http.ResponseWriter, r *http.Request) {
 	i := m.Item{}
 	items, err := i.All(e.DB)
-	rs := m.APIResponse{}
+	rs := api.Response{}
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
 		rs.Status = "500"

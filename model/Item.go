@@ -1,8 +1,8 @@
 package model
 
 import (
-	"log"
 	"github.com/jmoiron/sqlx"
+	"log"
 )
 
 type Item struct {
@@ -17,6 +17,9 @@ type Item struct {
 
 type ItemView struct {
 	Item
+	BaseUnitTH string `json:"baseunit_th" db:"baseunit_th"`
+	BaseUnitEN string `json:"baseunit_en" db:"baseunit_en"`
+	CategoryTH string `json:"category_th" db:"category_th"`
 	CategoryEN string `json:"category_en" db:"category_en"`
 }
 
@@ -52,17 +55,22 @@ func (i *Item) All(db *sqlx.DB) (Items, error) {
 
 func (i *Item) FindItemByID(db *sqlx.DB) (ItemView, error) {
 	var iv ItemView
-	sql := `SELECT
+	sql := `
+	SELECT
 		item.sku,
 		item.name,
 		item.std_price,
 		item.std_cost,
 		item.baseunit_id,
 		item.category_id,
-		category.EN as category_en
-		FROM item LEFT JOIN category
-		ON item.category_id = category_id
-		WHERE item.id = ?
+		unit.th as baseunit_th,
+		unit.en as baseunit_en,
+		category.th as category_th,
+		category.en as category_en
+	FROM item
+	LEFT JOIN unit ON item.baseunit_id = unit.id
+	LEFT JOIN category ON item.category_id = category.id
+	WHERE item.id = ?
 	`
 	err := db.QueryRowx(sql, i.ID).StructScan(&iv)
 	//err := db.QueryRow(sql, i.ID).Scan(
@@ -71,7 +79,7 @@ func (i *Item) FindItemByID(db *sqlx.DB) (ItemView, error) {
 	//	&i.StdPrice,
 	//	&i.StdCost,
 	//	&i.BaseUnitID,
-	//	&i.Category.EN,
+	//	&i.CategoryID,
 	//)
 	if err != nil {
 		log.Println("Error: FindItemByID/Query Error", err)
