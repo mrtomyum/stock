@@ -43,9 +43,9 @@ func SetupRoute(c *c.Env) *mux.Router {
 	r := mux.NewRouter().StrictSlash(true)
 
 	// # Item
-	r.HandleFunc("/api/v1/item", c.AllItem).Methods("GET"); log.Println("/api/v1/item GET AllItem")
-	r.HandleFunc("/api/v1/item/{id:[0-9]+}", c.ShowItem).Methods("GET"); log.Println("/api/v1/item/:id GET ShowItem")
-	r.HandleFunc("/api/v1/item", c.NewItem).Methods("POST"); log.Println("/api/v1/item POST NewItem")
+	r.HandleFunc("/v1/item", c.AllItem).Methods("GET"); log.Println("/api/v1/item GET AllItem")
+	r.HandleFunc("/v1/item/{id:[0-9]+}", c.ShowItem).Methods("GET"); log.Println("/api/v1/item/:id GET ShowItem")
+	r.HandleFunc("/v1/item", c.NewItem).Methods("POST"); log.Println("/api/v1/item POST NewItem")
 
 	//s.HandleFunc("/{id:[0-9]+}", c.UpdateItem).Methods("PUT"); log.Println("/api/v1/item/:id PUT UpdateItem ")
 	//s.HandleFunc("/search", c.FindItem).Methods("POST"); log.Println("/api/v1/item/search POST FindItem")
