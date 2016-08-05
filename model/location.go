@@ -42,3 +42,4 @@ func (this *Node) Add(nodes ...*Node) bool {
 	return this.Size() == size + len(nodes)
 }
 
+

@@ -17,7 +17,6 @@ func (e *Env) AllItem(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-
 	w.Header().Set("Server", "nava Stock")
 	w.Header().Set("Content-Type", "application/json")
 
