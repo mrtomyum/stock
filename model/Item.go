@@ -9,18 +9,18 @@ type Item struct {
 	Base
 	SKU        string `json:"sku"`
 	Name       string `json:"name"`
-	StdPrice   int64  `json:"std_price" db:"std_price"`
-	StdCost    int64  `json:"std_cost" db:"std_cost"`
-	BaseUnitID uint64 `json:"baseunit_id" db:"baseunit_id"`
-	CategoryID uint64 `json:"category_id" db:"category_id"`
+	StdPrice   int64  `json:"stdPrice" db:"std_price"`
+	StdCost    int64  `json:"stdCost" db:"std_cost"`
+	BaseUnitID uint64 `json:"baseUnitID" db:"base_unit_id"`
+	CategoryID uint64 `json:"categoryID" db:"category_id"`
 }
 
 type ItemView struct {
 	Item
-	BaseUnitTH string `json:"baseunit_th" db:"baseunit_th"`
-	BaseUnitEN string `json:"baseunit_en" db:"baseunit_en"`
-	CategoryTH string `json:"category_th" db:"category_th"`
-	CategoryEN string `json:"category_en" db:"category_en"`
+	BaseUnitTH string `json:"baseUnitTH" db:"base_unit_th"`
+	BaseUnitEN string `json:"baseUnitEN" db:"base_unit_en"`
+	CategoryTH string `json:"categoryTH" db:"category_th"`
+	CategoryEN string `json:"categoryEN" db:"category_en"`
 }
 
 type ItemBarcode struct {

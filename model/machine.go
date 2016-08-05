@@ -20,15 +20,15 @@ const (
 )
 
 type Machine struct {
-	ID        uint64
-	PlaceID   uint64
-	Name      string
-	Type      machineType
-	Brand     MachineBrand
-	Model     string
-	Selection int //จำนวน Column หรือช่องเก็บสินค้า
-	LocNumber []int
-				  //LocRow int  	//จำนวนแถว และคอลัมน์ไว้ทำ Schematic Profile  หน้าตู้
-				  //LocCol int
+	ID        uint64 `json:"id"`
+	LocID     uint64 `json:"loc_id"`
+	Name      string `json:"name"`
+	Type      machineType `json:"type"`
+	Brand     MachineBrand `json:"brand"`
+	Model     string `json:"model"`
+	Selection int `json:"selection"`    //จำนวน Column หรือช่องเก็บสินค้า
+	LocNumber []int `json:"loc_number"` // Slice of number
+										//LocRow int  	//จำนวนแถว และคอลัมน์ไว้ทำ Schematic Profile  หน้าตู้
+										//LocCol int  //ควรจะเป็น 2 Dimension Array
 }
 

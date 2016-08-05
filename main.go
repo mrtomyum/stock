@@ -15,6 +15,7 @@ type Config struct {
 	DBName string `json:"db_name"`
 	DBUser string `json:"db_user"`
 	DBPass string `json:"db_pass"`
+	Port   string `json:"port"`
 }
 
 func main() {
@@ -26,7 +27,6 @@ func main() {
 	if err != nil {
 		log.Println("error:", err)
 	}
-
 	var dsn = config.DBUser + ":" + config.DBPass + "@" + config.DBHost + "/" + config.DBName + "?parseTime=true"
 
 	db := m.NewDB(dsn)

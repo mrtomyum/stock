@@ -3,5 +3,6 @@
   "db_host": "tcp(nava.work:3306)",
   "db_name": "ic",
   "db_user": "root",
-  "db_pass": "mypass"
+  "db_pass": "mypass",
+  "port": "8001"
 }
