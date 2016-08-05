@@ -15,12 +15,14 @@ func (e *Env) AllStock(w http.ResponseWriter, r *http.Request) {
 	rs := api.Response{}
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
-		rs.Status = "500"
+		rs.Status = api.ERROR
 		rs.Message = err.Error()
+		w.WriteHeader(http.StatusNoContent)
 	} else {
-		rs.Status = "200"
+		rs.Status = api.SUCCESS
 		rs.Message = "SUCCESS"
-		rs.Result = items
+		rs.Data = items
+		w.WriteHeader(http.StatusOK)
 	}
 	output, err := json.Marshal(rs)
 	if err != nil {

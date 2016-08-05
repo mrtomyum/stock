@@ -24,13 +24,13 @@ func (e *Env) ItemPrice(w http.ResponseWriter, r *http.Request) {
 
 	rs := new(api.Response)
 	if err != nil {
-		rs.Status = "204"
+		rs.Status = api.ERROR
 		rs.Message = "NO CONTENT"
-		rs.Result = nil
+		w.WriteHeader(http.StatusNoContent)
 	} else {
-		rs.Status = "200"
-		rs.Message = "SUCCESS return All Item Price "
-		rs.Result = ips
+		rs.Status = api.SUCCESS
+		rs.Data = ips
+		w.WriteHeader(http.StatusOK)
 	}
 	o, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(o))

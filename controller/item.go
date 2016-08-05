@@ -12,9 +12,9 @@ import (
 )
 
 func (e *Env) AllItem(w http.ResponseWriter, r *http.Request) {
-	log.Println("call GET AllItem123")
+	log.Println("call GET AllItem")
 	if r.Method != "GET" {
-		http.Error(w, http.StatusText(500), 500)
+		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -25,14 +25,13 @@ func (e *Env) AllItem(w http.ResponseWriter, r *http.Request) {
 	items, err := i.All(e.DB)
 	rs := api.Response{}
 	if err != nil {
-		http.Error(w, http.StatusText(500), 500)
-		rs.Status = "500"
+		w.WriteHeader(http.StatusNotFound)
+		rs.Status = api.ERROR
 		rs.Message = err.Error()
 	} else {
 		w.WriteHeader(http.StatusFound)
-		rs.Status = "302"
-		rs.Message = "SUCCESS"
-		rs.Result = items
+		rs.Status = api.SUCCESS
+		rs.Data = items
 	}
 	output, err := json.Marshal(rs)
 	if err != nil {
@@ -59,12 +58,10 @@ func (e *Env) ShowItem(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		rs.Status = "404"
 		rs.Message = "NOT_FOUND>> " + err.Error()
-		rs.Result = nil
 	} else {
 		w.WriteHeader(http.StatusFound)
-		rs.Status = "302"
-		rs.Message = "SUCCESS return Item."
-		rs.Result = iv
+		rs.Status = api.SUCCESS
+		rs.Data = iv
 	}
 	o, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(o))
@@ -75,10 +72,9 @@ func (e *Env) NewItem(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != "POST" {
-		http.Error(w, http.StatusText(500), 500)
+		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-
 	i := new(m.Item)
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&i)
@@ -91,14 +87,12 @@ func (e *Env) NewItem(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusConflict)
-		rs.Status = "409"
+		rs.Status = api.ERROR
 		rs.Message = "CANNOT_UPDATE >>" + err.Error()
-		rs.Result = nil
 	} else {
 		w.WriteHeader(http.StatusCreated)
-		rs.Status = "201"
-		rs.Message = "SUCCESS CREATED"
-		rs.Result = newItem
+		rs.Status = api.SUCCESS
+		rs.Data = newItem
 	}
 	o, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(o))
