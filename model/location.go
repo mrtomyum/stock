@@ -21,7 +21,7 @@ type Location struct {
 	Name     JsonNullString `json:"name"`
 	Code     JsonNullString `json:"code"`
 	Type     LocType        `json:"type"` // TODO: return LocType ENUM in string
-	ParentID uint64    `json:"-" db:"parent_id"`
+	ParentID uint64         `json:"-" db:"parent_id"`
 	Child    []*Location    `json:"nodes,omitempty"`
 }
 
