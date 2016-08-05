@@ -73,14 +73,7 @@ func (i *Item) FindItemByID(db *sqlx.DB) (ItemView, error) {
 	WHERE item.id = ?
 	`
 	err := db.QueryRowx(sql, i.ID).StructScan(&iv)
-	//err := db.QueryRow(sql, i.ID).Scan(
-	//	&i.SKU,
-	//	&i.Name,
-	//	&i.StdPrice,
-	//	&i.StdCost,
-	//	&i.BaseUnitID,
-	//	&i.CategoryID,
-	//)
+
 	if err != nil {
 		log.Println("Error: FindItemByID/Query Error", err)
 		return iv, err

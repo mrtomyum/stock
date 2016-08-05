@@ -5,13 +5,6 @@ import (
 	"fmt"
 )
 
-type ResponseStatus int
-
-const (
-	SUCCESS ResponseStatus = iota
-	FAIL
-	ERROR
-)
 
 type Response struct {
 	Status  ResponseStatus `json:"status"`
@@ -31,6 +24,14 @@ type Link struct {
 type Search struct {
 	Name string
 }
+
+type ResponseStatus int
+
+const (
+	SUCCESS ResponseStatus = iota
+	FAIL
+	ERROR
+)
 
 func (rs ResponseStatus) MarshalJSON() ([]byte, error) {
 	statusString, ok := map[ResponseStatus]string{

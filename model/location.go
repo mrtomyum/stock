@@ -1,6 +1,8 @@
 package model
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	"log"
 )
@@ -8,13 +10,32 @@ import (
 type LocType int
 
 const (
-	STORE LocType = 1 + iota
+	ROOT LocType = 1 + iota
+	STORE
 	VAN
 	MACHINE
-	INSPECTION
+	COLUMN
 	VENDOR
+	INSPECTION
 	DAMAGE
 )
+
+func (lt LocType) MarshalJSON() ([]byte, error) {
+	ltString, ok := map[LocType]string{
+		ROOT:       "ROOT",
+		STORE:      "STORE",
+		VAN:        "VAN",
+		MACHINE:    "MACHINE",
+		COLUMN:     "COLUMN",
+		VENDOR:     "VENDOR",
+		INSPECTION: "INSPECTION",
+		DAMAGE:     "DAMAGE",
+	}[lt]
+	if !ok {
+		return nil, fmt.Errorf("invalid Location Type value %v", lt)
+	}
+	return json.Marshal(ltString)
+}
 
 type Location struct {
 	Base
