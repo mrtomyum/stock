@@ -1,7 +1,7 @@
 {
   "_comment": "Actual deploy use db_host: 172.17.0.3:3306",
   "db_host": "tcp(nava.work:3306)",
-  "db_name": "ic",
+  "db_name": "stock",
   "db_user": "root",
   "db_pass": "mypass",
   "port": "8001"

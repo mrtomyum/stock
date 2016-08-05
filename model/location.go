@@ -1,24 +1,31 @@
 package model
 
+import (
+	"github.com/jmoiron/sqlx"
+	"log"
+)
+
+type LocType int
+
+const (
+	STORE LocType = 1 + iota
+	VAN
+	MACHINE
+	INSPECTION
+	VENDOR
+	DAMAGE
+)
+
 type Location struct {
-	//ID       uint64  `json:"id"`
-	//Base
-	//ParentID uint64  `json:"parentID"`
-	Node
-	Name     string  `json:"name"`
-	Type     LocType `json:"type"`
+	Base
+	Name     JsonNullString `json:"name"`
+	Code     JsonNullString `json:"code"`
+	Type     LocType        `json:"type"` // TODO: return LocType ENUM in string
+	ParentID uint64    `json:"-" db:"parent_id"`
+	Child    []*Location    `json:"nodes,omitempty"`
 }
 
-
-
-// Todo: Make Node{} to be "Base struct" for Tree-able struct.
-type Node struct {
-	ID       uint64  `json:"-"`
-	ParentID uint64  `json:"-"`
-	Child    []*Node `json:"nodes,omitempty"`
-}
-
-func (this *Node) Size() int {
+func (this *Location) Size() int {
 	var size int = len(this.Child)
 	for _, c := range this.Child {
 		size += c.Size()
@@ -26,7 +33,7 @@ func (this *Node) Size() int {
 	return size
 }
 
-func (this *Node) Add(nodes ...*Node) bool {
+func (this *Location) Add(nodes ...*Location) bool {
 	var size = this.Size()
 	for _, node := range nodes {
 		if node.ParentID == this.ID {
@@ -42,4 +49,29 @@ func (this *Node) Add(nodes ...*Node) bool {
 	return this.Size() == size + len(nodes)
 }
 
+func (l *Location) All(db *sqlx.DB) ([]*Location, error) {
+	locations := []*Location{}
+	sql := `SELECT * FROM location`
+	err := db.Select(&locations, sql)
+	if err != nil {
+		log.Fatal("Error in model.Select..", err)
+		return nil, err
+	}
+	return locations, nil
+}
 
+func (l *Location) Show(db *sqlx.DB) ([]*Location, error) {
+	// TODO: แก้ Select ให้สามารถ Recursive  Parent_id ได้
+	sql := `
+		SELECT * FROM location
+		WHERE id = ?
+		OR parent_id = ?
+	`
+	locations := []*Location{}
+	err := db.Select(&locations, sql, l.ID, l.ID)
+	if err != nil {
+		log.Fatal("Error in model.Select..", err)
+		return nil, err
+	}
+	return locations, nil
+}

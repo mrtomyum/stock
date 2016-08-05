@@ -1,16 +1,5 @@
 package model
 
-type LocType int
-
-const (
-	STORE LocType = 1 + iota
-	VAN
-	MACHINE
-	INSPECTION
-	VENDOR
-	DAMAGE
-)
-
 type Stock struct {
 	LocationID uint64 `json:"location_id"`
 	ItemID     uint64 `json:"item_id"`

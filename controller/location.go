@@ -7,6 +7,8 @@ import (
 	"github.com/gorilla/mux"
 	"fmt"
 	"encoding/json"
+	"strconv"
+	"github.com/mrtomyum/nava-api3/api"
 )
 
 func CreateLocationTree(locations []*m.Location) *m.Location {
@@ -18,20 +20,29 @@ func CreateLocationTree(locations []*m.Location) *m.Location {
 }
 
 func (e *Env) ShowLocationTree(w http.ResponseWriter, r *http.Request) {
-	log.Println("call AllLocationTree()")
+	log.Println("call ShowLocationTree()")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
+	loc := new(m.Location)
 	v := mux.Vars(r)
 	id := v["id"]
-	locations, err := m.ShowLocations(id)
+	loc.ID, _ = strconv.ParseUint(id, 10, 64)
+	// Todo: use loc.ID to parameter to retrive just tree of this ID
+	locations, err := loc.All(e.DB)
+	rs := new(api.Response)
 	if err != nil {
 		log.Fatal("ShowLocations()", err)
 		w.WriteHeader(http.StatusNotFound)
+		rs.Status = api.ERROR
+		rs.Message = "Location not found or Error."
+	} else {
+		w.WriteHeader(http.StatusOK)
+		tree := CreateLocationTree(locations)
+		rs.Status = api.SUCCESS
+		rs.Data = tree
 	}
-	tree := CreateLocationTree(locations)
-	w.WriteHeader(http.StatusOK)
-	output, _ := json.Marshal(tree.Child)
+	output, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(output))
 }
 

@@ -35,6 +35,18 @@ type Doc struct {
 	DeletedBy  model.User
 }
 
+type JsonNullInt struct {
+	sql.NullInt64
+}
+
+func (v JsonNullInt) MarshalJSON() ([]byte, error) {
+	if v.Valid {
+		return json.Marshal(v.Int64)
+	} else {
+		return json.Marshal(nil)
+	}
+}
+
 type JsonNullString struct {
 	sql.NullString
 }

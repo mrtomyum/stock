@@ -55,7 +55,7 @@ func (e *Env) ShowItem(w http.ResponseWriter, r *http.Request) {
 	rs := new(api.Response)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		rs.Status = "404"
+		rs.Status = api.ERROR
 		rs.Message = "NOT_FOUND>> " + err.Error()
 	} else {
 		w.WriteHeader(http.StatusFound)
