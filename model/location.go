@@ -1,10 +1,12 @@
 package model
 
 import (
-	"encoding/json"
-	"fmt"
+	//"encoding/json"
+	//"fmt"
 	"github.com/jmoiron/sqlx"
 	"log"
+	"fmt"
+	"encoding/json"
 )
 
 type LocType int
@@ -71,6 +73,7 @@ func (this *Location) Add(nodes ...*Location) bool {
 }
 
 func (l *Location) All(db *sqlx.DB) ([]*Location, error) {
+	log.Println("call method Location.All()")
 	locations := []*Location{}
 	sql := `SELECT * FROM location`
 	err := db.Select(&locations, sql)
@@ -78,6 +81,7 @@ func (l *Location) All(db *sqlx.DB) ([]*Location, error) {
 		log.Fatal("Error in model.Select..", err)
 		return nil, err
 	}
+	log.Println(locations)
 	return locations, nil
 }
 
@@ -87,7 +91,7 @@ func (l *Location) Show(db *sqlx.DB) ([]*Location, error) {
 		SELECT * FROM location
 		WHERE id = ?
 		OR parent_id = ?
-	`
+		`
 	locations := []*Location{}
 	err := db.Select(&locations, sql, l.ID, l.ID)
 	if err != nil {
@@ -95,4 +99,30 @@ func (l *Location) Show(db *sqlx.DB) ([]*Location, error) {
 		return nil, err
 	}
 	return locations, nil
+}
+
+func (l *Location) New(db *sqlx.DB) (*Location, error) {
+	sql := `
+		INSERT INTO location (
+			name,
+			code,
+			type,
+			parent_id
+		)
+		VALUES (?, ?, ?, ?)
+	`
+	resp, err := db.Exec(sql,
+		l.Name,
+		l.Code,
+		l.Type,
+		l.ParentID,
+	)
+	if err != nil {
+		log.Println("Error db.Exec in Location.Show", err)
+		return nil, err
+	}
+	id, _ := resp.LastInsertId()
+	//l.ID = uint64(id)
+	err = db.Get(&l, "SELECT * FROM location WHERE id =?", id)
+	return l, nil
 }

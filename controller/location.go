@@ -19,7 +19,7 @@ func CreateLocationTree(locations []*m.Location) *m.Location {
 	return tree
 }
 
-func (e *Env) ShowLocationTree(w http.ResponseWriter, r *http.Request) {
+func (e *Env) LocationTreeByID(w http.ResponseWriter, r *http.Request) {
 	log.Println("call ShowLocationTree()")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -28,11 +28,12 @@ func (e *Env) ShowLocationTree(w http.ResponseWriter, r *http.Request) {
 	v := mux.Vars(r)
 	id := v["id"]
 	loc.ID, _ = strconv.ParseUint(id, 10, 64)
+
 	// Todo: use loc.ID to parameter to retrive just tree of this ID
-	locations, err := loc.All(e.DB)
+	locations, err := loc.Show(e.DB)
 	rs := new(api.Response)
 	if err != nil {
-		log.Fatal("ShowLocations()", err)
+		log.Fatal("Error LocationsTreeByID()", err)
 		w.WriteHeader(http.StatusNotFound)
 		rs.Status = api.ERROR
 		rs.Message = "Location not found or Error."
@@ -40,9 +41,55 @@ func (e *Env) ShowLocationTree(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		tree := CreateLocationTree(locations)
 		rs.Status = api.SUCCESS
-		rs.Data = tree
+		rs.Data = tree.Child
 	}
 	output, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(output))
 }
 
+func (e *Env) LocationTreeAll(w http.ResponseWriter, r *http.Request) {
+	log.Println("call ShowLocationTree()")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	loc := new(m.Location)
+	locations, err := loc.All(e.DB)
+	rs := new(api.Response)
+	if err != nil {
+		log.Fatal("Error LocationsTreeAll()", err)
+		w.WriteHeader(http.StatusNotFound)
+		rs.Status = api.ERROR
+		rs.Message = "Location not found or Error."
+	} else {
+		w.WriteHeader(http.StatusOK)
+		tree := CreateLocationTree(locations)
+		rs.Status = api.SUCCESS
+		rs.Data = tree.Child
+	}
+	output, _ := json.Marshal(rs)
+	fmt.Fprintf(w, string(output))
+}
+
+func (e *Env) NewLocation(w http.ResponseWriter, r *http.Request) {
+	log.Println("call ShowLocationTree()")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	l := new(m.Location)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&l)
+	if err != nil {
+		log.Println("Error in Decoded request body.")
+	}
+	newLoc, err := l.New(e.DB)
+	rs := new(api.Response)
+	if err != nil {
+		rs.Status = api.ERROR
+		rs.Message = err.Error()
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		rs.Status = api.SUCCESS
+		rs.Data = newLoc
+		w.WriteHeader(http.StatusOK)
+	}
+	output, _ := json.Marshal(rs)
+	fmt.Fprintf(w, "%s", string(output))
+}

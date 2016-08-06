@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 
@@ -43,4 +44,25 @@ func (rs ResponseStatus) MarshalJSON() ([]byte, error) {
 		return nil, fmt.Errorf("invalid ResponseStatus value %v", rs)
 	}
 	return json.Marshal(statusString)
+}
+
+func (rs *ResponseStatus) UnmarshalJSON(data []byte) error {
+	// TODO: This method is not TEST yet!
+	// to receive response status from other service in JSON
+	// convert it to ENUM
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return fmt.Errorf("ResponseStatus should be a string, got %s", data)
+	}
+	s = strings.ToLower(s)
+	statusENUM, ok := map[string]ResponseStatus{
+		"success": SUCCESS,
+		"fail":    FAIL,
+		"error":   ERROR,
+	}[s]
+	if !ok {
+		return fmt.Errorf("invalid Response Status %q", s)
+	}
+	*rs = statusENUM
+	return nil
 }
