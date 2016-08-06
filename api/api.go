@@ -36,9 +36,9 @@ const (
 
 func (rs ResponseStatus) MarshalJSON() ([]byte, error) {
 	statusString, ok := map[ResponseStatus]string{
-		SUCCESS: "success",
-		FAIL:    "fail",
-		ERROR:   "error",
+		SUCCESS: "SUCCESS",
+		FAIL:    "FAIL",
+		ERROR:   "ERROR",
 	}[rs]
 	if !ok {
 		return nil, fmt.Errorf("invalid ResponseStatus value %v", rs)

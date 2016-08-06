@@ -12,7 +12,7 @@ import (
 type LocType int
 
 const (
-	ROOT LocType = 1 + iota
+	ROOT LocType = iota
 	STORE
 	VAN
 	MACHINE
@@ -41,9 +41,9 @@ func (lt LocType) MarshalJSON() ([]byte, error) {
 
 type Location struct {
 	Base
-	Name     JsonNullString `json:"name"`
-	Code     JsonNullString `json:"code"`
-	Type     LocType        `json:"type"` // TODO: return LocType ENUM in string
+	Name     string `json:"name"` //Todo: Has problem with custom type JsonNullString can't receive value from json.NewDecoder()
+	Code     string `json:"code"`
+	Type     LocType        `json:"type"`
 	ParentID uint64         `json:"-" db:"parent_id"`
 	Child    []*Location    `json:"nodes,omitempty"`
 }
@@ -111,18 +111,22 @@ func (l *Location) New(db *sqlx.DB) (*Location, error) {
 		)
 		VALUES (?, ?, ?, ?)
 	`
-	resp, err := db.Exec(sql,
+	log.Println("Test Location receiver:", l.Name, l.Code, l.Type, l.ParentID)
+	rsp, err := db.Exec(sql,
 		l.Name,
 		l.Code,
 		l.Type,
 		l.ParentID,
 	)
 	if err != nil {
-		log.Println("Error db.Exec in Location.Show", err)
+		log.Println("Error db.Exec in model.Location.Show", err)
 		return nil, err
 	}
-	id, _ := resp.LastInsertId()
-	//l.ID = uint64(id)
-	err = db.Get(&l, "SELECT * FROM location WHERE id =?", id)
-	return l, nil
+	id, _ := rsp.LastInsertId()
+	newLoc := Location{}
+	err = db.Get(&newLoc, "SELECT * FROM location WHERE id =?", id)
+	if err != nil {
+		log.Println("Error db.GET in model.Location.Show", err)
+	}
+	return &newLoc, nil
 }

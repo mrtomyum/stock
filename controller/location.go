@@ -73,12 +73,14 @@ func (e *Env) NewLocation(w http.ResponseWriter, r *http.Request) {
 	log.Println("call ShowLocationTree()")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	l := new(m.Location)
+	l := m.Location{}
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&l)
 	if err != nil {
 		log.Println("Error in Decoded request body.")
 	}
+	log.Println("Success decode JSON -> :", l, " Result user decoded -> ", l.Name)
+
 	newLoc, err := l.New(e.DB)
 	rs := new(api.Response)
 	if err != nil {
