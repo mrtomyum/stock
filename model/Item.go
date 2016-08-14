@@ -40,6 +40,7 @@ func (i *Item) All(db *sqlx.DB) (Items, error) {
 	rows, err := db.Queryx(sql)
 	if err != nil {
 		log.Println("Error: db.Queryx in Item.All(): ", err)
+		return nil, err
 	}
 	defer rows.Close()
 	var items Items

@@ -2,6 +2,8 @@ package model
 
 import (
 	sys "github.com/mrtomyum/nava-sys/model"
+	"github.com/jmoiron/sqlx"
+	"log"
 )
 
 type Stock struct {
@@ -51,4 +53,16 @@ type RouteMan struct {
 	sys.Base
 	Name      string
 	VehicleID uint64
+}
+
+func (s *Stock) All(db *sqlx.DB) ([]*Stock, error) {
+	log.Println("call model.Stock.All()")
+	sql := `SELECT * FROM strock`
+	var stocks []*Stock
+	err := db.Select(&stocks, sql)
+	if err != nil {
+		log.Println("Error: model.Stock.All() db.Select...", err)
+		return nil, err
+	}
+	return stocks, nil
 }

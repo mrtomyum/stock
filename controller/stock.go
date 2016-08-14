@@ -10,17 +10,18 @@ import (
 )
 
 func (e *Env) AllStock(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "nava Stock")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	i := m.Item{}
 	items, err := i.All(e.DB)
 	rs := api.Response{}
 	if err != nil {
-		http.Error(w, http.StatusText(500), 500)
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
 		w.WriteHeader(http.StatusNoContent)
 	} else {
 		rs.Status = api.SUCCESS
-		rs.Message = "SUCCESS"
 		rs.Data = items
 		w.WriteHeader(http.StatusOK)
 	}

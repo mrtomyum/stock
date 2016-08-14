@@ -58,8 +58,8 @@ func SetupRoute(c *c.Env) *mux.Router {
 	// ## ItemPrice
 	//s.HandleFunc("/{id:[0-9]+}/price", c.ItemPrice).Methods("GET"); log.Println("/api/v1/item/:id/price GET PriceByItemID")
 	// # Stock
-	//s = r.PathPrefix("/api/v1/order").Subrouter()
-	// s.HandleFunc("/", c.AllOrder).Methods("GET"); log.Println("/api/v1/order/")
+	s := r.PathPrefix("/v1/stocks").Subrouter()
+	s.HandleFunc("/", c.AllStock).Methods("GET"); log.Println("/api/v1/stocks/")
 
 	// ## Location
 	return r

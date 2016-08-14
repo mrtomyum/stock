@@ -13,10 +13,10 @@ import (
 
 func (e *Env) AllItem(w http.ResponseWriter, r *http.Request) {
 	log.Println("call GET AllItem")
-	if r.Method != "GET" {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
+	//if r.Method != "GET" {
+	//	w.WriteHeader(http.StatusMethodNotAllowed)
+	//	return
+	//}
 	w.Header().Set("Server", "nava Stock")
 	w.Header().Set("Content-Type", "application/json")
 
@@ -24,7 +24,6 @@ func (e *Env) AllItem(w http.ResponseWriter, r *http.Request) {
 	items, err := i.All(e.DB)
 	rs := api.Response{}
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
 	} else {
