@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/mrtomyum/nava-stock/api"
+	"github.com/mrtomyum/nava-sys/api"
 	m "github.com/mrtomyum/nava-stock/model"
 	"log"
 	"net/http"
