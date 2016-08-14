@@ -1,8 +1,8 @@
 package model
 
 import (
-	sys "github.com/mrtomyum/nava-sys/model"
 	"github.com/jmoiron/sqlx"
+	sys "github.com/mrtomyum/nava-sys/model"
 	"log"
 )
 
@@ -11,6 +11,17 @@ type Stock struct {
 	LocationID uint64 `json:"location_id"`
 	ItemID     uint64 `json:"item_id"`
 	Quantity   int64  `json:"quantity"`
+}
+
+type StockTrans struct {
+	sys.Base
+	//DocID uint64
+	ItemID     uint64
+	LocationID uint64
+	TransUnit  Unit
+	BaseUnit   Unit
+	TransQty   int64
+	BaseQty    int64
 }
 
 type ClientType int
@@ -57,7 +68,7 @@ type RouteMan struct {
 
 func (s *Stock) All(db *sqlx.DB) ([]*Stock, error) {
 	log.Println("call model.Stock.All()")
-	sql := `SELECT * FROM strock`
+	sql := `SELECT * FROM stock`
 	var stocks []*Stock
 	err := db.Select(&stocks, sql)
 	if err != nil {
