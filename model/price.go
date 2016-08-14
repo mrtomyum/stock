@@ -5,24 +5,24 @@ import (
 	"math"
 	"log"
 	"github.com/jmoiron/sqlx"
-	"github.com/mrtomyum/nava-sys/model"
+	sys "github.com/mrtomyum/nava-sys/model"
 )
 
 type Price struct {
-	model.Base
+	sys.Base
 	Value int64
 	Digit float64
 }
 
 type ItemPrice struct {
-	model.Base
+	sys.Base
 	ItemID    uint64
 	Locations []*Location
 	Value     Price
 }
 
 type JsonPrice struct {
-	model.Base
+	sys.Base
 	Price
 }
 

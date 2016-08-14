@@ -1,6 +1,8 @@
 package model
 
-import "github.com/mrtomyum/nava-sys/model"
+import (
+	sys "github.com/mrtomyum/nava-sys/model"
+)
 
 type machineType int
 
@@ -22,7 +24,7 @@ const (
 )
 
 type Machine struct {
-	model.Base
+	sys.Base
 	LocID     uint64 `json:"loc_id"`
 	Name      string `json:"name"`
 	Type      machineType `json:"type"`

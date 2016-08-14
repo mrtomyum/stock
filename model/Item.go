@@ -3,11 +3,11 @@ package model
 import (
 	"github.com/jmoiron/sqlx"
 	"log"
-	"github.com/mrtomyum/nava-sys/model"
+	sys "github.com/mrtomyum/nava-sys/model"
 )
 
 type Item struct {
-	model.Base
+	sys.Base
 	SKU        string `json:"sku"`
 	Name       string `json:"name"`
 	StdPrice   int64  `json:"stdPrice" db:"std_price"`
@@ -17,6 +17,7 @@ type Item struct {
 }
 
 type ItemView struct {
+	sys.Base
 	Item
 	BaseUnitTH string `json:"baseUnitTH" db:"base_unit_th"`
 	BaseUnitEN string `json:"baseUnitEN" db:"base_unit_en"`
@@ -25,6 +26,7 @@ type ItemView struct {
 }
 
 type ItemBarcode struct {
+	sys.Base
 	ItemID uint64
 	UnitID uint64
 	Code   string

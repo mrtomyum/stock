@@ -1,9 +1,11 @@
 package model
 
-import "github.com/mrtomyum/nava-sys/model"
+import (
+	sys "github.com/mrtomyum/nava-sys/model"
+)
 
 type Stock struct {
-	model.Base
+	sys.Base
 	LocationID uint64 `json:"location_id"`
 	ItemID     uint64 `json:"item_id"`
 	Quantity   int64  `json:"quantity"`
@@ -18,13 +20,13 @@ const (
 )
 
 type Client struct {
-	model.Base
+	sys.Base
 	Name string
 	Type ClientType
 }
 
 type Place struct {
-	model.Base
+	sys.Base
 	ClientID uint64
 	Name     string
 	Lat      float64
@@ -39,14 +41,14 @@ const (
 )
 
 type Vehicle struct {
-	model.Base
+	sys.Base
 	Name      string   // V1, V2,...
 	NamePlate string   // ทะเบียนรถ
 	Brand     carBrand // ยี่ห้อ
 }
 
 type RouteMan struct {
-	model.Base
+	sys.Base
 	Name      string
 	VehicleID uint64
 }

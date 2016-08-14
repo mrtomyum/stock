@@ -7,7 +7,7 @@ import (
 	"log"
 	"fmt"
 	"encoding/json"
-	"github.com/mrtomyum/nava-sys/model"
+	sys "github.com/mrtomyum/nava-sys/model"
 )
 
 type LocType int
@@ -41,7 +41,7 @@ func (lt LocType) MarshalJSON() ([]byte, error) {
 }
 
 type Location struct {
-	model.Base
+	sys.Base
 	Name     string `json:"name"` //Todo: Has problem with custom type JsonNullString can't receive value from json.NewDecoder()
 	Code     string `json:"code"`
 	Type     LocType        `json:"type"`

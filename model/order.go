@@ -1,15 +1,15 @@
 package model
 
 import (
-	"github.com/mrtomyum/nava-sys/model"
+	sys "github.com/mrtomyum/nava-sys/model"
 	"time"
 )
 
 type Order struct {
-	model.Base
+	sys.Base
 	Number string       `json:"number"`
 	Date   time.Time    `json:"order_status"`
-	Status model.Status `json:"status"`
+	Status sys.Status `json:"status"`
 }
 
 type OrderItemStatus int
@@ -25,7 +25,7 @@ const (
 )
 
 type OrderItem struct {
-	model.Base
+	sys.Base
 	OrderID  uint64
 	Date     time.Time       `json:"date"`
 	Status   OrderItemStatus `json:"status"`

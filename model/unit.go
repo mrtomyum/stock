@@ -1,13 +1,15 @@
 package model
 
+import sys "github.com/mrtomyum/nava-sys/model"
+
 type Unit struct {
-	ID uint64 `json:"id"`
+	sys.Base
 	TH string `json:"th"`
 	EN string `json:"en"`
 }
 
 type ItemUnit struct {
-	ID     uint64 `json:"id"`
+	sys.Base
 	ItemID uint64 `json:"itemID" db:"item_id"`
 	UnitID uint64 `json:"unitID" db:"unit_id"` // Base Unit is smallest and always = 1
 	Ratio  int    `json:"ratio" db:"ratio"`    // เป็นตัวคูณ ratio in times of BaseUnit.
