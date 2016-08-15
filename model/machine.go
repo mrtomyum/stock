@@ -25,14 +25,55 @@ const (
 
 type Machine struct {
 	sys.Base
-	LocID     uint64 `json:"loc_id"`
-	Name      string `json:"name"`
-	Type      machineType `json:"type"`
+	LocID     uint64       `json:"loc_id"`
+	Name      string       `json:"name"`
+	Type      machineType  `json:"type"`
 	Brand     MachineBrand `json:"brand"`
-	Model     string `json:"model"`
-	Selection int `json:"selection"`    //จำนวน Column หรือช่องเก็บสินค้า
-	LocNumber []int `json:"loc_number"` // Slice of number
-										//LocRow int  	//จำนวนแถว และคอลัมน์ไว้ทำ Schematic Profile  หน้าตู้
-										//LocCol int  //ควรจะเป็น 2 Dimension Array
+	Model     string       `json:"model"`
+	Selection int          `json:"selection"`  //จำนวน Column หรือช่องเก็บสินค้า
+	LocNumber []int        `json:"loc_number"` // Slice of number
+											   //LocRow int  	//จำนวนแถว และคอลัมน์ไว้ทำ Schematic Profile  หน้าตู้
+											   //LocCol int  //ควรจะเป็น 2 Dimension Array
 }
 
+type ColumnType int
+
+const (
+	CAN1 ColumnType = iota
+	CAN2
+	SPRING_S
+	SPRING_M
+	SPRING_L
+)
+
+type ColumnStatus int
+
+const (
+	OK ColumnStatus = iota
+	FAIL
+)
+
+// เก็บยอด Counter ล่าสุดของแต่ละ column ในแต่ละ Machine
+type MachineColumn struct {
+	sys.Base
+	MachineID uint64       `json:"machine_id"`
+	ColumnNo  int          `json:"column_no"`
+	SaleCount int          `json:"sale_count"`
+	Type      ColumnType   `json:"type"`
+	Status    ColumnStatus `json:"status"`
+}
+
+// Design this struct for data from VMC telemetry system.
+//type SaleStatus int
+//const (
+//	COMPLETED SaleStatus = iota
+//	INCOMPLETED
+//)
+
+type MachineSale struct {
+	sys.Base
+	MachineID uint64 `json:"machine_id"`
+	ColumnNo  int    `json:"column_no"`
+	ItemID    uint64 `json:"item_id"`
+	//Status SaleStatus `json:"status"`
+}
