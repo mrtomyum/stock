@@ -14,9 +14,9 @@ type Currency int
 
 type Price struct {
 	sys.Base
-	Value    int64
-	Digit    float64
-	Currency Currency
+	Value int64
+	Digit float64
+	//Currency currency.???
 }
 
 type ItemPrice struct {

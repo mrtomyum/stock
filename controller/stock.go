@@ -14,8 +14,8 @@ func (e *Env) AllStock(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	i := m.Item{}
-	items, err := i.All(e.DB)
 	rs := api.Response{}
+	items, err := i.All(e.DB)
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
