@@ -6,12 +6,17 @@ import (
 	"log"
 	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/nava-sys/model"
+	"golang.org/x/text/currency"
 )
+
+type Currency int
+
 
 type Price struct {
 	sys.Base
-	Value int64
-	Digit float64
+	Value    int64
+	Digit    float64
+	Currency Currency
 }
 
 type ItemPrice struct {
