@@ -2,8 +2,7 @@ package model
 
 import (
 	sys "github.com/mrtomyum/nava-sys/model"
-	"github.com/jmoiron/sqlx"
-	"log"
+	"encoding/json"
 )
 
 type machineType int
@@ -11,10 +10,21 @@ type machineType int
 const (
 	CAN machineType = 1 + iota
 	CUP
-	CUP_FRESH_COFFEE
+	CUP_JBCII
 	CUP_NOODLE
 	SEE_THROUGH
 )
+
+func (t machineType) MarshalJSON() ([]byte, error) {
+	typeString := map[machineType]string{
+		CAN: "CAN",
+		CUP: "CUP",
+		CUP_JBCII: "CUP_JBCII",
+		CUP_NOODLE: "CUP_NOODLE",
+		SEE_THROUGH: "SEE_THROUGH",
+	}[t]
+	return json.Marshal(typeString)
+}
 
 type MachineBrand int
 
@@ -60,76 +70,14 @@ const (
 // MachineColumn เก็บยอด Counter ล่าสุดของแต่ละ column ในแต่ละ Machine
 type MachineColumn struct {
 	sys.Base
-	MachineID uint64       `json:"machine_id"`
-	ColumnNo  int          `json:"column_no"`
-	SaleCount int          `json:"sale_count"`
-	Type      ColumnType   `json:"type"`
-	Status    ColumnStatus `json:"status"`
+	MachineID   uint64       `json:"machine_id"`
+	ColumnNo    int          `json:"column_no"`
+	CurrCounter int          `json:"curr_counter" db:"curr_counter"`
+	Type        ColumnType   `json:"type"`
+	Status      ColumnStatus `json:"status"`
 }
 
 // Transaction row Batch data received from mobile app daily.
-type MachineBatchSale struct {
-	sys.Base
-	MachineID uint64 `json:"machine_id"`
-	ColumnNo  int    `json:"column_no"`
-	Counter   int    `json:"counter"`
-	SalePrice Price  `json:"sale_price"` // must query from lastPrice
-}
-
-func (mbs *MachineBatchSale) All(db sqlx.DB) ([]*MachineBatchSale, error) {
-	s := []*MachineBatchSale{}
-	sql := `SELECT * FROM machine_batch_sale`
-	err := db.Select(&s, sql)
-	if err != nil {
-		return nil, err
-	}
-	return s, nil
-}
-
-func MachineBatchSaleNew(db sqlx.DB, columns []*MachineBatchSale) error {
-	// Call from controller.PostMachineBatchSale()
-	tx, err := db.Beginx()
-	if err != nil {
-		return err
-	}
-	sql := `INSERT INTO machine_batch_sale (
-		machine_id,
-		column_no,
-		counter,
-		sale_price
-		) VALUES(?,?,?,?)
-	`
-	for _, c := range columns {
-		res, err := tx.Exec(sql,
-			c.MachineID,
-			c.ColumnNo,
-			c.Counter,
-			c.SalePrice,
-		)
-		if err != nil {
-			return err
-		}
-		log.Println("Last Insert Id: ", res.LastInsertId())
-	}
-	return nil
-}
-
-
-// Design this struct for data from VMC telemetry system.
-//type SaleStatus int
-//const (
-//	COMPLETED SaleStatus = iota
-//	INCOMPLETED
-//)
-
-type MachineRealTimeSale struct {
-	sys.Base
-	MachineID uint64 `json:"machine_id"`
-	ColumnNo  int    `json:"column_no"`
-	ItemID    uint64 `json:"item_id"`
-	Price     int    `json:"price"`
-	//Status SaleStatus `json:"status"`
-}
 
 // เก็บ Transaction ที่มีความผิดปกติทั้งหมด เช่น  ข้อมูลที่ส่งมาหา Column ไม่เจอ ไปจนถึง Error ที่แจ้งจาก Machine
 type MachineErrType int
@@ -152,4 +100,3 @@ func MachineBatchSaleIsErr() bool {
 	// Check Error Code in Transaction
 	return false
 }
-

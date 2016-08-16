@@ -43,12 +43,12 @@ func SetupRoute(c *c.Env) *mux.Router {
 	r := mux.NewRouter().StrictSlash(true)
 
 	// # Item
-	r.HandleFunc("/v1/items", c.AllItem).Methods("GET"); log.Println("/api/v1/item GET AllItem")
-	r.HandleFunc("/v1/items/{id:[0-9]+}", c.ShowItem).Methods("GET"); log.Println("/api/v1/item/:id GET ShowItem")
-	r.HandleFunc("/v1/items", c.NewItem).Methods("POST"); log.Println("/item POST NewItem")
-	r.HandleFunc("/v1/locations/{id:[0-9]+}", c.LocationTreeByID).Methods("GET"); log.Println("/locations/:id GET Location tree by ID")
-	r.HandleFunc("/v1/locations", c.LocationTreeAll).Methods("GET"); log.Println("/locations GET All Location tree")
-	r.HandleFunc("/v1/locations", c.NewLocation).Methods("POST"); log.Println("/locations POST New Location")
+	r.HandleFunc("/v1/items", c.AllItem).Methods("GET"); log.Println("/v1/items GET AllItem")
+	r.HandleFunc("/v1/items/{id:[0-9]+}", c.ShowItem).Methods("GET"); log.Println("/v1/items/:id GET ShowItem")
+	r.HandleFunc("/v1/items", c.NewItem).Methods("POST"); log.Println("/v1/items POST NewItem")
+	r.HandleFunc("/v1/locations/{id:[0-9]+}", c.LocationTreeByID).Methods("GET"); log.Println("/v1/locations/:id GET Location tree by ID")
+	r.HandleFunc("/v1/locations", c.LocationTreeAll).Methods("GET"); log.Println("/v1/locations GET All Location tree")
+	r.HandleFunc("/v1/locations", c.NewLocation).Methods("POST"); log.Println("/v1/locations POST New Location")
 
 
 	//s.HandleFunc("/{id:[0-9]+}", c.UpdateItem).Methods("PUT"); log.Println("/api/v1/item/:id PUT UpdateItem ")
@@ -59,8 +59,14 @@ func SetupRoute(c *c.Env) *mux.Router {
 	//s.HandleFunc("/{id:[0-9]+}/price", c.ItemPrice).Methods("GET"); log.Println("/api/v1/item/:id/price GET PriceByItemID")
 	// # Stock
 	s := r.PathPrefix("/v1/stocks").Subrouter()
-	s.HandleFunc("/", c.AllStock).Methods("GET"); log.Println("/api/v1/stocks/")
+	s.HandleFunc("/", c.AllStock).Methods("GET"); log.Println("/v1/stocks/")
 
 	// ## Location
+	// ## Machine
+	s = r.PathPrefix("/v1/machines").Subrouter()
+	//s.HandleFunc("/", c.AllMachine).Methods("GET"); log.Println("/v1/machines/ GET AllMachine")
+	//s.HandleFunc("/", c.NewMachine).Methods("POST"); log.Println("/v1/machines/ POST NewMachine")
+	s.HandleFunc("/batchSales/", c.AllMachineBatchSale).Methods("GET"); log.Println("/v1/machines/batchSales GET ALlMachineBatchSale")
+	s.HandleFunc("/batchSales/", c.NewMachineBatchSale).Methods("POST"); log.Println("/v1/machines/batchSales POST NewMachineBatchSale")
 	return r
 }

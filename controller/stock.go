@@ -4,7 +4,6 @@ import (
 	"net/http"
 	m "github.com/mrtomyum/nava-stock/model"
 	"fmt"
-	"log"
 	"encoding/json"
 	"github.com/mrtomyum/nava-sys/api"
 )
@@ -13,9 +12,9 @@ func (e *Env) AllStock(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "nava Stock")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	i := m.Item{}
+	s := m.Stock{}
 	rs := api.Response{}
-	items, err := i.All(e.DB)
+	items, err := s.All(e.DB)
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
@@ -25,10 +24,7 @@ func (e *Env) AllStock(w http.ResponseWriter, r *http.Request) {
 		rs.Data = items
 		w.WriteHeader(http.StatusOK)
 	}
-	output, err := json.Marshal(rs)
-	if err != nil {
-		log.Println("Error json.Marshal:", err)
-	}
+	output, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(output))
 }
 

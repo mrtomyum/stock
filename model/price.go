@@ -7,28 +7,26 @@ import (
 	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/nava-sys/model"
 	"golang.org/x/text/currency"
+
 )
 
-type Currency int
-
-
-type Price struct {
+type MyPrice struct {
 	sys.Base
-	Value int64
-	Digit float64
-	//Currency currency.???
+	Value    int64
+	Digit    float64
+	Currency currency.Amount
 }
 
 type ItemPrice struct {
 	sys.Base
 	ItemID    uint64
 	Locations []*Location
-	Value     Price
+	Value     currency.Amount
 }
 
 type JsonPrice struct {
 	sys.Base
-	Price
+	MyPrice
 }
 
 func (p JsonPrice) MashalJSON() ([]byte, error) {

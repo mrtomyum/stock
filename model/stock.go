@@ -4,13 +4,14 @@ import (
 	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/nava-sys/model"
 	"log"
+	"time"
 )
 
 type Stock struct {
 	sys.Base
-	LocationID uint64 `json:"location_id"`
-	ItemID     uint64 `json:"item_id"`
-	Quantity   int64  `json:"quantity"`
+	LocID  uint64 `json:"loc_id" db:"loc_id"`
+	ItemID uint64 `json:"item_id" db:"item_id"`
+	Qty    int64  `json:"qty" db:"qty"`
 }
 
 type StockTrans struct {
@@ -24,20 +25,31 @@ type StockTrans struct {
 	BaseQty    int64
 }
 
+// ลูกค้า
 type ClientType int
 
 const (
-	FACTORY ClientType = 1 + iota
+	FACTORY ClientType = iota
 	EDUCATION
 	OFFICE
 )
 
+type PriceLevel int
+
+const (
+	A PriceLevel = iota
+	B
+	C
+)
+
 type Client struct {
 	sys.Base
-	Name string
-	Type ClientType
+	Name       string
+	Type       ClientType
+	PriceLevel PriceLevel
 }
 
+// สถานที่วางตู้
 type Place struct {
 	sys.Base
 	ClientID uint64
@@ -46,23 +58,18 @@ type Place struct {
 	Long     float64
 }
 
-type carBrand int
-
-const (
-	SUZUKI carBrand = 1 + iota
-	TATA
-)
-
 type Vehicle struct {
 	sys.Base
-	Name      string   // V1, V2,...
-	NamePlate string   // ทะเบียนรถ
-	Brand     carBrand // ยี่ห้อ
+	Name      string // V1, V2,...
+	NamePlate string // ทะเบียนรถ
+	Brand     string // ยี่ห้อ
 }
 
+// ข้อมูลฝ่ายบริการเติมสินค้า ลงทะเบียนเบิกกุญแจรถตอนเช้า จะมีผลกับการขาย VanSale  ไม่ต้องระบุรหัสรถ และผู้ขับ RouteMan อีก
 type RouteMan struct {
 	sys.Base
-	Name      string
+	Driver    sys.User
+	Recorded  *time.Time
 	VehicleID uint64
 }
 
