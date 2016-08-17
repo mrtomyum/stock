@@ -1,51 +1,73 @@
 package model
 
 import (
-	sys "github.com/mrtomyum/nava-sys/model"
 	"encoding/json"
+	sys "github.com/mrtomyum/nava-sys/model"
+	"fmt"
+	"github.com/jmoiron/sqlx"
+	"log"
 )
 
 type machineType int
 
 const (
-	CAN machineType = 1 + iota
-	CUP
-	CUP_JBCII
+	CAN25 machineType = 1 + iota
+	CAN30
+	CUP_HOT_COLD
+	CUP_FRESH_COFFEE
 	CUP_NOODLE
 	SEE_THROUGH
 )
 
 func (t machineType) MarshalJSON() ([]byte, error) {
-	typeString := map[machineType]string{
-		CAN: "CAN",
-		CUP: "CUP",
-		CUP_JBCII: "CUP_JBCII",
-		CUP_NOODLE: "CUP_NOODLE",
-		SEE_THROUGH: "SEE_THROUGH",
+	typeStr, ok := map[machineType]string{
+		CAN25:            "CAN25",
+		CAN30:            "CAN30",
+		CUP_HOT_COLD:     "CUP_HOT_COLD",
+		CUP_FRESH_COFFEE: "CUP_FRESH_COFFEE",
+		CUP_NOODLE:       "CUP_NOODLE",
+		SEE_THROUGH:      "SEE_THROUGH",
 	}[t]
-	return json.Marshal(typeString)
+	if !ok {
+		return nil, fmt.Errorf("invalid Machine Type value %v", t)
+	}
+	return json.Marshal(typeStr)
 }
 
-type MachineBrand int
+// Todo: implement UnmarshalJSON for machinetype
+
+type machineBrand int
 
 const (
-	NATIONAL MachineBrand = 1 + iota
+	NATIONAL machineBrand = 1 + iota
 	SANDEN
 	FUJI_ELECTRIC
 	CIRBOX
 )
+
+func (b machineBrand) MarshalJSON() ([]byte, error) {
+	brandStr, ok := map[machineBrand]string{
+		NATIONAL:      "NATIONAL",
+		SANDEN:        "SANDEN",
+		FUJI_ELECTRIC: "FUJI_ELECTRIC",
+		CIRBOX:        "CIRBOX",
+	}[b]
+	if !ok {
+		return nil, fmt.Errorf("invalid Brand value %v", b)
+	}
+	return json.Marshal(brandStr)
+}
 
 type Machine struct {
 	sys.Base
 	LocID        uint64       `json:"loc_id" db:"loc_id"`
 	Code         string       `json:"code"`
 	Type         machineType  `json:"type"`
-	Brand        MachineBrand `json:"brand"`
-	Model        string       `json:"model"`
-	SerialNumber string
-	Selection    int `json:"selection"` //จำนวน Column หรือช่องเก็บสินค้า
-										//LocRow int  	//จำนวนแถว และคอลัมน์ไว้ทำ Schematic Profile  หน้าตู้
-										//LocCol int  //ควรจะเป็น 2 Dimension Array
+	Brand        machineBrand `json:"brand"`
+	SerialNumber string       `json:"serial_number" db:"serial_number"`
+	Selection    int          `json:"selection"` //จำนวน Column หรือช่องเก็บสินค้า
+												 //LocRow int  	//จำนวนแถว และคอลัมน์ไว้ทำ Schematic Profile  หน้าตู้
+												 //LocCol int  //ควรจะเป็น 2 Dimension Array
 }
 
 type ColumnType int
@@ -77,6 +99,7 @@ type MachineColumn struct {
 	Status      ColumnStatus `json:"status"`
 }
 
+
 // Transaction row Batch data received from mobile app daily.
 
 // เก็บ Transaction ที่มีความผิดปกติทั้งหมด เช่น  ข้อมูลที่ส่งมาหา Column ไม่เจอ ไปจนถึง Error ที่แจ้งจาก Machine
@@ -99,4 +122,18 @@ type MachineErrLog struct {
 func MachineBatchSaleIsErr() bool {
 	// Check Error Code in Transaction
 	return false
+}
+
+func (m *Machine) All(db *sqlx.DB) ([]*Machine, error) {
+	log.Println("call Machine.All()")
+	machines := []*Machine{}
+	sql := `SELECT * FROM machine`
+	err := db.Select(&machines, sql)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	log.Println(machines)
+	return machines, nil
+
 }

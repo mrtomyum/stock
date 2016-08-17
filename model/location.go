@@ -24,7 +24,7 @@ const (
 )
 
 func (lt LocType) MarshalJSON() ([]byte, error) {
-	ltString, ok := map[LocType]string{
+	typeStr, ok := map[LocType]string{
 		ROOT:       "ROOT",
 		STORE:      "STORE",
 		VAN:        "VAN",
@@ -37,7 +37,7 @@ func (lt LocType) MarshalJSON() ([]byte, error) {
 	if !ok {
 		return nil, fmt.Errorf("invalid Location Type value %v", lt)
 	}
-	return json.Marshal(ltString)
+	return json.Marshal(typeStr)
 }
 
 type Location struct {

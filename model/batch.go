@@ -17,10 +17,10 @@ type BatchSale struct {
 	SalePrice currency.Amount `json:"-" db:"sale_price"` // SalePrice search data from Last update Price of this Machine.Column
 }
 
-func (mbs *BatchSale) All(db *sqlx.DB) ([]*BatchSale, error) {
-	log.Println("call mbs.All()")
+func (s *BatchSale) All(db *sqlx.DB) ([]*BatchSale, error) {
+	log.Println("call model.BatchSale.All()")
 	sales := []*BatchSale{}
-	sql := `SELECT * FROM machine_batch_sale`
+	sql := `SELECT * FROM batch_sale`
 	err := db.Select(&sales, sql)
 	if err != nil {
 		log.Println(err)
@@ -36,15 +36,16 @@ func NewBatchSale(db *sqlx.DB, columns []*BatchSale) error {
 	if err != nil {
 		return err
 	}
-	sql := `INSERT INTO machine_batch_sale (
+	sql := `INSERT INTO batch_sale (
+		recorded,
 		machine_id,
 		column_no,
-		counter,
-		sale_price
+		counter
 		) VALUES(?,?,?,?)
 	`
 	for _, c := range columns {
 		res, err := tx.Exec(sql,
+			c.Recorded,
 			c.MachineID,
 			c.ColumnNo,
 			c.Counter,
@@ -73,6 +74,19 @@ type BatchPrice struct {
 	MachineID uint64          `json:"machine_id"`
 	ColumnNo  int             `json:"column_no"`
 	Price     currency.Amount `json:"price"`
+}
+
+func (s *BatchPrice) All(db *sqlx.DB) ([]*BatchPrice, error) {
+	log.Println("call model.BatchPrice.All()")
+	prices := []*BatchPrice{}
+	sql := `SELECT * FROM batch_price`
+	err := db.Select(&prices, sql)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	log.Println(prices)
+	return prices, nil
 }
 
 // RouteMan สามารถขายสินค้านอกตู้ได้ในหลายๆกรณี เช่นยังเติมของไม่เสร็จ และเก็บเงินสดจากการขายนำส่งต่างหากได้
