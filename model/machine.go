@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"log"
+	"github.com/guregu/null"
 )
 
-type machineType int
+type machineType uint8
 
 const (
 	CAN25 machineType = 1 + iota
@@ -34,7 +35,10 @@ func (t machineType) MarshalJSON() ([]byte, error) {
 	return json.Marshal(typeStr)
 }
 
-// Todo: implement UnmarshalJSON for machinetype
+// Todo: implement UnmarshalJSON for MachineType
+//func (t machineType) UnmarshalJSON(data []byte) error {
+//
+//}
 
 type machineBrand int
 
@@ -64,7 +68,7 @@ type Machine struct {
 	Code         string       `json:"code"`
 	Type         machineType  `json:"type"`
 	Brand        machineBrand `json:"brand"`
-	SerialNumber string       `json:"serial_number" db:"serial_number"`
+	SerialNumber null.String  `json:"serial_number" db:"serial_number"`
 	Selection    int          `json:"selection"` //จำนวน Column หรือช่องเก็บสินค้า
 												 //LocRow int  	//จำนวนแถว และคอลัมน์ไว้ทำ Schematic Profile  หน้าตู้
 												 //LocCol int  //ควรจะเป็น 2 Dimension Array

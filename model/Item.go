@@ -93,7 +93,7 @@ func (i *Item) New(db *sqlx.DB) (Item, error) {
 			name,
 			std_price,
 			std_cost,
-			baseunit_id,
+			base_unit_id,
 			category_id
 		) VALUES(
 			?,?,?,?,?,?
