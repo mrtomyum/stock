@@ -5,9 +5,9 @@ import (
 	"log"
 	"github.com/gorilla/mux"
 	c "github.com/mrtomyum/nava-stock/controller"
-	m "github.com/mrtomyum/nava-stock/model"
 	"encoding/json"
 	"os"
+	"github.com/jmoiron/sqlx"
 )
 
 type Config struct {
@@ -18,9 +18,8 @@ type Config struct {
 	Port   string `json:"port"`
 }
 
-func main() {
-	// Read configuration file from "cofig.json"
-	file, _ := os.Open("config.json")
+func getConfig(fileName string) string {
+	file, _ := os.Open(fileName)
 	decoder := json.NewDecoder(file)
 	config := Config{}
 	err := decoder.Decode(&config)
@@ -28,15 +27,13 @@ func main() {
 		log.Println("error:", err)
 	}
 	var dsn = config.DBUser + ":" + config.DBPass + "@" + config.DBHost + "/" + config.DBName + "?parseTime=true"
+	return dsn
+}
 
-	db := m.NewDB(dsn)
-	c := &c.Env{DB:db}
-	defer db.Close()
-
-	r := SetupRoute(c)
-
-	http.Handle("/", r)
-	http.ListenAndServe(":8001", nil)
+func NewDB(dsn string) (*sqlx.DB) {
+	db := sqlx.MustConnect("mysql", dsn)
+	log.Println("Connected db: ", db)
+	return db //return db so in main can call defer db.Close()
 }
 
 func SetupRoute(c *c.Env) *mux.Router {
@@ -74,4 +71,17 @@ func SetupRoute(c *c.Env) *mux.Router {
 	s.HandleFunc("/prices", c.AllBatchPrice).Methods("POST"); log.Println("/v1/machines/batchSales POST NewMachineBatchSale")
 
 	return r
+}
+
+func main() {
+	// Read configuration file from "cofig.json"
+	dsn := getConfig("config.json")
+	db := NewDB(dsn)
+	c := &c.Env{DB:db}
+	defer db.Close()
+
+	r := SetupRoute(c)
+
+	http.Handle("/", r)
+	http.ListenAndServe(":8001", nil)
 }

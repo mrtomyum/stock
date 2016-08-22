@@ -9,6 +9,7 @@
       <root url="file:///usr/local/go/src/unsafe" />
       <root url="file:///usr/local/go/src/log" />
       <root url="file:///usr/local/go/src/flag" />
+      <root url="file:///usr/local/go/src/context" />
       <root url="file:///usr/local/go/src/expvar" />
       <root url="file:///usr/local/go/src/internal" />
       <root url="file:///usr/local/go/src/bufio" />
@@ -57,6 +58,7 @@
       <root url="file:///usr/local/go/src/unsafe" />
       <root url="file:///usr/local/go/src/log" />
       <root url="file:///usr/local/go/src/flag" />
+      <root url="file:///usr/local/go/src/context" />
       <root url="file:///usr/local/go/src/expvar" />
       <root url="file:///usr/local/go/src/internal" />
       <root url="file:///usr/local/go/src/bufio" />

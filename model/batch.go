@@ -51,6 +51,7 @@ func NewBatchSale(db *sqlx.DB, columns []*BatchSale) error {
 			c.Counter,
 		)
 		if err != nil {
+			log.Println("error in tx.Exec(), res =", res, "Error: ", err)
 			errTx := tx.Rollback()
 			if errTx != nil {
 				return errTx

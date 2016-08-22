@@ -69,9 +69,10 @@ type Machine struct {
 	Type         machineType  `json:"type"`
 	Brand        machineBrand `json:"brand"`
 	SerialNumber null.String  `json:"serial_number" db:"serial_number"`
-	Selection    int          `json:"selection"` //จำนวน Column หรือช่องเก็บสินค้า
-												 //LocRow int  	//จำนวนแถว และคอลัมน์ไว้ทำ Schematic Profile  หน้าตู้
-												 //LocCol int  //ควรจะเป็น 2 Dimension Array
+	//จำนวน Column หรือช่องเก็บสินค้า
+	Selection    int          `json:"selection"`
+	//LocRow int  	//จำนวนแถว และคอลัมน์ไว้ทำ Schematic Profile  หน้าตู้
+	//LocCol int  //ควรจะเป็น 2 Dimension Array
 }
 
 type ColumnType int
