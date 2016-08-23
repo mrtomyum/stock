@@ -9,7 +9,7 @@ import (
 	"github.com/mrtomyum/nava-sys/api"
 )
 
-func (e *Env) AllBatchSale(w http.ResponseWriter, r *http.Request) {
+func (e *Env) GetAllBatchSale(w http.ResponseWriter, r *http.Request) {
 	log.Println("call AllMachineBatchSale()")
 	w.Header().Set("Server", "nava Stock")
 	w.Header().Set("Content-Type", "application/json")
@@ -65,11 +65,11 @@ func (e *Env) NewBatchSale(w http.ResponseWriter, r *http.Request) {
 		log.Println("Decode Error: ", err)
 	}
 	rs := api.Response{}
-	err = model.NewBatchSale(e.DB, sales)
+	sales, err = model.NewBatchSale(e.DB, sales)
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
-		w.WriteHeader(http.StatusNoContent)
+		w.WriteHeader(http.StatusConflict)
 	} else {
 		rs.Status = api.SUCCESS
 		rs.Data = sales

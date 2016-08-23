@@ -14,7 +14,7 @@ type BatchSale struct {
 	MachineID uint64          `json:"machine_id" db:"machine_id"`
 	ColumnNo  int             `json:"column_no" db:"column_no"`
 	Counter   int             `json:"counter"`
-	SalePrice currency.Amount `json:"-" db:"sale_price"` // SalePrice search data from Last update Price of this Machine.Column
+	//SalePrice currency.Amount `json:"-" db:"sale_price"` // SalePrice search data from Last update Price of this Machine.Column
 }
 
 func (s *BatchSale) All(db *sqlx.DB) ([]*BatchSale, error) {
@@ -30,11 +30,11 @@ func (s *BatchSale) All(db *sqlx.DB) ([]*BatchSale, error) {
 	return sales, nil
 }
 
-func NewBatchSale(db *sqlx.DB, columns []*BatchSale) error {
+func NewBatchSale(db *sqlx.DB, sales []*BatchSale) ([]*BatchSale, error) {
 	// Call from controller.PostMachineBatchSale()
 	tx, err := db.Beginx()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	sql := `INSERT INTO batch_sale (
 		recorded,
@@ -43,7 +43,7 @@ func NewBatchSale(db *sqlx.DB, columns []*BatchSale) error {
 		counter
 		) VALUES(?,?,?,?)
 	`
-	for _, c := range columns {
+	for _, c := range sales {
 		res, err := tx.Exec(sql,
 			c.Recorded,
 			c.MachineID,
@@ -52,20 +52,39 @@ func NewBatchSale(db *sqlx.DB, columns []*BatchSale) error {
 		)
 		if err != nil {
 			log.Println("error in tx.Exec(), res =", res, "Error: ", err)
-			errTx := tx.Rollback()
-			if errTx != nil {
-				return errTx
+			errRollback := tx.Rollback()
+			if errRollback != nil {
+				log.Println("errRollback", errRollback)
+				return nil, errRollback
 			}
-			return err
+			log.Println("tx.Rollback()", err)
+			return nil, err
 		}
-		id, _ := res.LastInsertId()
-		log.Println("Last Insert Id: ", id)
+		id, err := res.LastInsertId()
+		log.Println("id = ", id, "err = ", err)
+		////Read from written DB.
 	}
 	err = tx.Commit()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	readSales, err := SelectBatchSale(db, sales)
+	if err != nil {
+		log.Fatal("Error in SelectBatchSale() = ", err)
+		return nil, err
+	}
+	return readSales, nil
+}
+
+func SelectBatchSale(db *sqlx.DB, []*BatchSale) ([]*BatchSale, error) {
+	sql := `SELECT * FROM batch_sale WHERE id IN `
+	s := BatchSale{}
+	// Todo Make this select from... in Array of BatchSale.id
+	//err := db.Get(&s, sql, id)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//return &s, nil
 }
 
 // บันทึกราคาจากหน้าตู้ ด้วยมือถือ

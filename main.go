@@ -66,9 +66,9 @@ func SetupRoute(c *c.Env) *mux.Router {
 
 	// ## Batch
 	s = r.PathPrefix("/v1/batchs/").Subrouter()
-	s.HandleFunc("/sales", c.AllBatchSale).Methods("GET"); log.Println("/v1/machines/batchSales GET ALlMachineBatchSale")
-	s.HandleFunc("/sales", c.NewBatchSale).Methods("POST"); log.Println("/v1/machines/batchSales POST NewMachineBatchSale")
-	s.HandleFunc("/prices", c.AllBatchPrice).Methods("POST"); log.Println("/v1/machines/batchSales POST NewMachineBatchSale")
+	s.HandleFunc("/sales", c.GetAllBatchSale).Methods("GET"); log.Println("/v1/machines/batchSales GET ALl BatchSale")
+	s.HandleFunc("/sales", c.NewBatchSale).Methods("POST"); log.Println("/v1/machines/batchSales POST New BatchSale")
+	s.HandleFunc("/prices", c.AllBatchPrice).Methods("POST"); log.Println("/v1/machines/batchSales POST New BatchPrice")
 
 	return r
 }
