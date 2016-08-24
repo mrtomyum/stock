@@ -15,18 +15,17 @@ func (e *Env) GetAllBatchCounter(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	b := model.BatchCounter{}
+	c := model.BatchCounter{}
 	rs := api.Response{}
-	sales, err := b.All(e.DB)
+	counters, err := c.All(e.DB)
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
-		w.WriteHeader(http.StatusNoContent)
 	} else {
 		rs.Status = api.SUCCESS
-		rs.Data = sales
-		w.WriteHeader(http.StatusOK)
+		rs.Data = counters
 	}
+	w.WriteHeader(http.StatusOK)
 	output, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(output))
 }
@@ -49,6 +48,27 @@ func (e *Env) AllBatchPrice(w http.ResponseWriter, r *http.Request) {
 		rs.Data = prices
 		w.WriteHeader(http.StatusOK)
 	}
+	output, _ := json.Marshal(rs)
+	fmt.Fprintf(w, string(output))
+}
+
+func (e *Env) NewBatchCounter(w http.ResponseWriter, r *http.Request) {
+	log.Println("call AllMachineBatchSale()")
+	w.Header().Set("Server", "nava Stock")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	c := &model.BatchCounter{}
+	rs := api.Response{}
+	counter, err := c.NewBatchCounter(e.DB)
+	if err != nil {
+		rs.Status = api.ERROR
+		rs.Message = err.Error()
+	} else {
+		rs.Status = api.SUCCESS
+		rs.Data = counter
+	}
+	w.WriteHeader(http.StatusOK)
 	output, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(output))
 }

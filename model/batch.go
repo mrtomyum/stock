@@ -20,7 +20,7 @@ type BatchCounter struct {
 func (s *BatchCounter) All(db *sqlx.DB) ([]*BatchCounter, error) {
 	log.Println("call model.BatchSale.All()")
 	sales := []*BatchCounter{}
-	sql := `SELECT * FROM batch_sale`
+	sql := `SELECT * FROM batch_counter`
 	err := db.Select(&sales, sql)
 	if err != nil {
 		log.Println(err)
@@ -30,13 +30,50 @@ func (s *BatchCounter) All(db *sqlx.DB) ([]*BatchCounter, error) {
 	return sales, nil
 }
 
+func (c *BatchCounter) NewBatchCounter(db *sqlx.DB) (*BatchCounter, error) {
+	sql := `INSERT INTO batch_counter (
+		recorded,
+		machine_id,
+		column_no,
+		counter
+		) VALUES(?,?,?,?)
+	`
+	tx, err := db.Beginx()
+	if err != nil {
+		return nil, err
+	}
+	res, err := tx.Exec(sql,
+		c.Recorded,
+		c.MachineID,
+		c.ColumnNo,
+		c.Counter,
+	)
+	if err != nil {
+		log.Println("error in tx.Exec(), res =", res, "Error: ", err)
+		errRollback := tx.Rollback()
+		if errRollback != nil {
+			log.Println("errRollback", errRollback)
+			return nil, errRollback
+		}
+	}
+	newCounter := new(BatchCounter)
+	sql = `SELECT * FROM batch_counter WHERE id = ?`
+	id, _ := res.LastInsertId()
+	err = db.Get(*newCounter, sql, uint64(id))
+	if err != nil {
+		log.Println("Error in db.Get() = ", err)
+		return nil, err
+	}
+	return newCounter, nil
+}
+
 func NewBatchArrayCounter(db *sqlx.DB, sales []*BatchCounter) ([]*BatchCounter, error) {
 	// Call from controller.PostMachineBatchSale()
 	tx, err := db.Beginx()
 	if err != nil {
 		return nil, err
 	}
-	sql := `INSERT INTO batch_sale (
+	sql := `INSERT INTO batch_counter (
 		recorded,
 		machine_id,
 		column_no,
@@ -71,16 +108,16 @@ func NewBatchArrayCounter(db *sqlx.DB, sales []*BatchCounter) ([]*BatchCounter, 
 	}
 	////Read from written DB.
 	log.Println(ids)
-	readSales, err := SelectBatchSale(db, ids)
+	readSales, err := GetBatchSale(db, ids)
 	if err != nil {
-		log.Println("Error in SelectBatchSale() = ", err)
+		log.Println("Error in GetBatchCounter() = ", err)
 		return nil, err
 	}
 	return readSales, nil
 }
 
-func SelectBatchSale(db *sqlx.DB, ids []uint64) ([]*BatchCounter, error) {
-	sql := `SELECT * FROM batch_sale WHERE id = ?`
+func GetBatchSale(db *sqlx.DB, ids []uint64) ([]*BatchCounter, error) {
+	sql := `SELECT * FROM batch_counter WHERE id = ?`
 	sales := []*BatchCounter{}
 	for _, id := range ids {
 		var s BatchCounter
