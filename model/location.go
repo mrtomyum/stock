@@ -42,11 +42,10 @@ func (lt LocType) MarshalJSON() ([]byte, error) {
 
 type Location struct {
 	sys.Base
-	Name     string      `json:"name"` //Todo: Has problem with custom type JsonNullString can't receive value from json.NewDecoder()
 	Code     string      `json:"code"`
 	Type     LocType     `json:"type"`
 	ParentID uint64      `json:"-" db:"parent_id"`
-	Child    []*Location `json:"nodes,omitempty"`
+	Child    []*Location `json:"nodes,omitempty" db:"-"`
 }
 
 func (this *Location) Size() int {
@@ -105,16 +104,14 @@ func (l *Location) Show(db *sqlx.DB) ([]*Location, error) {
 func (l *Location) New(db *sqlx.DB) (*Location, error) {
 	sql := `
 		INSERT INTO location (
-			name,
 			code,
 			type,
 			parent_id
 		)
 		VALUES (?, ?, ?, ?)
 	`
-	log.Println("Test Location receiver:", l.Name, l.Code, l.Type, l.ParentID)
+	log.Println("Test Location receiver:", l.Code, l.Type, l.ParentID)
 	rsp, err := db.Exec(sql,
-		l.Name,
 		l.Code,
 		l.Type,
 		l.ParentID,

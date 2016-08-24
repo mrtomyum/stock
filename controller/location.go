@@ -79,7 +79,7 @@ func (e *Env) NewLocation(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error in Decoded request body.")
 	}
-	log.Println("Success decode JSON -> :", l, " Result user decoded -> ", l.Name)
+	log.Println("Success decode JSON -> :", l, " Result user decoded -> ", l.Code)
 
 	newLoc, err := l.New(e.DB)
 	rs := new(api.Response)
