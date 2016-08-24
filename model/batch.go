@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type BatchSale struct {
+type BatchCounter struct {
 	sys.Base
 	Recorded  *time.Time      `json:"recorded"`
 	MachineID uint64          `json:"machine_id" db:"machine_id"`
@@ -17,9 +17,9 @@ type BatchSale struct {
 	//SalePrice currency.Amount `json:"-" db:"sale_price"` // SalePrice search data from Last update Price of this Machine.Column
 }
 
-func (s *BatchSale) All(db *sqlx.DB) ([]*BatchSale, error) {
+func (s *BatchCounter) All(db *sqlx.DB) ([]*BatchCounter, error) {
 	log.Println("call model.BatchSale.All()")
-	sales := []*BatchSale{}
+	sales := []*BatchCounter{}
 	sql := `SELECT * FROM batch_sale`
 	err := db.Select(&sales, sql)
 	if err != nil {
@@ -30,7 +30,7 @@ func (s *BatchSale) All(db *sqlx.DB) ([]*BatchSale, error) {
 	return sales, nil
 }
 
-func NewBatchSale(db *sqlx.DB, sales []*BatchSale) ([]*BatchSale, error) {
+func NewBatchCounter(db *sqlx.DB, sales []*BatchCounter) ([]*BatchCounter, error) {
 	// Call from controller.PostMachineBatchSale()
 	tx, err := db.Beginx()
 	if err != nil {
@@ -43,6 +43,7 @@ func NewBatchSale(db *sqlx.DB, sales []*BatchSale) ([]*BatchSale, error) {
 		counter
 		) VALUES(?,?,?,?)
 	`
+	var ids []uint64
 	for _, c := range sales {
 		res, err := tx.Exec(sql,
 			c.Recorded,
@@ -62,29 +63,36 @@ func NewBatchSale(db *sqlx.DB, sales []*BatchSale) ([]*BatchSale, error) {
 		}
 		id, err := res.LastInsertId()
 		log.Println("id = ", id, "err = ", err)
-		////Read from written DB.
+		ids = append(ids, uint64(id))
 	}
 	err = tx.Commit()
 	if err != nil {
 		return nil, err
 	}
-	readSales, err := SelectBatchSale(db, sales)
+	////Read from written DB.
+	log.Println(ids)
+	readSales, err := SelectBatchSale(db, ids)
 	if err != nil {
-		log.Fatal("Error in SelectBatchSale() = ", err)
+		log.Println("Error in SelectBatchSale() = ", err)
 		return nil, err
 	}
 	return readSales, nil
 }
 
-func SelectBatchSale(db *sqlx.DB, []*BatchSale) ([]*BatchSale, error) {
-	sql := `SELECT * FROM batch_sale WHERE id IN `
-	s := BatchSale{}
-	// Todo Make this select from... in Array of BatchSale.id
-	//err := db.Get(&s, sql, id)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//return &s, nil
+func SelectBatchSale(db *sqlx.DB, ids []uint64) ([]*BatchCounter, error) {
+	sql := `SELECT * FROM batch_sale WHERE id = ?`
+	sales := []*BatchCounter{}
+	for _, id := range ids {
+		var s BatchCounter
+		log.Print("id: ", id)
+		err := db.Get(&s, sql, id)
+		if err != nil {
+			return nil, err
+		}
+		sales = append(sales, &s)
+		log.Print(sales)
+	}
+	return sales, nil
 }
 
 // บันทึกราคาจากหน้าตู้ ด้วยมือถือ

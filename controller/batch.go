@@ -15,7 +15,7 @@ func (e *Env) GetAllBatchSale(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	b := model.BatchSale{}
+	b := model.BatchCounter{}
 	rs := api.Response{}
 	sales, err := b.All(e.DB)
 	if err != nil {
@@ -58,21 +58,21 @@ func (e *Env) NewBatchSale(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	sales := []*model.BatchSale{}
+	sales := []*model.BatchCounter{}
 	d := json.NewDecoder(r.Body)
 	err := d.Decode(&sales)
 	if err != nil {
 		log.Println("Decode Error: ", err)
 	}
 	rs := api.Response{}
-	sales, err = model.NewBatchSale(e.DB, sales)
+	newBS, err := model.NewBatchCounter(e.DB, sales)
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
 		w.WriteHeader(http.StatusConflict)
 	} else {
 		rs.Status = api.SUCCESS
-		rs.Data = sales
+		rs.Data = newBS
 		w.WriteHeader(http.StatusOK)
 	}
 	output, _ := json.Marshal(rs)
