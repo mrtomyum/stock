@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"encoding/json"
 	"strconv"
-	"github.com/mrtomyum/nava-api3/api"
+	"github.com/mrtomyum/nava-sys/api"
 )
 
 func CreateLocationTree(locations []*m.Location) *m.Location {
@@ -34,7 +34,7 @@ func (e *Env) LocationTreeByID(w http.ResponseWriter, r *http.Request) {
 	rs := new(api.Response)
 	if err != nil {
 		log.Fatal("Error LocationsTreeByID()", err)
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusNoContent)
 		rs.Status = api.ERROR
 		rs.Message = "Location not found or Error."
 	} else {

@@ -3,10 +3,11 @@ package model
 import (
 	"github.com/jmoiron/sqlx"
 	"log"
+	sys "github.com/mrtomyum/nava-sys/model"
 )
 
 type Item struct {
-	Base
+	sys.Base
 	SKU        string `json:"sku"`
 	Name       string `json:"name"`
 	StdPrice   int64  `json:"stdPrice" db:"std_price"`
@@ -16,6 +17,7 @@ type Item struct {
 }
 
 type ItemView struct {
+	sys.Base
 	Item
 	BaseUnitTH string `json:"baseUnitTH" db:"base_unit_th"`
 	BaseUnitEN string `json:"baseUnitEN" db:"base_unit_en"`
@@ -24,6 +26,7 @@ type ItemView struct {
 }
 
 type ItemBarcode struct {
+	sys.Base
 	ItemID uint64
 	UnitID uint64
 	Code   string
@@ -37,6 +40,7 @@ func (i *Item) All(db *sqlx.DB) (Items, error) {
 	rows, err := db.Queryx(sql)
 	if err != nil {
 		log.Println("Error: db.Queryx in Item.All(): ", err)
+		return nil, err
 	}
 	defer rows.Close()
 	var items Items
@@ -89,7 +93,7 @@ func (i *Item) New(db *sqlx.DB) (Item, error) {
 			name,
 			std_price,
 			std_cost,
-			baseunit_id,
+			base_unit_id,
 			category_id
 		) VALUES(
 			?,?,?,?,?,?

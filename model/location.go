@@ -3,10 +3,11 @@ package model
 import (
 	//"encoding/json"
 	//"fmt"
-	"github.com/jmoiron/sqlx"
-	"log"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"github.com/jmoiron/sqlx"
+	sys "github.com/mrtomyum/nava-sys/model"
+	"log"
 )
 
 type LocType int
@@ -23,7 +24,7 @@ const (
 )
 
 func (lt LocType) MarshalJSON() ([]byte, error) {
-	ltString, ok := map[LocType]string{
+	typeStr, ok := map[LocType]string{
 		ROOT:       "ROOT",
 		STORE:      "STORE",
 		VAN:        "VAN",
@@ -36,16 +37,16 @@ func (lt LocType) MarshalJSON() ([]byte, error) {
 	if !ok {
 		return nil, fmt.Errorf("invalid Location Type value %v", lt)
 	}
-	return json.Marshal(ltString)
+	return json.Marshal(typeStr)
 }
 
 type Location struct {
-	Base
-	Name     string `json:"name"` //Todo: Has problem with custom type JsonNullString can't receive value from json.NewDecoder()
-	Code     string `json:"code"`
-	Type     LocType        `json:"type"`
-	ParentID uint64         `json:"-" db:"parent_id"`
-	Child    []*Location    `json:"nodes,omitempty"`
+	sys.Base
+	Name     string      `json:"name"` //Todo: Has problem with custom type JsonNullString can't receive value from json.NewDecoder()
+	Code     string      `json:"code"`
+	Type     LocType     `json:"type"`
+	ParentID uint64      `json:"-" db:"parent_id"`
+	Child    []*Location `json:"nodes,omitempty"`
 }
 
 func (this *Location) Size() int {
