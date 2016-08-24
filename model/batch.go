@@ -30,7 +30,7 @@ func (s *BatchCounter) All(db *sqlx.DB) ([]*BatchCounter, error) {
 	return sales, nil
 }
 
-func NewBatchCounter(db *sqlx.DB, sales []*BatchCounter) ([]*BatchCounter, error) {
+func NewBatchArrayCounter(db *sqlx.DB, sales []*BatchCounter) ([]*BatchCounter, error) {
 	// Call from controller.PostMachineBatchSale()
 	tx, err := db.Beginx()
 	if err != nil {

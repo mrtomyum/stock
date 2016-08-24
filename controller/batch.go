@@ -9,7 +9,7 @@ import (
 	"github.com/mrtomyum/nava-sys/api"
 )
 
-func (e *Env) GetAllBatchSale(w http.ResponseWriter, r *http.Request) {
+func (e *Env) GetAllBatchCounter(w http.ResponseWriter, r *http.Request) {
 	log.Println("call AllMachineBatchSale()")
 	w.Header().Set("Server", "nava Stock")
 	w.Header().Set("Content-Type", "application/json")
@@ -53,7 +53,7 @@ func (e *Env) AllBatchPrice(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(output))
 }
 
-func (e *Env) NewBatchSale(w http.ResponseWriter, r *http.Request) {
+func (e *Env) NewBatchArrayCounter(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "nava Stock")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -65,7 +65,7 @@ func (e *Env) NewBatchSale(w http.ResponseWriter, r *http.Request) {
 		log.Println("Decode Error: ", err)
 	}
 	rs := api.Response{}
-	newBS, err := model.NewBatchCounter(e.DB, sales)
+	newBS, err := model.NewBatchArrayCounter(e.DB, sales)
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
