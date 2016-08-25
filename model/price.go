@@ -43,3 +43,25 @@ func (ip *ItemPrice) AllPrice(db *sqlx.DB) ([]*ItemPrice, error) {
 	ips := []*ItemPrice{}
 	return ips, nil
 }
+
+// บันทึกราคาจากหน้าตู้ ด้วยมือถือ
+type BatchPrice struct {
+	sys.Base
+	Recorded  *time.Time      `json:"recorded"`
+	MachineID uint64          `json:"machine_id"`
+	ColumnNo  int             `json:"column_no"`
+	Price     currency.Amount `json:"price"`
+}
+
+func (s *BatchPrice) All(db *sqlx.DB) ([]*BatchPrice, error) {
+	log.Println("call model.BatchPrice.All()")
+	prices := []*BatchPrice{}
+	sql := `SELECT * FROM batch_price`
+	err := db.Select(&prices, sql)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	log.Println(prices)
+	return prices, nil
+}

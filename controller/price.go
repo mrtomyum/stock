@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"github.com/mrtomyum/nava-sys/model"
 )
 
 func (e *Env) ItemPrice(w http.ResponseWriter, r *http.Request) {
@@ -34,4 +35,26 @@ func (e *Env) ItemPrice(w http.ResponseWriter, r *http.Request) {
 	}
 	o, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(o))
+}
+
+func (e *Env) AllBatchPrice(w http.ResponseWriter, r *http.Request) {
+	log.Println("call AllMachineBatchSale()")
+	w.Header().Set("Server", "nava Stock")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	rs := api.Response{}
+	p := m.BatchPrice{}
+	prices, err := p.All(e.DB)
+	if err != nil {
+		rs.Status = api.ERROR
+		rs.Message = err.Error()
+		w.WriteHeader(http.StatusNoContent)
+	} else {
+		rs.Status = api.SUCCESS
+		rs.Data = prices
+		w.WriteHeader(http.StatusOK)
+	}
+	output, _ := json.Marshal(rs)
+	fmt.Fprintf(w, string(output))
 }
