@@ -19,7 +19,7 @@ func CreateLocationTree(locations []*m.Location) *m.Location {
 	return tree
 }
 
-func (e *Env) LocationTreeByID(w http.ResponseWriter, r *http.Request) {
+func (e *Env) GetLocationTreeByID(w http.ResponseWriter, r *http.Request) {
 	log.Println("call ShowLocationTree()")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -47,7 +47,7 @@ func (e *Env) LocationTreeByID(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(output))
 }
 
-func (e *Env) LocationTreeAll(w http.ResponseWriter, r *http.Request) {
+func (e *Env) GetAllLocationTree(w http.ResponseWriter, r *http.Request) {
 	log.Println("call ShowLocationTree()")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")

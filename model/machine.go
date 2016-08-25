@@ -134,3 +134,4 @@ func (m *Machine) All(db *sqlx.DB) ([]*Machine, error) {
 	return machines, nil
 
 }
+
