@@ -8,6 +8,7 @@ import (
 	sys "github.com/mrtomyum/nava-sys/model"
 	"golang.org/x/text/currency"
 
+	"time"
 )
 
 type MyPrice struct {
@@ -39,8 +40,9 @@ func (p JsonPrice) MashalJSON() ([]byte, error) {
 	return output, nil
 }
 
-func (ip *ItemPrice) AllPrice(db *sqlx.DB) ([]*ItemPrice, error) {
+func (ip *ItemPrice) All(db *sqlx.DB) ([]*ItemPrice, error) {
 	ips := []*ItemPrice{}
+	//todo: ยังไม่เสร็จ
 	return ips, nil
 }
 
@@ -51,6 +53,13 @@ type BatchPrice struct {
 	MachineID uint64          `json:"machine_id"`
 	ColumnNo  int             `json:"column_no"`
 	Price     currency.Amount `json:"price"`
+}
+
+func (s *BatchPrice) New(db *sqlx.DB) (*BatchPrice, error) {
+	log.Println("call model.BatchPrice.New()")
+
+	pBatchPrice := new(BatchPrice)
+	return pBatchPrice, nil
 }
 
 func (s *BatchPrice) All(db *sqlx.DB) ([]*BatchPrice, error) {

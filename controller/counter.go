@@ -37,40 +37,48 @@ func (e *Env) NewCounter(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	c := &model.Counter{}
+	d := json.NewDecoder(r.Body)
+	err := d.Decode(&c)
+	if err != nil {
+		log.Println("Decode Error: ", err)
+	}
 	rs := api.Response{}
-	counter, err := c.NewCounter(e.DB)
+	newCounter, err := c.NewCounter(e.DB)
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
 	} else {
 		rs.Status = api.SUCCESS
-		rs.Data = counter
+		rs.Data = newCounter
 	}
 	w.WriteHeader(http.StatusOK)
 	output, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(output))
 }
 
+//====================================
+// บันทึกเคาทเตอร์ขาย จากหน้าตู้ แบบส่งเป็นชุด
+//====================================
 func (e *Env) NewArrayCounter(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "nava Stock")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	sales := []*model.Counter{}
+	cs := []*model.Counter{}
 	d := json.NewDecoder(r.Body)
-	err := d.Decode(&sales)
+	err := d.Decode(&cs)
 	if err != nil {
 		log.Println("Decode Error: ", err)
 	}
 	rs := api.Response{}
-	newBS, err := model.NewArrayCounter(e.DB, sales)
+	newCounters, err := model.NewArrayCounter(e.DB, cs)
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
 		w.WriteHeader(http.StatusConflict)
 	} else {
 		rs.Status = api.SUCCESS
-		rs.Data = newBS
+		rs.Data = newCounters
 		w.WriteHeader(http.StatusOK)
 	}
 	output, _ := json.Marshal(rs)

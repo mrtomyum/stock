@@ -1,10 +1,7 @@
 package model
 
 import (
-	"log"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/nava-sys/model"
 	"golang.org/x/text/currency"
 )
