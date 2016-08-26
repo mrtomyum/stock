@@ -46,7 +46,9 @@ func (ip *ItemPrice) All(db *sqlx.DB) ([]*ItemPrice, error) {
 	return ips, nil
 }
 
+// =======================
 // บันทึกราคาจากหน้าตู้ ด้วยมือถือ
+// =======================
 type BatchPrice struct {
 	sys.Base
 	Recorded  *time.Time      `json:"recorded"`
@@ -55,11 +57,38 @@ type BatchPrice struct {
 	Price     currency.Amount `json:"price"`
 }
 
-func (s *BatchPrice) New(db *sqlx.DB) (*BatchPrice, error) {
+func (bp *BatchPrice) New(db *sqlx.DB) (*BatchPrice, error) {
 	log.Println("call model.BatchPrice.New()")
-
-	pBatchPrice := new(BatchPrice)
-	return pBatchPrice, nil
+	sql := `
+		INSERT INTO batch_price(
+			recorded,
+			machine_id,
+			column_no,
+			price
+		)
+		VALUES(?,?,?,?)
+		`
+	res, err := db.Exec(sql,
+		bp.Recorded,
+		bp.MachineID,
+		bp.ColumnNo,
+		bp.Price,
+	)
+	if err != nil {
+		log.Println("Error db.Exec()=", err)
+		return nil, err
+	}
+	id, _ := res.LastInsertId()
+	newBatchPrice := BatchPrice{}
+	err = db.Get(
+		&newBatchPrice,
+		`SELECT * FROM batch_price WHERE id = ?`,
+		id)
+	if err != nil {
+		log.Println("Error db.Get()=", err)
+		return nil, err
+	}
+	return &newBatchPrice, nil
 }
 
 func (s *BatchPrice) All(db *sqlx.DB) ([]*BatchPrice, error) {

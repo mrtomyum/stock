@@ -65,7 +65,7 @@ func (i *Item) FindItemByID(db *sqlx.DB) (ItemView, error) {
 		item.name,
 		item.std_price,
 		item.std_cost,
-		item.baseunit_id,
+		item.base_unit_id,
 		item.category_id,
 		unit.th as baseunit_th,
 		unit.en as baseunit_en,

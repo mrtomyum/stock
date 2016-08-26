@@ -111,7 +111,7 @@ func (l *Location) New(db *sqlx.DB) (*Location, error) {
 		VALUES (?, ?, ?, ?)
 	`
 	log.Println("Test Location receiver:", l.Code, l.Type, l.ParentID)
-	rsp, err := db.Exec(sql,
+	res, err := db.Exec(sql,
 		l.Code,
 		l.Type,
 		l.ParentID,
@@ -120,7 +120,7 @@ func (l *Location) New(db *sqlx.DB) (*Location, error) {
 		log.Println("Error db.Exec in model.Location.Show", err)
 		return nil, err
 	}
-	id, _ := rsp.LastInsertId()
+	id, _ := res.LastInsertId()
 	newLoc := Location{}
 	err = db.Get(&newLoc, "SELECT * FROM location WHERE id =?", id)
 	if err != nil {

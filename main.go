@@ -41,7 +41,7 @@ func SetupRoute(c *c.Env) *mux.Router {
 
 	// # Item
 	r.HandleFunc("/v1/items", c.AllItem).Methods("GET"); log.Println("/v1/items GET AllItem")
-	r.HandleFunc("/v1/items/{id:[0-9]+}", c.ShowItem).Methods("GET"); log.Println("/v1/items/:id GET ShowItem")
+	r.HandleFunc("/v1/items/{id:[0-9]+}", c.GetItem).Methods("GET"); log.Println("/v1/items/:id GET ShowItem")
 	r.HandleFunc("/v1/items", c.NewItem).Methods("POST"); log.Println("/v1/items POST NewItem")
 
 	// ## Location
@@ -67,13 +67,13 @@ func SetupRoute(c *c.Env) *mux.Router {
 	//s.HandleFunc("/", c.NewMachine).Methods("POST"); log.Println("/v1/machines/ POST NewMachine")
 
 	// ## Batch
-	s = r.PathPrefix("/v1/counters/").Subrouter()
+	s = r.PathPrefix("/v1/batchs/counters/").Subrouter()
 	s.HandleFunc("/", c.GetAllCounter).Methods("GET"); log.Println("/v1/machines/batchSales GET All Batch Sale")
 	s.HandleFunc("/", c.NewCounter).Methods("POST"); log.Println("/v1/machines/batchSales POST New Batch Sale")
 	s.HandleFunc("/", c.NewArrayCounter).Methods("POST"); log.Println("/v1/machines/batchSales POST New Batch Array Sale")
 
-	s = r.PathPrefix("/v1/prices/").Subrouter()
-	s.HandleFunc("/prices", c.AllBatchPrice).Methods("POST"); log.Println("/v1/machines/batchSales POST New Batch Price")
+	s = r.PathPrefix("/v1/batchs/prices/").Subrouter()
+	s.HandleFunc("/", c.AllBatchPrice).Methods("POST"); log.Println("/v1/machines/batchSales POST New Batch Price")
 
 	s = r.PathPrefix("/v1/fulfill/").Subrouter()
 	//s.HandleFunc("/", c.NewFulfill).Methods("POST")
