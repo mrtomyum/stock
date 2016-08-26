@@ -64,6 +64,7 @@ func SetupRoute(c *c.Env) *mux.Router {
 	// ## Machine
 	s = r.PathPrefix("/v1/machines").Subrouter()
 	s.HandleFunc("/", c.AllMachine).Methods("GET"); log.Println("/v1/machines/ GET AllMachine")
+	s.HandleFunc("/", c.NewMachine).Methods("POST"); log.Println("/v1/machines/ POST NewMachine")
 	//s.HandleFunc("/", c.NewMachine).Methods("POST"); log.Println("/v1/machines/ POST NewMachine")
 
 	// ## Batch

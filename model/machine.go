@@ -12,22 +12,22 @@ import (
 type machineType uint8
 
 const (
-	CAN25 machineType = 1 + iota
-	CAN30
+	CAN machineType = 1 + iota
 	CUP_HOT_COLD
 	CUP_FRESH_COFFEE
 	CUP_NOODLE
-	SEE_THROUGH
+	SPRING
+	TICKET
 )
 
 func (t machineType) MarshalJSON() ([]byte, error) {
 	typeStr, ok := map[machineType]string{
-		CAN25:            "CAN25",
-		CAN30:            "CAN30",
+		CAN:              "CAN",
 		CUP_HOT_COLD:     "CUP_HOT_COLD",
 		CUP_FRESH_COFFEE: "CUP_FRESH_COFFEE",
 		CUP_NOODLE:       "CUP_NOODLE",
-		SEE_THROUGH:      "SEE_THROUGH",
+		SPRING:           "SPRING",
+		TICKET:           "TICKET",
 	}[t]
 	if !ok {
 		return nil, fmt.Errorf("invalid Machine Type value %v", t)
@@ -68,16 +68,15 @@ type Machine struct {
 	Selection    int          `json:"selection"` //จำนวน Column หรือช่องเก็บสินค้า
 }
 
-type ColumnType int
+type ColumnSize int
 
 const (
-	FREE ColumnType = iota //สินค้าไม่มีตัวตน หรือต้องส่งข้อมูลสั่งขายไปยังระบบอื่น
-	TICKET                   // สินค้าที่ต้องพิมพ์ตั๋ว
-	CAN_S                    // กระป๋องหรือขวดสั้น
-	CAN_L                    // กระป๋องหรือขวดยาว
-	SPRING_S
-	SPRING_M
-	SPRING_L
+	NO_SIZE ColumnSize = iota //สินค้าไม่มีตัวตน หรือต้องส่งข้อมูลสั่งขายไปยังระบบอื่น
+	S
+	L
+	SPRING_5MM
+	SPRING_10MM
+	SPRING_15MM
 )
 
 type ColumnStatus int
@@ -93,7 +92,7 @@ type MachineColumn struct {
 	MachineID   uint64       `json:"machine_id"`
 	ColumnNo    int          `json:"column_no"`
 	CurrCounter int          `json:"curr_counter" db:"curr_counter"`
-	Type        ColumnType   `json:"type"`
+	Size        ColumnSize   `json:"size"`
 	Status      ColumnStatus `json:"status"`
 }
 
@@ -130,8 +129,41 @@ func (m *Machine) All(db *sqlx.DB) ([]*Machine, error) {
 		log.Println(err)
 		return nil, err
 	}
-	log.Println(machines)
+	log.Println("All Machine:", machines)
 	return machines, nil
 
 }
 
+func (m *Machine) New(db *sqlx.DB) (*Machine, error) {
+	log.Println("call Machine.New()")
+	sql := `INSERT INTO machine(
+		loc_id,
+		code,
+		type,
+		brand,
+		profile_id,
+		serial_number
+		selection
+		) VALUES(?,?,?,?,?,?,?)`
+	res, err := db.Exec(sql,
+		m.LocID,
+		m.Code,
+		m.Type,
+		m.Brand,
+		m.ProfileID,
+		m.SerialNumber,
+		m.Selection,
+	)
+	if err != nil {
+		return nil, err
+	}
+	var newMachine Machine
+	sql = `SELECT * FROM machine WHERE id = ?`
+	id, _ := res.LastInsertId()
+	err = db.Get(&newMachine, sql, uint64(id))
+	if err != nil {
+		return nil, err
+	}
+	log.Println("New Machine:", newMachine)
+	return &newMachine, nil
+}
