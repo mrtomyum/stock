@@ -34,19 +34,11 @@ const (
 	OFFICE
 )
 
-type PriceLevel int
-
-const (
-	A PriceLevel = iota
-	B
-	C
-)
-
 type Client struct {
 	sys.Base
 	Name       string
 	Type       ClientType
-	PriceLevel PriceLevel
+	PriceLevel int
 }
 
 // สถานที่วางตู้

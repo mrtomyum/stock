@@ -30,3 +30,4 @@ func (e *Env) AllMachine(w http.ResponseWriter, r *http.Request) {
 	output, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(output))
 }
+

@@ -65,14 +65,14 @@ func (i *Item) FindItemByID(db *sqlx.DB) (ItemView, error) {
 		item.name,
 		item.std_price,
 		item.std_cost,
-		item.baseunit_id,
+		item.base_unit_id,
 		item.category_id,
-		unit.th as baseunit_th,
-		unit.en as baseunit_en,
+		unit.th as base_unit_th,
+		unit.en as base_unit_en,
 		category.th as category_th,
 		category.en as category_en
 	FROM item
-	LEFT JOIN unit ON item.baseunit_id = unit.id
+	LEFT JOIN unit ON item.base_unit_id = unit.id
 	LEFT JOIN category ON item.category_id = category.id
 	WHERE item.id = ?
 	`

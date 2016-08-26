@@ -38,7 +38,7 @@ func (e *Env) AllItem(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(output))
 }
 
-func (e *Env) ShowItem(w http.ResponseWriter, r *http.Request) {
+func (e *Env) GetItem(w http.ResponseWriter, r *http.Request) {
 	log.Println("call GET ShowItem (by id)")
 	w.Header().Set("Content-Type", "application/json")
 

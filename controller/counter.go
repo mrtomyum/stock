@@ -9,13 +9,13 @@ import (
 	"github.com/mrtomyum/nava-sys/api"
 )
 
-func (e *Env) GetAllBatchCounter(w http.ResponseWriter, r *http.Request) {
+func (e *Env) GetAllCounter(w http.ResponseWriter, r *http.Request) {
 	log.Println("call AllMachineBatchSale()")
 	w.Header().Set("Server", "nava Stock")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	c := model.BatchCounter{}
+	c := model.Counter{}
 	rs := api.Response{}
 	counters, err := c.All(e.DB)
 	if err != nil {
@@ -30,69 +30,55 @@ func (e *Env) GetAllBatchCounter(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(output))
 }
 
-func (e *Env) AllBatchPrice(w http.ResponseWriter, r *http.Request) {
+func (e *Env) NewCounter(w http.ResponseWriter, r *http.Request) {
 	log.Println("call AllMachineBatchSale()")
 	w.Header().Set("Server", "nava Stock")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	rs := api.Response{}
-	p := model.BatchPrice{}
-	prices, err := p.All(e.DB)
+	c := &model.Counter{}
+	d := json.NewDecoder(r.Body)
+	err := d.Decode(&c)
 	if err != nil {
-		rs.Status = api.ERROR
-		rs.Message = err.Error()
-		w.WriteHeader(http.StatusNoContent)
-	} else {
-		rs.Status = api.SUCCESS
-		rs.Data = prices
-		w.WriteHeader(http.StatusOK)
+		log.Println("Decode Error: ", err)
 	}
-	output, _ := json.Marshal(rs)
-	fmt.Fprintf(w, string(output))
-}
-
-func (e *Env) NewBatchCounter(w http.ResponseWriter, r *http.Request) {
-	log.Println("call AllMachineBatchSale()")
-	w.Header().Set("Server", "nava Stock")
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	c := &model.BatchCounter{}
 	rs := api.Response{}
-	counter, err := c.NewBatchCounter(e.DB)
+	newCounter, err := c.NewCounter(e.DB)
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
 	} else {
 		rs.Status = api.SUCCESS
-		rs.Data = counter
+		rs.Data = newCounter
 	}
 	w.WriteHeader(http.StatusOK)
 	output, _ := json.Marshal(rs)
 	fmt.Fprintf(w, string(output))
 }
 
-func (e *Env) NewBatchArrayCounter(w http.ResponseWriter, r *http.Request) {
+//====================================
+// บันทึกเคาทเตอร์ขาย จากหน้าตู้ แบบส่งเป็นชุด
+//====================================
+func (e *Env) NewArrayCounter(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "nava Stock")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	sales := []*model.BatchCounter{}
+	cs := []*model.Counter{}
 	d := json.NewDecoder(r.Body)
-	err := d.Decode(&sales)
+	err := d.Decode(&cs)
 	if err != nil {
 		log.Println("Decode Error: ", err)
 	}
 	rs := api.Response{}
-	newBS, err := model.NewBatchArrayCounter(e.DB, sales)
+	newCounters, err := model.NewArrayCounter(e.DB, cs)
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
 		w.WriteHeader(http.StatusConflict)
 	} else {
 		rs.Status = api.SUCCESS
-		rs.Data = newBS
+		rs.Data = newCounters
 		w.WriteHeader(http.StatusOK)
 	}
 	output, _ := json.Marshal(rs)

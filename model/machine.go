@@ -2,11 +2,11 @@ package model
 
 import (
 	"encoding/json"
-	sys "github.com/mrtomyum/nava-sys/model"
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	"log"
 	"github.com/guregu/null"
+	"github.com/jmoiron/sqlx"
+	sys "github.com/mrtomyum/nava-sys/model"
+	"log"
 )
 
 type machineType uint8
@@ -34,11 +34,6 @@ func (t machineType) MarshalJSON() ([]byte, error) {
 	}
 	return json.Marshal(typeStr)
 }
-
-// Todo: implement UnmarshalJSON for MachineType
-//func (t machineType) UnmarshalJSON(data []byte) error {
-//
-//}
 
 type machineBrand int
 
@@ -68,11 +63,9 @@ type Machine struct {
 	Code         string       `json:"code"`
 	Type         machineType  `json:"type"`
 	Brand        machineBrand `json:"brand"`
+	ProfileID    uint64       `json:"profile_id" db:"profile_id"`
 	SerialNumber null.String  `json:"serial_number" db:"serial_number"`
-	//จำนวน Column หรือช่องเก็บสินค้า
-	Selection    int          `json:"selection"`
-	//LocRow int  	//จำนวนแถว และคอลัมน์ไว้ทำ Schematic Profile  หน้าตู้
-	//LocCol int  //ควรจะเป็น 2 Dimension Array
+	Selection    int          `json:"selection"` //จำนวน Column หรือช่องเก็บสินค้า
 }
 
 type ColumnType int
@@ -103,7 +96,6 @@ type MachineColumn struct {
 	Type        ColumnType   `json:"type"`
 	Status      ColumnStatus `json:"status"`
 }
-
 
 // Transaction row Batch data received from mobile app daily.
 
@@ -142,3 +134,4 @@ func (m *Machine) All(db *sqlx.DB) ([]*Machine, error) {
 	return machines, nil
 
 }
+

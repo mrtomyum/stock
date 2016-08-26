@@ -41,11 +41,14 @@ func SetupRoute(c *c.Env) *mux.Router {
 
 	// # Item
 	r.HandleFunc("/v1/items", c.AllItem).Methods("GET"); log.Println("/v1/items GET AllItem")
-	r.HandleFunc("/v1/items/{id:[0-9]+}", c.ShowItem).Methods("GET"); log.Println("/v1/items/:id GET ShowItem")
+	r.HandleFunc("/v1/items/{id:[0-9]+}", c.GetItem).Methods("GET"); log.Println("/v1/items/:id GET ShowItem")
 	r.HandleFunc("/v1/items", c.NewItem).Methods("POST"); log.Println("/v1/items POST NewItem")
-	r.HandleFunc("/v1/locations/{id:[0-9]+}", c.LocationTreeByID).Methods("GET"); log.Println("/v1/locations/:id GET Location tree by ID")
-	r.HandleFunc("/v1/locations", c.LocationTreeAll).Methods("GET"); log.Println("/v1/locations GET All Location tree")
-	r.HandleFunc("/v1/locations", c.NewLocation).Methods("POST"); log.Println("/v1/locations POST New Location")
+
+	// ## Location
+	s := r.PathPrefix("/v1/locations").Subrouter()
+	r.HandleFunc("/", c.GetAllLocationTree).Methods("GET"); log.Println("/v1/locations GET All Location tree")
+	r.HandleFunc("/", c.NewLocation).Methods("POST"); log.Println("/v1/locations POST New Location")
+	r.HandleFunc("/{id:[0-9]+}", c.GetLocationTreeByID).Methods("GET"); log.Println("/v1/locations/:id GET Location tree by ID")
 
 
 	//s.HandleFunc("/{id:[0-9]+}", c.UpdateItem).Methods("PUT"); log.Println("/api/v1/item/:id PUT UpdateItem ")
@@ -55,24 +58,27 @@ func SetupRoute(c *c.Env) *mux.Router {
 	// ## ItemPrice
 	//s.HandleFunc("/{id:[0-9]+}/price", c.ItemPrice).Methods("GET"); log.Println("/api/v1/item/:id/price GET PriceByItemID")
 	// # Stock
-	s := r.PathPrefix("/v1/stocks").Subrouter()
+	s = r.PathPrefix("/v1/stocks").Subrouter()
 	s.HandleFunc("/", c.AllStock).Methods("GET"); log.Println("/v1/stocks/")
 
-	// ## Location
 	// ## Machine
 	s = r.PathPrefix("/v1/machines").Subrouter()
 	s.HandleFunc("/", c.AllMachine).Methods("GET"); log.Println("/v1/machines/ GET AllMachine")
 	//s.HandleFunc("/", c.NewMachine).Methods("POST"); log.Println("/v1/machines/ POST NewMachine")
 
 	// ## Batch
-	s = r.PathPrefix("/v1/batchs/").Subrouter()
-	s.HandleFunc("/counters", c.GetAllBatchCounter).Methods("GET"); log.Println("/v1/machines/batchSales GET All Batch Sale")
-	s.HandleFunc("/counters", c.NewBatchCounter).Methods("POST"); log.Println("/v1/machines/batchSales POST New Batch Sale")
-	s.HandleFunc("/counters", c.NewBatchArrayCounter).Methods("POST"); log.Println("/v1/machines/batchSales POST New Batch Array Sale")
-	s.HandleFunc("/prices", c.AllBatchPrice).Methods("POST"); log.Println("/v1/machines/batchSales POST New Batch Price")
-	//s.HandleFunc("/fulfill", c.NewFulfill).Methods("POST")
-	//s.HandleFunc("/fulfill", c.GetAllFulfill).Methods("POST")
-	//s.HandleFunc("/fulfill/{id:[0-9+]}", c.GetFulfillByID).Methods("POST")
+	s = r.PathPrefix("/v1/batchs/counters/").Subrouter()
+	s.HandleFunc("/", c.GetAllCounter).Methods("GET"); log.Println("/v1/machines/batchSales GET All Batch Sale")
+	s.HandleFunc("/", c.NewCounter).Methods("POST"); log.Println("/v1/machines/batchSales POST New Batch Sale")
+	s.HandleFunc("/", c.NewArrayCounter).Methods("POST"); log.Println("/v1/machines/batchSales POST New Batch Array Sale")
+
+	s = r.PathPrefix("/v1/batchs/prices/").Subrouter()
+	s.HandleFunc("/", c.AllBatchPrice).Methods("POST"); log.Println("/v1/machines/batchSales POST New Batch Price")
+
+	s = r.PathPrefix("/v1/fulfill/").Subrouter()
+	//s.HandleFunc("/", c.NewFulfill).Methods("POST")
+	//s.HandleFunc("/", c.GetAllFulfill).Methods("POST")
+	//s.HandleFunc("/{id:[0-9+]}", c.GetFulfillByID).Methods("POST")
 	return r
 }
 
