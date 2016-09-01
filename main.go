@@ -49,9 +49,9 @@ func SetupRoute(c *c.Env) *gin.Engine {
 
 	itemV1 := r.Group("/v1/items")
 	{
-		//itemV1.GET("/", c.AllItem)
+		itemV1.GET("/", c.AllItem)
 		itemV1.GET("/:id", c.FindItemByID)
-		//itemV1.POST("/", c.NewItem)
+		itemV1.POST("/", c.NewItem)
 	}
 	//r.HandleFunc("/v1/items", c.AllItem).Methods("GET"); log.WithFields(log.Fields{"path":"/v1/items", "api":"GET AllItem"})
 	//r.HandleFunc("/v1/items/{id:[0-9]+}", c.GetItem).Methods("GET"); log.Println("/v1/items/:id GET ShowItem")
