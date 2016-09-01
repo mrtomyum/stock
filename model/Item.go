@@ -57,7 +57,8 @@ func (i *Item) All(db *sqlx.DB) (Items, error) {
 	return items, nil
 }
 
-func (i *Item) FindItemByID(db *sqlx.DB) (ItemView, error) {
+func (i *Item) FindItemByID(db *sqlx.DB) (*ItemView, error) {
+	log.Println("call FindItemByID()")
 	var iv ItemView
 	sql := `
 	SELECT
@@ -76,14 +77,13 @@ func (i *Item) FindItemByID(db *sqlx.DB) (ItemView, error) {
 	LEFT JOIN category ON item.category_id = category.id
 	WHERE item.id = ?
 	`
-	err := db.QueryRowx(sql, i.ID).StructScan(&iv)
-
+	//err := db.QueryRowx(sql, i.ID).StructScan(&iv)
+	err := db.Get(&iv, sql, i.ID)
 	if err != nil {
 		log.Println("Error: FindItemByID/Query Error", err)
-		return iv, err
+		return &iv, err
 	}
-
-	return iv, nil
+	return &iv, nil
 }
 
 func (i *Item) New(db *sqlx.DB) (Item, error) {
@@ -122,4 +122,40 @@ func (i *Item) New(db *sqlx.DB) (Item, error) {
 	}
 	log.Println("Success Insert New Item: ", i)
 	return item, nil
+}
+
+func (i *Item) Update(db *sqlx.DB) (*Item, error) {
+	sql := `
+		UPDATE item
+		SET
+			sku = ?,
+			name = ?,
+			std_price = ?,
+			std_cost = ?,
+			base_unit_id = ?,
+			category_id = ?
+		WHERE id = ?
+	`
+	_, err := db.Exec(sql,
+		i.SKU,
+		i.Name,
+		i.StdPrice,
+		i.StdCost,
+		i.BaseUnitID,
+		i.CategoryID,
+		i.ID,
+	)
+	if err != nil {
+		log.Println("Error after db.Exec()")
+		return nil, err
+	}
+	// Get updated record back from DB to confirm
+	sql = `SELECT * FROM item WHERE id = ?`
+	var updatedItem Item
+	err = db.Get(&updatedItem, sql, i.ID)
+	if err != nil {
+		log.Println("Error after db.Get()")
+		return nil, err
+	}
+	return &updatedItem, nil
 }

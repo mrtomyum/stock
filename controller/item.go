@@ -1,24 +1,20 @@
 package controller
 
 import (
-	"encoding/json"
-	"fmt"
-	"github.com/gorilla/mux"
+
 	"github.com/mrtomyum/nava-sys/api"
 	m "github.com/mrtomyum/nava-stock/model"
 	"log"
 	"net/http"
 	"strconv"
+	"github.com/gin-gonic/gin"
 )
 
-func (e *Env) AllItem(w http.ResponseWriter, r *http.Request) {
+func (e *Env) AllItem(c *gin.Context) {
 	log.Println("call GET AllItem")
-	//if r.Method != "GET" {
-	//	w.WriteHeader(http.StatusMethodNotAllowed)
-	//	return
-	//}
-	w.Header().Set("Server", "nava Stock")
-	w.Header().Set("Content-Type", "application/json")
+	c.Header("Server", "NAVA Stock")
+	c.Header("Content-Type", "application/json")
+	c.Header("Access-Control-Allow-Origin", "*")
 
 	i := m.Item{}
 	items, err := i.All(e.DB)
@@ -26,83 +22,89 @@ func (e *Env) AllItem(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
+		c.JSON(http.StatusBadRequest, rs)
 	} else {
-		w.WriteHeader(http.StatusFound)
 		rs.Status = api.SUCCESS
 		rs.Data = items
+		c.JSON(http.StatusFound, rs)
 	}
-	output, err := json.Marshal(rs)
-	if err != nil {
-		log.Println("Error json.Marshal:", err)
-	}
-	fmt.Fprintf(w, string(output))
 }
 
-func (e *Env) GetItem(w http.ResponseWriter, r *http.Request) {
-	log.Println("call GET ShowItem (by id)")
-	w.Header().Set("Content-Type", "application/json")
+func (e *Env) NewItem(c *gin.Context) {
+	log.Println("call POST NewItem")
+	c.Header("Server", "NAVA Stock")
+	c.Header("Content-Type", "application/json")
+	c.Header("Access-Control-Allow-Origin", "*")
 
-	v := mux.Vars(r)
-	id := v["id"]
 	i := new(m.Item)
-	i.ID, _ = strconv.ParseUint(id, 10, 64)
-	log.Println("item.ID = ", i.ID)
-
-	var iv m.ItemView
-	iv, err := i.FindItemByID(e.DB)
-
 	rs := new(api.Response)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+	if err := c.BindJSON(&i); err != nil {
+		log.Println("NewItem: Error decode.Decode(&i) >>", err)
 		rs.Status = api.ERROR
-		rs.Message = "NOT_FOUND>> " + err.Error()
+		rs.Message = err.Error()
+		c.JSON(http.StatusBadRequest, rs)
 	} else {
-		w.WriteHeader(http.StatusFound)
+		newItem, err := i.New(e.DB)
+		log.Println("i= ", i)
+		if err != nil {
+			rs.Status = api.ERROR
+			rs.Message = "CANNOT_UPDATE >>" + err.Error()
+			c.JSON(http.StatusConflict, rs)
+		} else {
+			rs.Status = api.SUCCESS
+			rs.Data = newItem
+			c.JSON(http.StatusOK, rs)
+		}
+	}
+	return
+}
+
+func (e *Env) GetItemByID(c *gin.Context) {
+	log.Println("call FindItem")
+	c.Header("Server", "NAVA Stock")
+	c.Header("Content-Type", "application/json")
+	c.Header("Access-Control-Allow-Origin", "*")
+	var i m.Item
+	//id, _ := strconv.Atoi(c.Param("id"))
+	id := c.Param("id")
+	i.ID, _ = strconv.ParseUint(id, 10, 64)
+	rs := api.Response{}
+	iv, err := i.FindItemByID(e.DB)
+	log.Println("return from FindItemByID()")
+	if err != nil {
+		log.Println(err)
+		rs.Status = api.ERROR
+		rs.Message = err.Error()
+	} else {
 		rs.Status = api.SUCCESS
 		rs.Data = iv
 	}
-	o, _ := json.Marshal(rs)
-	fmt.Fprintf(w, string(o))
+	c.JSON(200, rs)
+	return
 }
 
-func (e *Env) NewItem(w http.ResponseWriter, r *http.Request) {
-	log.Println("call POST NewItem")
-	w.Header().Set("Content-Type", "application/json")
-
-	if r.Method != "POST" {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-	i := new(m.Item)
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&i)
-	if err != nil {
-		log.Println("NewItem: Error decode.Decode(&i) >>", err)
-	}
-	newItem, err := i.New(e.DB)
-	log.Println("i= ", i)
-	rs := new(api.Response)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusConflict)
-		rs.Status = api.ERROR
-		rs.Message = "CANNOT_UPDATE >>" + err.Error()
-	} else {
-		w.WriteHeader(http.StatusCreated)
-		rs.Status = api.SUCCESS
-		rs.Data = newItem
-	}
-	o, _ := json.Marshal(rs)
-	fmt.Fprintf(w, string(o))
-}
-
-func (e *Env) UpdateItem(w http.ResponseWriter, r *http.Request) {
+func (e *Env) UpdateItem(c *gin.Context) {
 	log.Println("call UpdateItem")
+	c.Header("Server", "NAVA Stock")
+	c.Header("Content-Type", "application/json")
+	c.Header("Access-Control-Allow-Origin", "*")
+	var i m.Item
+	rs := api.Response{}
+	if c.BindJSON(&i) != nil {
+		c.JSON(http.StatusBadRequest, i)
+	} else {
+		updatedItem, err := i.Update(e.DB)
+		if err != nil {
+			rs.Status = api.ERROR
+			rs.Message = err.Error()
+		} else {
+			rs.Status = api.SUCCESS
+			rs.Data = updatedItem
+		}
+		c.JSON(http.StatusOK, rs)
+	}
 }
 
-func (e *Env) FindItem(w http.ResponseWriter, r *http.Request) {
-	log.Println("call FindItem")
-}
 
 func (e *Env) DelItem(w http.ResponseWriter, r *http.Request) {
 	log.Println("call NewItem")

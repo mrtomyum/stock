@@ -19,3 +19,4 @@ type ProfileItem struct {
 	ItemID    uint64          `json:"item_id" db:"item_id"`
 	Price     currency.Amount `json:"price" db:"price"`
 }
+
