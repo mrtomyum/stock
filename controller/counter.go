@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"encoding/json"
 	"net/http"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"github.com/mrtomyum/nava-stock/model"
 	"github.com/mrtomyum/nava-sys/api"
 )

@@ -3,16 +3,17 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/guregu/null"
 	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/nava-sys/model"
-	"log"
 )
 
 type machineType uint8
 
 const (
-	CAN machineType = 1 + iota
+	NO_TYPE machineType = iota
+	CAN
 	CUP_HOT_COLD
 	CUP_FRESH_COFFEE
 	CUP_NOODLE
@@ -22,6 +23,7 @@ const (
 
 func (t machineType) MarshalJSON() ([]byte, error) {
 	typeStr, ok := map[machineType]string{
+		NO_TYPE:          "NO_TYPE",
 		CAN:              "CAN",
 		CUP_HOT_COLD:     "CUP_HOT_COLD",
 		CUP_FRESH_COFFEE: "CUP_FRESH_COFFEE",
@@ -38,7 +40,8 @@ func (t machineType) MarshalJSON() ([]byte, error) {
 type machineBrand int
 
 const (
-	NATIONAL machineBrand = 1 + iota
+	NO_BRAND machineBrand = iota
+	NATIONAL
 	SANDEN
 	FUJI_ELECTRIC
 	CIRBOX
@@ -46,6 +49,7 @@ const (
 
 func (b machineBrand) MarshalJSON() ([]byte, error) {
 	brandStr, ok := map[machineBrand]string{
+		NO_BRAND:      "NO_BRAND",
 		NATIONAL:      "NATIONAL",
 		SANDEN:        "SANDEN",
 		FUJI_ELECTRIC: "FUJI_ELECTRIC",
@@ -121,7 +125,7 @@ func MachineBatchSaleIsErr() bool {
 }
 
 func (m *Machine) All(db *sqlx.DB) ([]*Machine, error) {
-	log.Println("call Machine.All()")
+	log.Info(log.Fields{"func": "Machine.All()"})
 	machines := []*Machine{}
 	sql := `SELECT * FROM machine`
 	err := db.Select(&machines, sql)
@@ -142,7 +146,7 @@ func (m *Machine) New(db *sqlx.DB) (*Machine, error) {
 		type,
 		brand,
 		profile_id,
-		serial_number
+		serial_number,
 		selection
 		) VALUES(?,?,?,?,?,?,?)`
 	res, err := db.Exec(sql,

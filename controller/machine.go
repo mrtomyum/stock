@@ -2,18 +2,18 @@ package controller
 
 import (
 	"net/http"
-	"encoding/json"
-	"fmt"
 	"github.com/mrtomyum/nava-sys/api"
 	m "github.com/mrtomyum/nava-stock/model"
-	"log"
+	log "github.com/Sirupsen/logrus"
+	"github.com/gin-gonic/gin"
 )
 
-func (e *Env) AllMachine(w http.ResponseWriter, r *http.Request) {
-	log.Println("call AllMachine()")
-	w.Header().Set("Server", "nava Stock")
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+//func (e *Env) AllMachine(w http.ResponseWriter, r *http.Request) {
+func (e *Env) AllMachine(c *gin.Context) {
+	log.Info(log.Fields{"func":"controller.AllMachine()"})
+	c.Header("Server", "NAVA Stock")
+	c.Header("Content-Type", "application/json")
+	c.Header("Access-Control-Allow-Origin", "*")
 
 	m := m.Machine{}
 	rs := api.Response{}
@@ -21,36 +21,38 @@ func (e *Env) AllMachine(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
-		w.WriteHeader(http.StatusNoContent)
+		c.Status(http.StatusNoContent)
 	} else {
 		rs.Status = api.SUCCESS
 		rs.Data = machines
-		w.WriteHeader(http.StatusOK)
+		c.JSON(http.StatusOK, rs)
 	}
-	output, _ := json.Marshal(rs)
-	fmt.Fprintf(w, string(output))
+	return
 }
 
-func (e *Env) NewMachine(w http.ResponseWriter, r *http.Request) {
-	log.Println("call controller.NewMachine()")
-	w.Header().Set("Server", "nava Stock")
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+func (e *Env) NewMachine(c *gin.Context) {
+	log.Info(log.Fields{"func":"controller.NewMachine()"})
+	c.Header("Server", "NAVA Stock")
+	c.Header("Content-Type", "application/json")
+	c.Header("Access-Control-Allow-Origin", "*")
 
-	m := m.Machine{}
-	d := json.NewDecoder(r.Body)
-	err := d.Decode(&m)
-	log.Println(m)
+	var m m.Machine
 	rs := api.Response{}
-	newMachine, err := m.New(e.DB)
-	if err != nil {
+	if err := c.BindJSON(&m); err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
+		c.JSON(http.StatusBadRequest, rs)
 	} else {
-		rs.Status = api.SUCCESS
-		rs.Data = newMachine
+		log.Info(m)
+		newMachine, err := m.New(e.DB) // TODO: ให้ดัก New() ที่ m เป็นค่าว่างด้วย ต้อง Error
+		if err != nil {
+			rs.Status = api.ERROR
+			rs.Message = err.Error()
+		} else {
+			rs.Status = api.SUCCESS
+			rs.Data = newMachine
+		}
+		c.JSON(http.StatusOK, rs)
 	}
-	w.WriteHeader(http.StatusOK)
-	output, _ := json.Marshal(rs)
-	fmt.Fprintf(w, string(output))
+
 }

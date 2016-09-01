@@ -57,7 +57,8 @@ func (i *Item) All(db *sqlx.DB) (Items, error) {
 	return items, nil
 }
 
-func (i *Item) FindItemByID(db *sqlx.DB) (ItemView, error) {
+func (i *Item) FindItemByID(db *sqlx.DB) (*ItemView, error) {
+	log.Println("call FindItemByID()")
 	var iv ItemView
 	sql := `
 	SELECT
@@ -76,14 +77,13 @@ func (i *Item) FindItemByID(db *sqlx.DB) (ItemView, error) {
 	LEFT JOIN category ON item.category_id = category.id
 	WHERE item.id = ?
 	`
-	err := db.QueryRowx(sql, i.ID).StructScan(&iv)
-
+	//err := db.QueryRowx(sql, i.ID).StructScan(&iv)
+	err := db.Get(&iv, sql, i.ID)
 	if err != nil {
 		log.Println("Error: FindItemByID/Query Error", err)
-		return iv, err
+		return &iv, err
 	}
-
-	return iv, nil
+	return &iv, nil
 }
 
 func (i *Item) New(db *sqlx.DB) (Item, error) {

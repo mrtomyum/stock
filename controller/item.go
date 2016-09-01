@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"github.com/gin-gonic/gin"
 )
 
 func (e *Env) AllItem(w http.ResponseWriter, r *http.Request) {
@@ -48,10 +49,9 @@ func (e *Env) GetItem(w http.ResponseWriter, r *http.Request) {
 	i.ID, _ = strconv.ParseUint(id, 10, 64)
 	log.Println("item.ID = ", i.ID)
 
-	var iv m.ItemView
-	iv, err := i.FindItemByID(e.DB)
-
+	//var iv *m.ItemView
 	rs := new(api.Response)
+	iv, err := i.FindItemByID(e.DB)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		rs.Status = api.ERROR
@@ -100,8 +100,25 @@ func (e *Env) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	log.Println("call UpdateItem")
 }
 
-func (e *Env) FindItem(w http.ResponseWriter, r *http.Request) {
+func (e *Env) FindItemByID(c *gin.Context) {
 	log.Println("call FindItem")
+	id, _ := strconv.Atoi(c.Param("id"))
+	//id := 1
+	var i m.Item
+	i.ID = uint64(id)
+	rs := api.Response{}
+	iv, err := i.FindItemByID(e.DB)
+	log.Println("return from FindItemByID()")
+	if err != nil {
+		log.Println(err)
+		rs.Status = api.ERROR
+		rs.Message = err.Error()
+	} else {
+		rs.Status = api.SUCCESS
+		rs.Data = iv
+		c.JSON(200, rs)
+	}
+	return
 }
 
 func (e *Env) DelItem(w http.ResponseWriter, r *http.Request) {
