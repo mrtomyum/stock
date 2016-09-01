@@ -123,3 +123,39 @@ func (i *Item) New(db *sqlx.DB) (Item, error) {
 	log.Println("Success Insert New Item: ", i)
 	return item, nil
 }
+
+func (i *Item) Update(db *sqlx.DB) (*Item, error) {
+	sql := `
+		UPDATE item
+		SET
+			sku = ?,
+			name = ?,
+			std_price = ?,
+			std_cost = ?,
+			base_unit_id = ?,
+			category_id = ?
+		WHERE id = ?
+	`
+	_, err := db.Exec(sql,
+		i.SKU,
+		i.Name,
+		i.StdPrice,
+		i.StdCost,
+		i.BaseUnitID,
+		i.CategoryID,
+		i.ID,
+	)
+	if err != nil {
+		log.Println("Error after db.Exec()")
+		return nil, err
+	}
+	// Get updated record back from DB to confirm
+	sql = `SELECT * FROM item WHERE id = ?`
+	var updatedItem Item
+	err = db.Get(&updatedItem, sql, i.ID)
+	if err != nil {
+		log.Println("Error after db.Get()")
+		return nil, err
+	}
+	return &updatedItem, nil
+}

@@ -50,17 +50,10 @@ func SetupRoute(c *c.Env) *gin.Engine {
 	itemV1 := r.Group("/v1/items")
 	{
 		itemV1.GET("/", c.AllItem)
-		itemV1.GET("/:id", c.FindItemByID)
+		itemV1.GET("/:id", c.GetItemByID)
 		itemV1.POST("/", c.NewItem)
+		itemV1.PUT("/", c.UpdateItem)
 	}
-	//r.HandleFunc("/v1/items", c.AllItem).Methods("GET"); log.WithFields(log.Fields{"path":"/v1/items", "api":"GET AllItem"})
-	//r.HandleFunc("/v1/items/{id:[0-9]+}", c.GetItem).Methods("GET"); log.Println("/v1/items/:id GET ShowItem")
-	//r.HandleFunc("/v1/items", c.NewItem).Methods("POST"); log.Println("/v1/items POST NewItem")
-
-	//s = r.PathPrefix("/v1/machines").Subrouter()
-	//r.HandleFunc("/v1/machines", c.NewMachine).Methods("POST"); log.Println("/v1/machines POST NewMachine")
-	//r.HandleFunc("/v1/machines", c.AllMachine).Methods("GET"); log.Println("/v1/machines/ GET AllMachine")
-	//s.HandleFunc("/", c.NewMachine).Methods("POST"); log.Println("/v1/machines/ POST NewMachine")
 
 	// ## Location
 	//s := r.PathPrefix("/v1/locations").Subrouter()

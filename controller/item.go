@@ -1,9 +1,7 @@
 package controller
 
 import (
-	"encoding/json"
-	"fmt"
-	"github.com/gorilla/mux"
+
 	"github.com/mrtomyum/nava-sys/api"
 	m "github.com/mrtomyum/nava-stock/model"
 	"log"
@@ -30,32 +28,6 @@ func (e *Env) AllItem(c *gin.Context) {
 		rs.Data = items
 		c.JSON(http.StatusFound, rs)
 	}
-}
-
-func (e *Env) GetItem(w http.ResponseWriter, r *http.Request) {
-	log.Println("call GET ShowItem (by id)")
-	w.Header().Set("Content-Type", "application/json")
-
-	v := mux.Vars(r)
-	id := v["id"]
-	i := new(m.Item)
-	i.ID, _ = strconv.ParseUint(id, 10, 64)
-	log.Println("item.ID = ", i.ID)
-
-	//var iv *m.ItemView
-	rs := new(api.Response)
-	iv, err := i.FindItemByID(e.DB)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		rs.Status = api.ERROR
-		rs.Message = "NOT_FOUND>> " + err.Error()
-	} else {
-		w.WriteHeader(http.StatusFound)
-		rs.Status = api.SUCCESS
-		rs.Data = iv
-	}
-	o, _ := json.Marshal(rs)
-	fmt.Fprintf(w, string(o))
 }
 
 func (e *Env) NewItem(c *gin.Context) {
@@ -87,19 +59,15 @@ func (e *Env) NewItem(c *gin.Context) {
 	return
 }
 
-func (e *Env) UpdateItem(w http.ResponseWriter, r *http.Request) {
-	log.Println("call UpdateItem")
-}
-
-func (e *Env) FindItemByID(c *gin.Context) {
+func (e *Env) GetItemByID(c *gin.Context) {
 	log.Println("call FindItem")
 	c.Header("Server", "NAVA Stock")
 	c.Header("Content-Type", "application/json")
 	c.Header("Access-Control-Allow-Origin", "*")
-	id, _ := strconv.Atoi(c.Param("id"))
-	//id := 1
 	var i m.Item
-	i.ID = uint64(id)
+	//id, _ := strconv.Atoi(c.Param("id"))
+	id := c.Param("id")
+	i.ID, _ = strconv.ParseUint(id, 10, 64)
 	rs := api.Response{}
 	iv, err := i.FindItemByID(e.DB)
 	log.Println("return from FindItemByID()")
@@ -110,10 +78,33 @@ func (e *Env) FindItemByID(c *gin.Context) {
 	} else {
 		rs.Status = api.SUCCESS
 		rs.Data = iv
-		c.JSON(200, rs)
 	}
+	c.JSON(200, rs)
 	return
 }
+
+func (e *Env) UpdateItem(c *gin.Context) {
+	log.Println("call UpdateItem")
+	c.Header("Server", "NAVA Stock")
+	c.Header("Content-Type", "application/json")
+	c.Header("Access-Control-Allow-Origin", "*")
+	var i m.Item
+	rs := api.Response{}
+	if c.BindJSON(&i) != nil {
+		c.JSON(http.StatusBadRequest, i)
+	} else {
+		updatedItem, err := i.Update(e.DB)
+		if err != nil {
+			rs.Status = api.ERROR
+			rs.Message = err.Error()
+		} else {
+			rs.Status = api.SUCCESS
+			rs.Data = updatedItem
+		}
+		c.JSON(http.StatusOK, rs)
+	}
+}
+
 
 func (e *Env) DelItem(w http.ResponseWriter, r *http.Request) {
 	log.Println("call NewItem")
