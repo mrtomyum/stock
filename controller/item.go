@@ -44,7 +44,7 @@ func (e *Env) NewItem(c *gin.Context) {
 		rs.Message = err.Error()
 		c.JSON(http.StatusBadRequest, rs)
 	} else {
-		newItem, err := i.New(e.DB)
+		newItem, err := i.Insert(e.DB)
 		log.Println("i= ", i)
 		if err != nil {
 			rs.Status = api.ERROR
@@ -69,7 +69,7 @@ func (e *Env) GetItemByID(c *gin.Context) {
 	id := c.Param("id")
 	i.ID, _ = strconv.ParseUint(id, 10, 64)
 	rs := api.Response{}
-	iv, err := i.FindItemByID(e.DB)
+	iv, err := i.GetItemView(e.DB)
 	log.Println("return from FindItemByID()")
 	if err != nil {
 		log.Println(err)
@@ -104,7 +104,6 @@ func (e *Env) UpdateItem(c *gin.Context) {
 		c.JSON(http.StatusOK, rs)
 	}
 }
-
 
 func (e *Env) DelItem(w http.ResponseWriter, r *http.Request) {
 	log.Println("call NewItem")

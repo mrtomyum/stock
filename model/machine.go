@@ -18,6 +18,7 @@ const (
 	CUP_FRESH_COFFEE
 	CUP_NOODLE
 	SPRING
+	SEE_THROUGH
 	TICKET
 )
 
@@ -29,6 +30,7 @@ func (t machineType) MarshalJSON() ([]byte, error) {
 		CUP_FRESH_COFFEE: "CUP_FRESH_COFFEE",
 		CUP_NOODLE:       "CUP_NOODLE",
 		SPRING:           "SPRING",
+		SEE_THROUGH:      "SEE_THROUGH",
 		TICKET:           "TICKET",
 	}[t]
 	if !ok {

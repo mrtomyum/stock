@@ -14,7 +14,7 @@ import (
 func CreateLocationTree(locations []*m.Location) *m.Location {
 	tree := new(m.Location)
 	for _, l := range locations {
-		tree.Add(l)
+		tree.AddTree(l)
 	}
 	return tree
 }
@@ -30,7 +30,7 @@ func (e *Env) GetLocationTreeByID(w http.ResponseWriter, r *http.Request) {
 	loc.ID, _ = strconv.ParseUint(id, 10, 64)
 
 	// Todo: use loc.ID to parameter to retrive just tree of this ID
-	locations, err := loc.Show(e.DB)
+	locations, err := loc.Get(e.DB)
 	rs := new(api.Response)
 	if err != nil {
 		log.Fatal("Error LocationsTreeByID()", err)
@@ -81,7 +81,7 @@ func (e *Env) NewLocation(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("Success decode JSON -> :", l, " Result user decoded -> ", l.Code)
 
-	newLoc, err := l.New(e.DB)
+	newLoc, err := l.Insert(e.DB)
 	rs := new(api.Response)
 	if err != nil {
 		rs.Status = api.ERROR

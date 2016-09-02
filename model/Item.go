@@ -57,7 +57,7 @@ func (i *Item) All(db *sqlx.DB) (Items, error) {
 	return items, nil
 }
 
-func (i *Item) FindItemByID(db *sqlx.DB) (*ItemView, error) {
+func (i *Item) GetItemView(db *sqlx.DB) (*ItemView, error) {
 	log.Println("call FindItemByID()")
 	var iv ItemView
 	sql := `
@@ -86,7 +86,7 @@ func (i *Item) FindItemByID(db *sqlx.DB) (*ItemView, error) {
 	return &iv, nil
 }
 
-func (i *Item) New(db *sqlx.DB) (Item, error) {
+func (i *Item) Insert(db *sqlx.DB) (Item, error) {
 	sql := `
 		INSERT INTO item (
 			sku,
