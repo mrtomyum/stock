@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (e *Env) AllItem(c *gin.Context) {
+func (e *Env) GetAllItem(c *gin.Context) {
 	log.Println("call GET AllItem")
 	c.Header("Server", "NAVA Stock")
 	c.Header("Content-Type", "application/json")
@@ -30,7 +30,7 @@ func (e *Env) AllItem(c *gin.Context) {
 	}
 }
 
-func (e *Env) NewItem(c *gin.Context) {
+func (e *Env) PostNewItem(c *gin.Context) {
 	log.Println("call POST NewItem")
 	c.Header("Server", "NAVA Stock")
 	c.Header("Content-Type", "application/json")

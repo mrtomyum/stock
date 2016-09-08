@@ -14,15 +14,15 @@ type Stock struct {
 	Qty    int64  `json:"qty" db:"qty"`
 }
 
-type StockTrans struct {
+type StockCard struct {
 	sys.Base
 	//DocID uint64
-	ItemID     uint64
-	LocationID uint64
-	TransUnit  Unit
-	BaseUnit   Unit
-	TransQty   int64
-	BaseQty    int64
+	ItemID    uint64
+	LocID     uint64
+	TransUnit Unit
+	TransQty  int64
+	BaseUnit  Unit
+	BaseQty   int64
 }
 
 // ลูกค้า
@@ -33,22 +33,6 @@ const (
 	EDUCATION
 	OFFICE
 )
-
-type Client struct {
-	sys.Base
-	Name       string
-	Type       ClientType
-	PriceLevel int
-}
-
-// สถานที่วางตู้
-type Place struct {
-	sys.Base
-	ClientID uint64
-	Name     string
-	Lat      float64
-	Long     float64
-}
 
 type Vehicle struct {
 	sys.Base

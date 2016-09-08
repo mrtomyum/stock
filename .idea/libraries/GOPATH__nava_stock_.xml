@@ -15,9 +15,11 @@
       <root url="file:///usr/local/go/src/bufio" />
       <root url="file:///usr/local/go/src/syscall" />
       <root url="file:///usr/local/go/src/regexp" />
+      <root url="file://$PROJECT_DIR$/../../../gopkg.in" />
       <root url="file:///usr/local/go/src/hash" />
       <root url="file:///usr/local/go/src/errors" />
       <root url="file:///usr/local/go/src/math" />
+      <root url="file://$PROJECT_DIR$/../../../google.golang.org" />
       <root url="file:///usr/local/go/src/cmd" />
       <root url="file:///usr/local/go/src/unicode" />
       <root url="file:///usr/local/go/src/strconv" />
@@ -64,9 +66,11 @@
       <root url="file:///usr/local/go/src/bufio" />
       <root url="file:///usr/local/go/src/syscall" />
       <root url="file:///usr/local/go/src/regexp" />
+      <root url="file://$PROJECT_DIR$/../../../gopkg.in" />
       <root url="file:///usr/local/go/src/hash" />
       <root url="file:///usr/local/go/src/errors" />
       <root url="file:///usr/local/go/src/math" />
+      <root url="file://$PROJECT_DIR$/../../../google.golang.org" />
       <root url="file:///usr/local/go/src/cmd" />
       <root url="file:///usr/local/go/src/unicode" />
       <root url="file:///usr/local/go/src/strconv" />

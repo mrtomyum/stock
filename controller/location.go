@@ -69,7 +69,7 @@ func (e *Env) GetAllLocationTree(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(output))
 }
 
-func (e *Env) NewLocation(w http.ResponseWriter, r *http.Request) {
+func (e *Env) PostNewLocation(w http.ResponseWriter, r *http.Request) {
 	log.Println("call ShowLocationTree()")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
