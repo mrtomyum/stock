@@ -7,7 +7,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/nava-sys/model"
-	"golang.org/x/text/currency"
+	"github.com/shopspring/decimal"
 )
 
 type machineType uint8
@@ -100,7 +100,7 @@ type MachineColumn struct {
 	MachineID   uint64          `json:"machine_id" db:"machine_id"`
 	Number      int             `json:"column_no" db:"column_no"`
 	ItemId      uint64          `json:"item_id" db:"item_id"`
-	Price       currency.Amount `json:"price"`
+	Price       decimal.Decimal `json:"price"`
 	LastCounter int             `json:"last_counter" db:"last_counter"`
 	CurrCounter int             `json:"curr_counter" db:"curr_counter"`
 	Size        ColumnSize      `json:"size"`

@@ -11,7 +11,7 @@ import (
 )
 
 func (e *Env) PostNewCounter(ctx *gin.Context) {
-	log.Println("call AllMachineBatchSale()")
+	log.Println("call ctrl.Counter()")
 	ctx.Header("Server", "NAVA Stock")
 	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
@@ -19,7 +19,7 @@ func (e *Env) PostNewCounter(ctx *gin.Context) {
 	c := &model.Counter{}
 	rs := api.Response{}
 	if err := ctx.BindJSON(&c); err != nil {
-		log.Println("Decode Error: ", err)
+		log.Println("ctx.BindJSON decode Error: ", err)
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
 		ctx.JSON(http.StatusBadRequest, rs)
@@ -40,7 +40,7 @@ func (e *Env) PostNewCounter(ctx *gin.Context) {
 
 
 func (e *Env) GetAllCounter(w http.ResponseWriter, r *http.Request) {
-	log.Println("call AllMachineBatchSale()")
+	log.Println("call ctrl.Counter.GetAllCounter()")
 	w.Header().Set("Server", "nava Stock")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")

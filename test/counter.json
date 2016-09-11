@@ -1,0 +1,72 @@
+{
+  "counter": [
+    {
+      "rec_date": "2016-09-05",
+      "machine_id": 1,
+      "counter_sum": 0,
+      "sub": [
+        {
+          "counter_id": 1,
+          "column_no": 1,
+          "counter": 0
+        },
+        {
+          "counter_id": 1,
+          "column_no": 2,
+          "counter": 0
+        },
+        {
+          "counter_id": 1,
+          "column_no": 3,
+          "counter": 0
+        }
+      ]
+    },
+    {
+      "rec_date": "2016-09-05",
+      "machine_id": 2,
+      "counter_sum": 30,
+      "sub": [
+        {
+          "counter_id": 1,
+          "column_no": 1,
+          "counter": 5
+        },
+        {
+          "counter_id": 1,
+          "column_no": 2,
+          "counter": 10
+        },
+        {
+          "counter_id": 1,
+          "column_no": 3,
+          "counter": 15
+        }
+      ]
+    },
+    {
+      "rec_date": "2016-09-05",
+      "machine_id": 3,
+      "counter_sum": 45,
+      "sub": [
+        {
+          "counter_id": 1,
+          "column_no": 1,
+          "counter": 10
+        },
+        {
+          "counter_id": 1,
+          "column_no": 2,
+          "counter": 15
+        },
+        {
+          "counter_id": 1,
+          "column_no": 3,
+          "counter": 20
+        }
+      ]
+    }
+  ]
+}
+
+

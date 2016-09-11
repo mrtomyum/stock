@@ -3,33 +3,52 @@ package model
 import (
 	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/nava-sys/model"
-	"golang.org/x/text/currency"
+	"github.com/shopspring/decimal"
 	"log"
+	"strings"
 	"time"
 )
 
+const DateFormat = "2006-01-02" // yyyy-mm-dd
+
+type Date struct {
+	time.Time
+}
+
+func (d *Date) UnmarshalJSON(data []byte) error {
+	log.Println("json.Unmashaller == Overide UnmarshalJSON()", string(data))
+	var err error
+	d.Time, err = time.Parse(DateFormat, strings.Trim(string(data), `"`)) // << ตรงนี้ต้องทำการ Trim(") ออก
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 type Counter struct {
 	sys.Base
-	RecDate    *time.Time `json:"rec_date" db:"rec_date"`
-	MachineId  uint64     `json:"machine_id" db:"machine_id"`
-	CounterSum int        `json:"counter_sum" db:"counter_sum"`
+	//RecDate    *time.Time `json:"rec_date" db:"rec_date"`
+	RecDate    Date   `json:"rec_date" db:"rec_date"`
+	MachineId  uint64 `json:"machine_id" db:"machine_id"`
+	CounterSum int    `json:"counter_sum" db:"counter_sum"`
 	Sub        []*CounterSub
 }
 
 type CounterSub struct {
+	sys.Base
 	CounterId uint64          `json:"-" db:"counter_id"`    // FK
 	ColumnNo  int             `json:"column_no" db:"column_no"`
-	Counter   int             `json:"curr_counter" db:"curr_counter"`
+	Counter   int             `json:"counter" db:"counter"`
 	ItemId    uint64          `json:"item_id" db:"item_id"` // Record as history data.
-	Price     currency.Amount `json:"price"`                // from Last updated Price of this Machine.Column
+	Price     decimal.Decimal `json:"price"`                // from Last updated Price of this Machine.Column
 }
 
-//-----------------------
+//---------------------------------------------------------------------------
 // model.Counter.Insert
 // ทำการเก็บผลการบันทึก Counter โดยมีการบันทึก LastCounter และ CurrCounter ลงใน
 // MachineColumn ด้วย โดยต้องระวังการ Update จะไม่บันทึก LastCounter
 // และถ้ามีการยกเลิก Counter ที่บันทึกไปแล้วต้องคืนค่า LastCounter และ CurrCounter ด้วย
-//-----------------------
+//---------------------------------------------------------------------------
 func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 	tx, err := db.Beginx()
 	sql := `INSERT INTO counter (
@@ -42,38 +61,43 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		return nil, err
 	}
 	res, err := tx.Exec(sql,
-		c.RecDate,
+		c.RecDate.Time,
 		c.MachineId,
 		c.CounterSum,
 	)
 	if err != nil {
 		// if err tx.Rollback
-		log.Println("error in tx.Exec(), res =", res, "Error: ", err, "If duplicate entry please use model.Counter.Update()")
+		log.Println("error in tx.Exec() Error: ", err)
+		log.Println("TOM::If duplicate entry please use model.Counter.Update()")
 		errRollback := tx.Rollback()
 		if errRollback != nil {
 			log.Println("errRollback", errRollback)
 			return nil, errRollback
 		}
 	}
+	tx.Commit()
 
 	// Loop for range Counter.Sub
 	counterId, _ := res.LastInsertId()
 	var newSubs []*CounterSub
 	for _, sub := range c.Sub {
+		tx, err = db.Beginx()
 		// Get relate data from other table.
 		// Select related data from MachineColumn.
 		var mc MachineColumn
 		sql = `
 			SELECT *
 			FROM machine_column
-			WHERE machine_id = ? AND number = ?
+			WHERE machine_id = ? AND column_no = ?
 			LIMIT 1
 			`
 		err := db.Get(&mc, sql, c.MachineId, sub.ColumnNo)
 		if err != nil {
 			tx.Rollback()
+			log.Println("Error in db.Get() Select machine_column = ", err)
 			return nil, err
 		}
+		log.Println("Pass>>db.Get() Select machine_column")
 
 		// Update MachineColumn.LastCounter and CurrCounter
 		sql = `
@@ -87,50 +111,70 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		)
 		if err != nil {
 			tx.Rollback()
+			log.Println("Error in tx.Exec() machine_column = ", err)
 			return nil, err
 		}
+		log.Println("Pass>>tx.Exec() UPDATE machine_column")
 
 		// Insert CounterSub{}
 		sql = `
 			INSERT INTO counter_sub (
 				counter_id,
-				number,
+				column_no,
 				item_id,
 				price,
-				curr_counter
-			)`
+				counter
+			) VALUES(?,?,?,?,?)`
 		sub.ItemId = mc.ItemId
 		sub.Price = mc.Price
-		res, _ = tx.Exec(sql,
+		res, err = tx.Exec(sql,
 			counterId,
 			sub.ColumnNo,
 			sub.ItemId,
 			sub.Price,
 			sub.Counter,
 		)
+		if err != nil {
+			tx.Rollback()
+			log.Println("Error in tx.Exec() INSERT counter_sub = ", err)
+			return nil, err
+		}
+		// if success tx.Commit
+		tx.Commit()
+		log.Println("Pass>>tx.Exec() INSERT counter_sub")
 		// Return New CounterSub to confirm
 		var inserted CounterSub
 		id, _ := res.LastInsertId()
 		err = db.Get(&inserted, `SELECT * FROM counter_sub WHERE id = ?`, id)
 		if err != nil {
-			tx.Rollback()
+			log.Println("Error in db.Get() counter_sub = ", err)
 			return nil, err
 		}
+		log.Println("Pass>>db.Get() Select counter_sub")
 		newSubs = append(newSubs, &inserted)
 	}
 
-	// if success tx.Commit
-	tx.Commit()
-	var newCounter Counter
+	var newCounter *Counter
 	sql = `SELECT * FROM counter WHERE id = ?`
 	id, _ := res.LastInsertId()
-	err = db.Get(newCounter, sql, uint64(id))
+	//err = db.Get(&newCounter, sql, uint64(id))
+	row := db.QueryRowx(sql, uint64(id))
+	err = row.Scan(
+		newCounter.ID,
+		newCounter.Created,
+		newCounter.Updated,
+		newCounter.Deleted,
+		newCounter.RecDate.Time,
+		newCounter.MachineId,
+		newCounter.CounterSum,
+	)
 	if err != nil {
-		log.Println("Error in db.Get() = ", err)
+		log.Println("Error in db.QueryRowx() SELECT * FROM counter... = ", err)
 		return nil, err
 	}
 	newCounter.Sub = newSubs
-	return &newCounter, nil
+	log.Println("Pass>>db.Get() Select counter_sub")
+	return newCounter, nil
 }
 
 func (c *Counter) Update(db *sqlx.DB) (*Counter, error) {
@@ -223,5 +267,3 @@ func (s *Counter) All(db *sqlx.DB) ([]*Counter, error) {
 //	}
 //	return readSales, nil
 //}
-
-
