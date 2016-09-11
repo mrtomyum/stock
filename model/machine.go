@@ -7,6 +7,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/nava-sys/model"
+	"github.com/shopspring/decimal"
 )
 
 type machineType uint8
@@ -18,6 +19,7 @@ const (
 	CUP_FRESH_COFFEE
 	CUP_NOODLE
 	SPRING
+	SEE_THROUGH
 	TICKET
 )
 
@@ -29,6 +31,7 @@ func (t machineType) MarshalJSON() ([]byte, error) {
 		CUP_FRESH_COFFEE: "CUP_FRESH_COFFEE",
 		CUP_NOODLE:       "CUP_NOODLE",
 		SPRING:           "SPRING",
+		SEE_THROUGH:      "SEE_THROUGH",
 		TICKET:           "TICKET",
 	}[t]
 	if !ok {
@@ -70,6 +73,7 @@ type Machine struct {
 	ProfileID    uint64       `json:"profile_id" db:"profile_id"`
 	SerialNumber null.String  `json:"serial_number" db:"serial_number"`
 	Selection    int          `json:"selection"` //จำนวน Column หรือช่องเก็บสินค้า
+	ClientID     uint64       `json:"client_id" db:"client_id"`
 }
 
 type ColumnSize int
@@ -93,11 +97,14 @@ const (
 // MachineColumn เก็บยอด Counter ล่าสุดของแต่ละ column ในแต่ละ Machine
 type MachineColumn struct {
 	sys.Base
-	MachineID   uint64       `json:"machine_id"`
-	ColumnNo    int          `json:"column_no"`
-	CurrCounter int          `json:"curr_counter" db:"curr_counter"`
-	Size        ColumnSize   `json:"size"`
-	Status      ColumnStatus `json:"status"`
+	MachineID   uint64          `json:"machine_id" db:"machine_id"`
+	Number      int             `json:"column_no" db:"column_no"`
+	ItemId      uint64          `json:"item_id" db:"item_id"`
+	Price       decimal.Decimal `json:"price"`
+	LastCounter int             `json:"last_counter" db:"last_counter"`
+	CurrCounter int             `json:"curr_counter" db:"curr_counter"`
+	Size        ColumnSize      `json:"size"`
+	Status      ColumnStatus    `json:"status"`
 }
 
 // Transaction row Batch data received from mobile app daily.

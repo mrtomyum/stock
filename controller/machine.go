@@ -9,7 +9,7 @@ import (
 )
 
 //func (e *Env) AllMachine(w http.ResponseWriter, r *http.Request) {
-func (e *Env) AllMachine(c *gin.Context) {
+func (e *Env) GetAllMachine(c *gin.Context) {
 	log.Info(log.Fields{"func":"controller.AllMachine()"})
 	c.Header("Server", "NAVA Stock")
 	c.Header("Content-Type", "application/json")
@@ -30,7 +30,7 @@ func (e *Env) AllMachine(c *gin.Context) {
 	return
 }
 
-func (e *Env) NewMachine(c *gin.Context) {
+func (e *Env) PostNewMachine(c *gin.Context) {
 	log.Info(log.Fields{"func":"controller.NewMachine()"})
 	c.Header("Server", "NAVA Stock")
 	c.Header("Content-Type", "application/json")

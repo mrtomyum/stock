@@ -43,34 +43,30 @@ func SetupRoute(c *c.Env) *gin.Engine {
 	r := gin.Default()
 	machineV1 := r.Group("/v1/machines")
 	{
-		machineV1.GET("/", c.AllMachine)
-		machineV1.POST("/", c.NewMachine)
+		machineV1.GET("/", c.GetAllMachine)
+		machineV1.POST("/", c.PostNewMachine)
 	}
 
 	itemV1 := r.Group("/v1/items")
 	{
-		itemV1.GET("/", c.AllItem)
+		itemV1.GET("/", c.GetAllItem)
 		itemV1.GET("/:id", c.GetItemByID)
-		itemV1.POST("/", c.NewItem)
+		itemV1.POST("/", c.PostNewItem)
 		itemV1.PUT("/", c.UpdateItem)
+		//itemV1.GET("/:id/prices", c.GetItemPriceByID)
 	}
 
-	// ## Location
-	//s := r.PathPrefix("/v1/locations").Subrouter()
-	//r.HandleFunc("/", c.GetAllLocationTree).Methods("GET"); log.Println("/v1/locations GET All Location tree")
-	//r.HandleFunc("/", c.NewLocation).Methods("POST"); log.Println("/v1/locations POST New Location")
-	//r.HandleFunc("/{id:[0-9]+}", c.GetLocationTreeByID).Methods("GET"); log.Println("/v1/locations/:id GET Location tree by ID")
+	//locationV1 := r.Group("/v1/locations")
+	//{
+	//	locationV1.GET("/", c.GetAllLocationTree)
+	//	locationV1.GET("/:id", c.GetLocationTreeByID)
+	//	locationV1.POST("/", c.PostNewLocation)
+	//}
 
-
-	//s.HandleFunc("/{id:[0-9]+}", c.UpdateItem).Methods("PUT"); log.Println("/api/v1/item/:id PUT UpdateItem ")
-	//s.HandleFunc("/search", c.FindItem).Methods("POST"); log.Println("/api/v1/item/search POST FindItem")
-	//s.HandleFunc("/{id:[0-9]+}", c.DelItem).Methods("DELETE"); log.Println("/api/v1/item/:id DELETE ItemDelete")
-	//s.HandleFunc("/{id:[0-9]+}/undelete", c.UndelItem).Methods("PUT"); log.Println("/api/v1/item/:id/undelete PUT ItemUndelete")
-	// ## ItemPrice
-	//s.HandleFunc("/{id:[0-9]+}/price", c.ItemPrice).Methods("GET"); log.Println("/api/v1/item/:id/price GET PriceByItemID")
-	// # Stock
-	//s = r.PathPrefix("/v1/stocks").Subrouter()
-	//s.HandleFunc("/", c.AllStock).Methods("GET"); log.Println("/v1/stocks/")
+	counterV1 := r.Group("/v1/counters")
+	{
+		counterV1.POST("/", c.PostNewCounter)
+	}
 
 
 	// ## Batch

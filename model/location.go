@@ -56,14 +56,14 @@ func (this *Location) Size() int {
 	return size
 }
 
-func (this *Location) Add(nodes ...*Location) bool {
+func (this *Location) AddTree(nodes ...*Location) bool {
 	var size = this.Size()
 	for _, node := range nodes {
 		if node.ParentID == this.ID {
 			this.Child = append(this.Child, node)
 		} else {
 			for _, c := range this.Child {
-				if c.Add(node) {
+				if c.AddTree(node) {
 					break
 				}
 			}
@@ -85,7 +85,7 @@ func (l *Location) All(db *sqlx.DB) ([]*Location, error) {
 	return locations, nil
 }
 
-func (l *Location) Show(db *sqlx.DB) ([]*Location, error) {
+func (l *Location) Get(db *sqlx.DB) ([]*Location, error) {
 	// TODO: แก้ Select ให้สามารถ Recursive  Parent_id ได้
 	sql := `
 		SELECT * FROM location
@@ -101,7 +101,7 @@ func (l *Location) Show(db *sqlx.DB) ([]*Location, error) {
 	return locations, nil
 }
 
-func (l *Location) New(db *sqlx.DB) (*Location, error) {
+func (l *Location) Insert(db *sqlx.DB) (*Location, error) {
 	sql := `
 		INSERT INTO location (
 			code,
