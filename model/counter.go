@@ -97,7 +97,7 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 			log.Println("Error in db.Get() Select machine_column = ", err)
 			return nil, err
 		}
-		log.Println("Pass>>db.Get() Select machine_column")
+		log.Println("1.Pass>>db.Get() Select machine_column")
 
 		// Update MachineColumn.LastCounter and CurrCounter
 		sql = `
@@ -114,7 +114,7 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 			log.Println("Error in tx.Exec() machine_column = ", err)
 			return nil, err
 		}
-		log.Println("Pass>>tx.Exec() UPDATE machine_column")
+		log.Println("2.Pass>>tx.Exec() UPDATE machine_column")
 
 		// Insert CounterSub{}
 		sql = `
@@ -141,7 +141,7 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		}
 		// if success tx.Commit
 		tx.Commit()
-		log.Println("Pass>>tx.Exec() INSERT counter_sub")
+		log.Println("3.Pass>>tx.Exec() INSERT counter_sub")
 		// Return New CounterSub to confirm
 		var inserted CounterSub
 		id, _ := res.LastInsertId()
@@ -150,31 +150,31 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 			log.Println("Error in db.Get() counter_sub = ", err)
 			return nil, err
 		}
-		log.Println("Pass>>db.Get() Select counter_sub")
+		log.Println("4.Pass>>db.Get() Select counter_sub")
 		newSubs = append(newSubs, &inserted)
 	}
 
-	var newCounter *Counter
 	sql = `SELECT * FROM counter WHERE id = ?`
 	id, _ := res.LastInsertId()
 	//err = db.Get(&newCounter, sql, uint64(id))
 	row := db.QueryRowx(sql, uint64(id))
+	var newCounter Counter
 	err = row.Scan(
-		newCounter.ID,
-		newCounter.Created,
-		newCounter.Updated,
-		newCounter.Deleted,
-		newCounter.RecDate.Time,
-		newCounter.MachineId,
-		newCounter.CounterSum,
+		&newCounter.ID,
+		&newCounter.Created,
+		&newCounter.Updated,
+		&newCounter.Deleted,
+		&newCounter.RecDate.Time,
+		&newCounter.MachineId,
+		&newCounter.CounterSum,
 	)
 	if err != nil {
-		log.Println("Error in db.QueryRowx() SELECT * FROM counter... = ", err)
+		log.Println("Error 5. in db.QueryRowx() SELECT * FROM counter... = ", err)
 		return nil, err
 	}
+	log.Println("5.Pass>>db.Get() Select counter")
 	newCounter.Sub = newSubs
-	log.Println("Pass>>db.Get() Select counter_sub")
-	return newCounter, nil
+	return &newCounter, nil
 }
 
 func (c *Counter) Update(db *sqlx.DB) (*Counter, error) {
