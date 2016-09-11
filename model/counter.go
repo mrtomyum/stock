@@ -67,23 +67,27 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 	)
 	if err != nil {
 		// if err tx.Rollback
-		log.Println("error in tx.Exec() Error: ", err)
+		log.Println("Error>>1.tx.Exec() INSERT INTO counter Error: ", err)
 		log.Println("TOM::If duplicate entry please use model.Counter.Update()")
 		errRollback := tx.Rollback()
 		if errRollback != nil {
 			log.Println("errRollback", errRollback)
 			return nil, errRollback
 		}
+		return nil, err
 	}
 	tx.Commit()
+	log.Println("Pass>>1.tx.Exec() INSERT INTO counter")
 
 	// Loop for range Counter.Sub
 	counterId, _ := res.LastInsertId()
 	var newSubs []*CounterSub
 	for _, sub := range c.Sub {
 		tx, err = db.Beginx()
+		//-----------------------------------------
 		// Get relate data from other table.
-		// Select related data from MachineColumn.
+		// SELECT related data from MachineColumn.
+		//-----------------------------------------
 		var mc MachineColumn
 		sql = `
 			SELECT *
@@ -94,12 +98,13 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		err := db.Get(&mc, sql, c.MachineId, sub.ColumnNo)
 		if err != nil {
 			tx.Rollback()
-			log.Println("Error in db.Get() Select machine_column = ", err)
+			log.Println("Error>>2.db.Get() SELECT machine_column = ", err)
 			return nil, err
 		}
-		log.Println("1.Pass>>db.Get() Select machine_column")
-
+		log.Println("Pass>>2.db.Get() SELECT machine_column")
+		//--------------------------------------------------
 		// Update MachineColumn.LastCounter and CurrCounter
+		//--------------------------------------------------
 		sql = `
 			UPDATE machine_column
 			SET last_counter = ?, curr_counter = ?
@@ -111,12 +116,13 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		)
 		if err != nil {
 			tx.Rollback()
-			log.Println("Error in tx.Exec() machine_column = ", err)
+			log.Println("Error>>3.tx.Exec() machine_column = ", err)
 			return nil, err
 		}
-		log.Println("2.Pass>>tx.Exec() UPDATE machine_column")
-
+		log.Println("Pass>>3.tx.Exec() UPDATE machine_column")
+		//--------------------------------------------------
 		// Insert CounterSub{}
+		//--------------------------------------------------
 		sql = `
 			INSERT INTO counter_sub (
 				counter_id,
@@ -136,21 +142,23 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		)
 		if err != nil {
 			tx.Rollback()
-			log.Println("Error in tx.Exec() INSERT counter_sub = ", err)
+			log.Println("Error>>4.tx.Exec() INSERT counter_sub = ", err)
 			return nil, err
 		}
 		// if success tx.Commit
 		tx.Commit()
-		log.Println("3.Pass>>tx.Exec() INSERT counter_sub")
+		log.Println("Pass>>4.tx.Exec() INSERT counter_sub")
+		//--------------------------------------------------
 		// Return New CounterSub to confirm
+		//--------------------------------------------------
 		var inserted CounterSub
 		id, _ := res.LastInsertId()
 		err = db.Get(&inserted, `SELECT * FROM counter_sub WHERE id = ?`, id)
 		if err != nil {
-			log.Println("Error in db.Get() counter_sub = ", err)
+			log.Println("Error>>5.db.Get() counter_sub = ", err)
 			return nil, err
 		}
-		log.Println("4.Pass>>db.Get() Select counter_sub")
+		log.Println("Pass>>5.db.Get() SELECT counter_sub")
 		newSubs = append(newSubs, &inserted)
 	}
 
@@ -169,10 +177,10 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		&newCounter.CounterSum,
 	)
 	if err != nil {
-		log.Println("Error 5. in db.QueryRowx() SELECT * FROM counter... = ", err)
+		log.Println("Error>>6.db.QueryRowx() SELECT * FROM counter... = ", err)
 		return nil, err
 	}
-	log.Println("5.Pass>>db.Get() Select counter")
+	log.Println("Pass>>6.db.Get() SELECT counter")
 	newCounter.Sub = newSubs
 	return &newCounter, nil
 }
