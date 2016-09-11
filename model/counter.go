@@ -51,15 +51,15 @@ type CounterSub struct {
 //---------------------------------------------------------------------------
 func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 	tx, err := db.Beginx()
+	if err != nil {
+		return nil, err
+	}
 	sql := `INSERT INTO counter (
 		rec_date,
 		machine_id,
 		counter_sum
 		) VALUES(?,?,?)
 	`
-	if err != nil {
-		return nil, err
-	}
 	res, err := tx.Exec(sql,
 		c.RecDate.Time,
 		c.MachineId,
