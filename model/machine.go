@@ -98,7 +98,7 @@ const (
 type MachineColumn struct {
 	sys.Base
 	MachineID   uint64          `json:"machine_id" db:"machine_id"`
-	Number      int             `json:"column_no" db:"column_no"`
+	ColumnNo    int             `json:"column_no" db:"column_no"`
 	ItemId      uint64          `json:"item_id" db:"item_id"`
 	Price       decimal.Decimal `json:"price"`
 	LastCounter int             `json:"last_counter" db:"last_counter"`
@@ -146,7 +146,7 @@ func (m *Machine) All(db *sqlx.DB) ([]*Machine, error) {
 }
 
 func (m *Machine) New(db *sqlx.DB) (*Machine, error) {
-	log.Println("call Machine.New()")
+	log.Println("call model.Machine.New()")
 	sql := `INSERT INTO machine(
 		loc_id,
 		code,
@@ -177,4 +177,63 @@ func (m *Machine) New(db *sqlx.DB) (*Machine, error) {
 	}
 	log.Println("New Machine:", newMachine)
 	return &newMachine, nil
+}
+
+func (m *Machine) Get(db *sqlx.DB) (*Machine, error) {
+	log.Println("call model.Machine.Get()")
+	sql := `SELECT * FROM machine_column WHERE id = ?`
+	err := db.Get(m, sql, m.ID)
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (m *Machine) Columns(db *sqlx.DB) ([]*MachineColumn, error) {
+	log.Println("call model.Machine.Columns()")
+
+	var mc []*MachineColumn
+	sql := `SELECT * FROM machine_column WHERE machine_id = ?`
+	err := db.Get(mc, sql, m.ID)
+	if err != nil {
+		return nil, err
+	}
+	return mc, nil
+}
+
+func (mc *MachineColumn) Update(db *sqlx.DB) (*MachineColumn, error) {
+	log.Println("call model.MachineColumn.Update()")
+
+	sql := `
+	UPDATE machine_column
+	SET
+		machine_id 	= ?,
+		column_no = ?,
+		item_id = ?,
+		price = ?,
+		last_counter = ?,
+		curr_counter = ?
+	WHERE column_no = ?
+	`
+	res, err := db.Exec(sql,
+		mc.MachineID,
+		mc.ColumnNo,
+		mc.ItemId,
+		mc.Price,
+		mc.LastCounter,
+		mc.CurrCounter,
+		mc.ColumnNo,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var updatedMC MachineColumn
+	id, _ := res.LastInsertId()
+	err = db.Get(&updatedMC, sql, uint64(id))
+	if err != nil {
+		return nil, err
+	}
+	return &updatedMC, nil
+
 }
