@@ -1,16 +1,15 @@
 package controller
 
 import (
-	"fmt"
-	"encoding/json"
 	"net/http"
 	log "github.com/Sirupsen/logrus"
 	"github.com/mrtomyum/nava-stock/model"
 	"github.com/mrtomyum/nava-sys/api"
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
-func (e *Env) PostNewCounter(ctx *gin.Context) {
+func (e *Env) PostCounter(ctx *gin.Context) {
 	log.Println("call ctrl.Counter()")
 	ctx.Header("Server", "NAVA Stock")
 	ctx.Header("Content-Type", "application/json")
@@ -38,12 +37,11 @@ func (e *Env) PostNewCounter(ctx *gin.Context) {
 	return
 }
 
-
-func (e *Env) GetAllCounter(w http.ResponseWriter, r *http.Request) {
+func (e *Env) GetAllCounter(ctx *gin.Context) {
 	log.Println("call ctrl.Counter.GetAllCounter()")
-	w.Header().Set("Server", "nava Stock")
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	ctx.Header("Server", "NAVA Stock")
+	ctx.Header("Content-Type", "application/json")
+	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	c := model.Counter{}
 	rs := api.Response{}
@@ -51,13 +49,47 @@ func (e *Env) GetAllCounter(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
+		ctx.Status(http.StatusNoContent)
 	} else {
 		rs.Status = api.SUCCESS
 		rs.Data = counters
+		ctx.JSON(http.StatusOK, rs)
 	}
-	w.WriteHeader(http.StatusOK)
-	output, _ := json.Marshal(rs)
-	fmt.Fprintf(w, string(output))
+	return
+}
+
+//====================================
+// ขอข้อมูลเคาทเตอร์ เฉพาะรายการตาม id
+//====================================
+func (e *Env) GetCounter(ctx *gin.Context) {
+	log.Println("call ctrl.Counter.GetCounterById()")
+	ctx.Header("Server", "NAVA Stock")
+	ctx.Header("Content-Type", "application/json")
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
+	id := ctx.Param("id")
+	c := model.Counter{}
+	c.ID, _ = strconv.ParseUint(id, 10, 64)
+	rs := api.Response{}
+	counters, err := c.Get(e.DB)
+	if err != nil {
+		rs.Status = api.ERROR
+		rs.Message = err.Error()
+		ctx.Status(http.StatusNoContent)
+	} else {
+		rs.Status = api.SUCCESS
+		rs.Data = counters
+		ctx.JSON(http.StatusOK, rs)
+	}
+	return
+}
+
+func (e *Env) PutCounter(ctx *gin.Context) {
+
+}
+
+func (e *Env) DeleteCounter(ctx *gin.Context) {
+
 }
 
 //====================================

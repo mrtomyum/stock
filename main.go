@@ -57,7 +57,7 @@ func SetupRoute(c *c.Env) *gin.Engine {
 	itemV1 := r.Group("/v1/items")
 	{
 		itemV1.GET("/", c.GetAllItem)
-		itemV1.GET("/:id", c.GetItemByID)
+		itemV1.GET("/:id", c.GetItem)
 		itemV1.POST("/", c.PostNewItem)
 		itemV1.PUT("/", c.UpdateItem)
 		//itemV1.GET("/:id/prices", c.GetItemPriceByID)
@@ -65,7 +65,11 @@ func SetupRoute(c *c.Env) *gin.Engine {
 
 	counterV1 := r.Group("/v1/counters")
 	{
-		counterV1.POST("/", c.PostNewCounter)
+		counterV1.POST("/", c.PostCounter)
+		counterV1.GET("/", c.GetAllCounter)
+		counterV1.GET("/:id", c.GetCounter)
+		counterV1.PUT("/:id", c.PutCounter)
+		counterV1.DELETE("/:id", c.DeleteCounter)
 	}
 
 	//locationV1 := r.Group("/v1/locations")

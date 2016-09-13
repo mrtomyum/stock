@@ -4,14 +4,15 @@ import (
 	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/nava-sys/model"
 	"log"
+	"github.com/shopspring/decimal"
 )
 
 type Item struct {
 	sys.Base
 	SKU        string `json:"sku"`
 	Name       string `json:"name"`
-	StdPrice   int64  `json:"stdPrice" db:"std_price"`
-	StdCost    int64  `json:"stdCost" db:"std_cost"`
+	StdPrice   decimal.Decimal  `json:"stdPrice" db:"std_price"`
+	StdCost    decimal.Decimal  `json:"stdCost" db:"std_cost"`
 	BaseUnitID uint64 `json:"baseUnitID" db:"base_unit_id"`
 	CategoryID uint64 `json:"categoryID" db:"category_id"`
 	BrandID    uint64 `json:"brand_id" db:"brand_id"`
@@ -31,7 +32,7 @@ type ItemBarcode struct {
 	ItemID uint64
 	UnitID uint64
 	Code   string
-	Price  int64
+	Price  decimal.Decimal
 }
 
 type Items []*Item

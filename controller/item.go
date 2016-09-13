@@ -59,7 +59,7 @@ func (e *Env) PostNewItem(c *gin.Context) {
 	return
 }
 
-func (e *Env) GetItemByID(c *gin.Context) {
+func (e *Env) GetItem(c *gin.Context) {
 	log.Println("call FindItem")
 	c.Header("Server", "NAVA Stock")
 	c.Header("Content-Type", "application/json")

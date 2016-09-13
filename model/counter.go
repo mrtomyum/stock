@@ -25,6 +25,11 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+//func (d *Date) Scan(src time.Time) error {
+//	d.Time = src
+//	return nil
+//}
+
 type Counter struct {
 	sys.Base
 	//RecDate    *time.Time `json:"rec_date" db:"rec_date"`
@@ -185,8 +190,65 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 	return &newCounter, nil
 }
 
+//--------------------------------------------------
+// All will return only []Counter
+// ถ้าต้องการ CounterSub จะต้องคอล Counter.Get() ทีละตัว
+//--------------------------------------------------
+func (c *Counter) All(db *sqlx.DB) ([]*Counter, error) {
+	log.Println("call model.Counter.All()")
+	// กรอง WHERE deleted <> null
+	sql := `SELECT * FROM counter WHERE deleted IS NULL`
+	//err := db.Select(&counters, sql)
+	row, err := db.Queryx(sql)
+	defer row.Close()
+	counters := []*Counter{} //<<-- น่าจะต้องไม่ใช่ Pointer นะ
+	if row.Next() {
+		err = row.Scan(
+			//&counters[i].ID, &counters[i].Created, &counters[i].Updated, &counters[i].Deleted,
+			//&counters[i].RecDate.Time, &counters[i].MachineId, &counters[i].CounterSum,
+			&c.ID, &c.Created, &c.Updated, &c.Deleted,
+			&c.RecDate.Time, &c.MachineId, &c.CounterSum,
+		)
+		counters = append(counters, c)
+	}
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	log.Println(counters)
+	return counters, nil
+}
+
+//-----------------------------------------------------------------
+// model.Counter.Get() will return single Counter with []CounterSub
+//-----------------------------------------------------------------
+func (c *Counter) Get(db *sqlx.DB) (*Counter, error) {
+	log.Println("call model.Counter.Get()")
+	sql := `SELECT * FROM counter WHERE deleted IS NULL AND id = ?`
+	//err := db.Get(&counter, sql, c.ID)
+	row := db.QueryRowx(sql, c.ID)
+	err := row.Scan(
+		&c.ID, &c.Created, &c.Updated, &c.Deleted,
+		&c.RecDate.Time, &c.MachineId, &c.CounterSum,
+	)
+	if err != nil {
+		//log.Println("Fail>>1.db.Get()", err)
+		log.Println("Fail>>1.db.QueryRowx", err)
+		return nil, err
+	}
+	log.Println("Success>>1.db.QueryRowx")
+	// Select Sub
+	var counterSub []*CounterSub
+	sql = `SELECT * FROM counter_sub WHERE deleted IS NULL AND counter_id = ?`
+	err = db.Select(&counterSub, sql, c.ID)
+	c.Sub = counterSub
+
+	log.Println(c)
+	return c, nil
+}
+
 func (c *Counter) Update(db *sqlx.DB) (*Counter, error) {
-	// ระวัง การ model.Counter.Update() จะไม่ update last_counter
+	// ระวัง การ model.Counter.Update() จะต้องไม่ update last_counter
 	// เราจะ update last_counter เฉพาะตอน Insert() เท่านั้น
 	var updatedCounter Counter
 	return &updatedCounter, nil
@@ -197,20 +259,6 @@ func (c *Counter) Delete(db *sqlx.DB) error {
 	// ต้องเอา Counter ก่อนหน้า กลับมาใหม่ จาก CounterSub.Counter ก่อนหน้าด้วย
 	// โดยเขียนกลับลงไปใน MachineColumn.CurrCounter และ .LastCounter ตามลำดับ
 	return nil
-}
-
-func (s *Counter) All(db *sqlx.DB) ([]*Counter, error) {
-	log.Println("call model.BatchSale.All()")
-	sales := []*Counter{}
-	// Todo: เพิ่มกรอง WHERE deleted <> null
-	sql := `SELECT * FROM batch_counter`
-	err := db.Select(&sales, sql)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-	log.Println(sales)
-	return sales, nil
 }
 
 //func GetCounter(db *sqlx.DB, ids []uint64) ([]*Counter, error) {
@@ -274,4 +322,12 @@ func (s *Counter) All(db *sqlx.DB) ([]*Counter, error) {
 //		return nil, err
 //	}
 //	return readSales, nil
+//}
+
+
+// mysqlDriverErr
+//if driverErr, ok := err.(*mysql.MySQLError); ok {
+//	if driverErr.Number == mysqlerr.ER_DUP_INDEX {
+//		// err handling here
+//	}
 //}

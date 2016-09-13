@@ -10,11 +10,11 @@ import (
 )
 
 //func (e *Env) AllMachine(w http.ResponseWriter, r *http.Request) {
-func (e *Env) GetAllMachines(c *gin.Context) {
+func (e *Env) GetAllMachines(ctx *gin.Context) {
 	log.Info(log.Fields{"func":"controller.GetAllMachines()"})
-	c.Header("Server", "NAVA Stock")
-	c.Header("Content-Type", "application/json")
-	c.Header("Access-Control-Allow-Origin", "*")
+	ctx.Header("Server", "NAVA Stock")
+	ctx.Header("Content-Type", "application/json")
+	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	m := m.Machine{}
 	rs := api.Response{}
@@ -22,22 +22,22 @@ func (e *Env) GetAllMachines(c *gin.Context) {
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
-		c.Status(http.StatusNoContent)
+		ctx.Status(http.StatusNoContent)
 	} else {
 		rs.Status = api.SUCCESS
 		rs.Data = machines
-		c.JSON(http.StatusOK, rs)
+		ctx.JSON(http.StatusOK, rs)
 	}
 	return
 }
 
-func (e *Env) GetThisMachine(c *gin.Context) {
+func (e *Env) GetThisMachine(ctx *gin.Context) {
 	log.Info(log.Fields{"func":"controller.GetThisMachine()"})
-	c.Header("Server", "NAVA Stock")
-	c.Header("Content-Type", "application/json")
-	c.Header("Access-Control-Allow-Origin", "*")
+	ctx.Header("Server", "NAVA Stock")
+	ctx.Header("Content-Type", "application/json")
+	ctx.Header("Access-Control-Allow-Origin", "*")
 
-	id := c.Param("id")
+	id := ctx.Param("id")
 	m := m.Machine{}
 	m.ID, _ = strconv.ParseUint(id, 10, 64)
 	rs := api.Response{}
@@ -45,11 +45,11 @@ func (e *Env) GetThisMachine(c *gin.Context) {
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
-		c.Status(http.StatusNoContent)
+		ctx.Status(http.StatusNoContent)
 	} else {
 		rs.Status = api.SUCCESS
 		rs.Data = machine
-		c.JSON(http.StatusOK, rs)
+		ctx.JSON(http.StatusOK, rs)
 	}
 	return
 }
