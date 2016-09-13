@@ -43,17 +43,33 @@ func SetupRoute(c *c.Env) *gin.Engine {
 	r := gin.Default()
 	machineV1 := r.Group("/v1/machines")
 	{
-		machineV1.GET("/", c.GetAllMachine)
 		machineV1.POST("/", c.PostNewMachine)
+		machineV1.GET("/", c.GetAllMachines)
+		machineV1.GET("/:id", c.GetThisMachine)
+		machineV1.GET("/:id/columns", c.GetMachineColumns)
+	}
+
+	columnV1 := r.Group("/v1/columns")
+	{
+		columnV1.PUT("/columns/:id", c.PutMachineColumn)
 	}
 
 	itemV1 := r.Group("/v1/items")
 	{
 		itemV1.GET("/", c.GetAllItem)
-		itemV1.GET("/:id", c.GetItemByID)
+		itemV1.GET("/:id", c.GetItem)
 		itemV1.POST("/", c.PostNewItem)
 		itemV1.PUT("/", c.UpdateItem)
 		//itemV1.GET("/:id/prices", c.GetItemPriceByID)
+	}
+
+	counterV1 := r.Group("/v1/counters")
+	{
+		counterV1.POST("/", c.PostCounter)
+		counterV1.GET("/", c.GetAllCounter)
+		counterV1.GET("/:id", c.GetCounter)
+		counterV1.PUT("/:id", c.PutCounter)
+		counterV1.DELETE("/:id", c.DeleteCounter)
 	}
 
 	//locationV1 := r.Group("/v1/locations")
@@ -62,12 +78,6 @@ func SetupRoute(c *c.Env) *gin.Engine {
 	//	locationV1.GET("/:id", c.GetLocationTreeByID)
 	//	locationV1.POST("/", c.PostNewLocation)
 	//}
-
-	counterV1 := r.Group("/v1/counters")
-	{
-		counterV1.POST("/", c.PostNewCounter)
-	}
-
 
 	// ## Batch
 	//s = r.PathPrefix("/v1/batchs/counters/").Subrouter()

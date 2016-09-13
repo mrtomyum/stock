@@ -7,6 +7,10 @@ import (
 	"encoding/json"
 	"os"
 	"log"
+	"net/http"
+	"time"
+	"strings"
+	"github.com/mrtomyum/nava-sys/api"
 )
 
 var url string = "http://localhost:8001"
@@ -50,7 +54,8 @@ func Test_ModelCounterInsert(t *testing.T) {
 
 //func Test_PostCounterAPI(t *testing.T) {
 //	client := &http.Client{Timeout:time.Second * 10}
-//	b := strings.NewReader(counterJSON)
+//	file, err := os.Open("counter.json")
+//	b := strings.NewReader(file)
 //	res, err := client.Post(
 //		"http://localhost:8001/counters",
 //		"application/json",
@@ -69,4 +74,4 @@ func Test_ModelCounterInsert(t *testing.T) {
 //		t.Fail()
 //	}
 //	return
-//}
+}

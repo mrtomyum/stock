@@ -9,6 +9,7 @@ import (
 	"golang.org/x/text/currency"
 
 	"time"
+	"github.com/shopspring/decimal"
 )
 
 type MyPrice struct {
@@ -22,7 +23,7 @@ type ItemPrice struct {
 	sys.Base
 	ItemID    uint64
 	Locations []*Location
-	Value     currency.Amount
+	Value     decimal.Decimal
 }
 
 type JsonPrice struct {
