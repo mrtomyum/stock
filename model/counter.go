@@ -187,7 +187,7 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		&newCounter.Created,
 		&newCounter.Updated,
 		&newCounter.Deleted,
-		&newCounter.RecDate.Time,
+		&newCounter.RecDate,
 		&newCounter.MachineId,
 		&newCounter.CounterSum,
 	)
@@ -214,10 +214,8 @@ func (c *Counter) All(db *sqlx.DB) ([]*Counter, error) {
 	counters := []*Counter{} //<<-- น่าจะต้องไม่ใช่ Pointer นะ
 	if row.Next() {
 		err = row.Scan(
-			//&counters[i].ID, &counters[i].Created, &counters[i].Updated, &counters[i].Deleted,
-			//&counters[i].RecDate.Time, &counters[i].MachineId, &counters[i].CounterSum,
 			&c.ID, &c.Created, &c.Updated, &c.Deleted,
-			&c.RecDate.Time, &c.MachineId, &c.CounterSum,
+			&c.RecDate, &c.MachineId, &c.CounterSum,
 		)
 		counters = append(counters, c)
 	}
@@ -235,15 +233,15 @@ func (c *Counter) All(db *sqlx.DB) ([]*Counter, error) {
 func (c *Counter) Get(db *sqlx.DB) (*Counter, error) {
 	log.Println("call model.Counter.Get()")
 	sql := `SELECT * FROM counter WHERE deleted IS NULL AND id = ?`
-	//err := db.Get(&counter, sql, c.ID)
-	row := db.QueryRowx(sql, c.ID)
-	err := row.Scan(
-		&c.ID, &c.Created, &c.Updated, &c.Deleted,
-		&c.RecDate, &c.MachineId, &c.CounterSum,
-	)
+	err := db.Get(c, sql, c.ID)
+	//row := db.QueryRowx(sql, c.ID)
+	//err := row.Scan(
+	//	&c.ID, &c.Created, &c.Updated, &c.Deleted,
+	//	&c.RecDate, &c.MachineId, &c.CounterSum,
+	//)
 	if err != nil {
-		//log.Println("Fail>>1.db.Get()", err)
-		log.Println("Fail>>1.db.QueryRowx", err)
+		log.Println("Fail>>1.db.Get()", err)
+		//log.Println("Fail>>1.db.QueryRowx", err)
 		return nil, err
 	}
 	log.Println("Success>>1.db.QueryRowx")
