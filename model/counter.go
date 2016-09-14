@@ -28,7 +28,7 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 }
 
 func (d *Date) Value() (driver.Value, error) {
-	return driver.Value(d.Time), nil
+	return d.Time, nil
 }
 
 func (d *Date) Scan(src interface{}) error {
@@ -36,6 +36,7 @@ func (d *Date) Scan(src interface{}) error {
 		d.Time = date
 		return nil
 	}
+	//d.Time = Date(src.(time.Time))
 	return errors.New("wrong type it's not time.Time")
 }
 
@@ -238,7 +239,7 @@ func (c *Counter) Get(db *sqlx.DB) (*Counter, error) {
 	row := db.QueryRowx(sql, c.ID)
 	err := row.Scan(
 		&c.ID, &c.Created, &c.Updated, &c.Deleted,
-		&c.RecDate.Time, &c.MachineId, &c.CounterSum,
+		&c.RecDate, &c.MachineId, &c.CounterSum,
 	)
 	if err != nil {
 		//log.Println("Fail>>1.db.Get()", err)
