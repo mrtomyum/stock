@@ -41,6 +41,15 @@ func NewDB(dsn string) (*sqlx.DB) {
 
 func SetupRoute(c *c.Env) *gin.Engine {
 	r := gin.Default()
+	itemV1 := r.Group("/v1/items")
+	{
+		itemV1.GET("/", c.GetAllItem)
+		itemV1.GET("/:id", c.GetItem)
+		itemV1.POST("/", c.PostNewItem)
+		itemV1.PUT("/", c.UpdateItem)
+		//itemV1.GET("/:id/prices", c.GetItemPriceByID)
+	}
+
 	machineV1 := r.Group("/v1/machines")
 	{
 		machineV1.POST("/", c.PostNewMachine)
@@ -52,15 +61,6 @@ func SetupRoute(c *c.Env) *gin.Engine {
 	columnV1 := r.Group("/v1/columns")
 	{
 		columnV1.PUT("/columns/:id", c.PutMachineColumn)
-	}
-
-	itemV1 := r.Group("/v1/items")
-	{
-		itemV1.GET("/", c.GetAllItem)
-		itemV1.GET("/:id", c.GetItem)
-		itemV1.POST("/", c.PostNewItem)
-		itemV1.PUT("/", c.UpdateItem)
-		//itemV1.GET("/:id/prices", c.GetItemPriceByID)
 	}
 
 	counterV1 := r.Group("/v1/counters")

@@ -7,6 +7,8 @@ import (
 	"log"
 	"strings"
 	"time"
+	"database/sql/driver"
+	"errors"
 )
 
 const DateFormat = "2006-01-02" // yyyy-mm-dd
@@ -25,10 +27,17 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-//func (d *Date) Scan(src time.Time) error {
-//	d.Time = src
-//	return nil
-//}
+func (d *Date) Value() (driver.Value, error) {
+	return driver.Value(d.Time), nil
+}
+
+func (d *Date) Scan(src interface{}) error {
+	if date, ok := src.(time.Time); ok {
+		d.Time = date
+		return nil
+	}
+	return errors.New("wrong type it's not time.Time")
+}
 
 type Counter struct {
 	sys.Base
@@ -90,7 +99,7 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 	for _, sub := range c.Sub {
 		tx, err = db.Beginx()
 		//-----------------------------------------
-		// Get relate data from other table.
+		// Get related data from other table.
 		// SELECT related data from MachineColumn.
 		//-----------------------------------------
 		var mc MachineColumn
@@ -247,17 +256,23 @@ func (c *Counter) Get(db *sqlx.DB) (*Counter, error) {
 	return c, nil
 }
 
+//-----------------------------------------------------------------
+// Counter.Update()
+// ระวัง การ model.Counter.Update() จะต้องไม่ update last_counter
+// เราจะ update last_counter เฉพาะตอน Insert() เท่านั้น
+//-----------------------------------------------------------------
 func (c *Counter) Update(db *sqlx.DB) (*Counter, error) {
-	// ระวัง การ model.Counter.Update() จะต้องไม่ update last_counter
-	// เราจะ update last_counter เฉพาะตอน Insert() เท่านั้น
+
 	var updatedCounter Counter
 	return &updatedCounter, nil
 }
-
+//-----------------------------------------------------------------
+// Counter.Delete()
+// การยกเลิกบันทึก Counter โดยทำการ Update Counter.Deleted เพื่อลบรายการ และ
+// ต้องเอา Counter ก่อนหน้า กลับมาใหม่ จาก CounterSub.Counter ก่อนหน้าด้วย
+// โดยเขียนกลับลงไปใน MachineColumn.CurrCounter และ .LastCounter ตามลำดับ
+//-----------------------------------------------------------------
 func (c *Counter) Delete(db *sqlx.DB) error {
-	// การยกเลิกบันทึก Counter โดยทำการ Update Counter.Deleted เพื่อลบรายการ และ
-	// ต้องเอา Counter ก่อนหน้า กลับมาใหม่ จาก CounterSub.Counter ก่อนหน้าด้วย
-	// โดยเขียนกลับลงไปใน MachineColumn.CurrCounter และ .LastCounter ตามลำดับ
 	return nil
 }
 
