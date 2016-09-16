@@ -261,7 +261,6 @@ func (c *Counter) Get(db *sqlx.DB) (*Counter, error) {
 // เราจะ update last_counter เฉพาะตอน Insert() เท่านั้น
 //-----------------------------------------------------------------
 func (c *Counter) Update(db *sqlx.DB) (*Counter, error) {
-
 	var updatedCounter Counter
 	return &updatedCounter, nil
 }

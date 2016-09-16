@@ -64,16 +64,26 @@ func (b machineBrand) MarshalJSON() ([]byte, error) {
 	return json.Marshal(brandStr)
 }
 
+type MachineStatus int
+
+const (
+	OFFLINE MachineStatus = iota
+	ONLINE
+	ALARM
+)
+
 type Machine struct {
 	sys.Base
-	LocID        uint64       `json:"loc_id" db:"loc_id"`
-	Code         string       `json:"code"`
-	Type         machineType  `json:"type"`
-	Brand        machineBrand `json:"brand"`
-	ProfileID    uint64       `json:"profile_id" db:"profile_id"`
-	SerialNumber null.String  `json:"serial_number" db:"serial_number"`
-	Selection    int          `json:"selection"` //จำนวน Column หรือช่องเก็บสินค้า
-	ClientID     uint64       `json:"client_id" db:"client_id"`
+	LocId        uint64        `json:"loc_id" db:"loc_id"`
+	Code         string        `json:"code"`
+	Type         machineType   `json:"type"`
+	Brand        machineBrand  `json:"brand"`
+	ProfileId    uint64        `json:"profile_id" db:"profile_id"`
+	SerialNumber null.String   `json:"serial_number" db:"serial_number"`
+	Selection    int           `json:"selection"` //จำนวน Column หรือช่องเก็บสินค้า
+	PlaceId      uint64        `json:"place_id" db:"place_id"`
+	Status       MachineStatus `json:"status"`
+	Note         string        `json:"note"`
 }
 
 type ColumnSize int
@@ -157,11 +167,11 @@ func (m *Machine) New(db *sqlx.DB) (*Machine, error) {
 		selection
 		) VALUES(?,?,?,?,?,?,?)`
 	res, err := db.Exec(sql,
-		m.LocID,
+		m.LocId,
 		m.Code,
 		m.Type,
 		m.Brand,
-		m.ProfileID,
+		m.ProfileId,
 		m.SerialNumber,
 		m.Selection,
 	)

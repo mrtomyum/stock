@@ -13,6 +13,7 @@ import (
 func (e *Env) GetAllItem(c *gin.Context) {
 	log.Println("call GET AllItem")
 	c.Header("Server", "NAVA Stock")
+	c.Header("Host", "api.nava.work:8001")
 	c.Header("Content-Type", "application/json")
 	c.Header("Access-Control-Allow-Origin", "*")
 

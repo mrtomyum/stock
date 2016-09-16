@@ -113,6 +113,4 @@ func main() {
 	r := SetupRoute(c)
 
 	r.Run(":8001")
-	//http.Handle("/", r)
-	//http.ListenAndServe(":8001", nil)
 }
