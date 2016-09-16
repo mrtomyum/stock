@@ -67,7 +67,8 @@ func (b machineBrand) MarshalJSON() ([]byte, error) {
 type MachineStatus int
 
 const (
-	OFFLINE MachineStatus = iota
+	NO_STATUS MachineStatus = iota
+	OFFLINE
 	ONLINE
 	ALARM
 )
@@ -191,7 +192,7 @@ func (m *Machine) New(db *sqlx.DB) (*Machine, error) {
 
 func (m *Machine) Get(db *sqlx.DB) (*Machine, error) {
 	log.Println("call model.Machine.Get()")
-	sql := `SELECT * FROM machine_column WHERE id = ?`
+	sql := `SELECT * FROM machine WHERE id = ? AND deleted IS NULL`
 	err := db.Get(m, sql, m.ID)
 	if err != nil {
 		return nil, err

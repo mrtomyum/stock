@@ -45,12 +45,11 @@ func (e *Env) GetThisMachine(ctx *gin.Context) {
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
-		ctx.Status(http.StatusNoContent)
 	} else {
 		rs.Status = api.SUCCESS
 		rs.Data = machine
-		ctx.JSON(http.StatusOK, rs)
 	}
+	ctx.JSON(http.StatusOK, rs)
 	return
 }
 

@@ -15,7 +15,7 @@ type Client struct {
 type PlaceType int
 
 const (
-	NOT_SPECIFY PlaceType = iota
+	NO_PLACE PlaceType = iota
 	DORM
 	FACTORY
 	OFFICE
