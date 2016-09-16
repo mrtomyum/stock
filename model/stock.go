@@ -25,15 +25,6 @@ type StockCard struct {
 	BaseQty   int64
 }
 
-// ลูกค้า
-type ClientType int
-
-const (
-	FACTORY ClientType = iota
-	EDUCATION
-	OFFICE
-)
-
 type Vehicle struct {
 	sys.Base
 	Name      string // V1, V2,...
