@@ -83,7 +83,7 @@ type Machine struct {
 	Selection    int           `json:"selection"` //จำนวน Column หรือช่องเก็บสินค้า
 	PlaceId      uint64        `json:"place_id" db:"place_id"`
 	Status       MachineStatus `json:"status"`
-	Note         string        `json:"note"`
+	Note         null.String   `json:"note"`
 }
 
 type ColumnSize int
