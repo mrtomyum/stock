@@ -6,7 +6,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/guregu/null"
 	"github.com/jmoiron/sqlx"
-	sys "github.com/mrtomyum/nava-sys/model"
+	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
 )
 

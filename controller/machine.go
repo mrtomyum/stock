@@ -2,7 +2,7 @@ package controller
 
 import (
 	"net/http"
-	"github.com/mrtomyum/nava-sys/api"
+	"github.com/mrtomyum/sys/api"
 	m "github.com/mrtomyum/nava-stock/model"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"

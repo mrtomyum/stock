@@ -2,7 +2,7 @@ package model
 
 import (
 	"github.com/jmoiron/sqlx"
-	sys "github.com/mrtomyum/nava-sys/model"
+	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
 	"log"
 	"strings"
@@ -65,6 +65,15 @@ type CounterSub struct {
 // และถ้ามีการยกเลิก Counter ที่บันทึกไปแล้วต้องคืนค่า LastCounter และ CurrCounter ด้วย
 //---------------------------------------------------------------------------
 func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
+	//--------------------------------------------------
+	// Check mc.LastCounter ต้องน้อยกว่าหรือเท่ากับ CurrCounter
+	//--------------------------------------------------
+	//Todo: add IF course to compare last counter vs current
+	//if sub.Counter < mc.CurrCounter {
+	//	log.Println("Error>> New counter < Last counter")
+	//	err = errors.New("Error>> New counter < Last counter")
+	//	return nil, err
+
 	tx, err := db.Beginx()
 	if err != nil {
 		return nil, err
@@ -98,7 +107,7 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 	counterId, _ := res.LastInsertId()
 	var newSubs []*CounterSub
 	for _, sub := range c.Sub {
-		tx, err = db.Beginx()
+		txSub, err := db.Beginx()
 		//-----------------------------------------
 		// Get related data from other table.
 		// SELECT related data from MachineColumn.
@@ -110,13 +119,14 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 			WHERE machine_id = ? AND column_no = ?
 			LIMIT 1
 			`
-		err := db.Get(&mc, sql, c.MachineId, sub.ColumnNo)
+		err = db.Get(&mc, sql, c.MachineId, sub.ColumnNo)
 		if err != nil {
-			tx.Rollback()
+			//txSub.Rollback()
 			log.Println("Error>>2.db.Get() SELECT machine_column = ", err)
 			return nil, err
 		}
 		log.Println("Pass>>2.db.Get() SELECT machine_column")
+
 		//--------------------------------------------------
 		// Update MachineColumn.LastCounter and CurrCounter
 		//--------------------------------------------------
@@ -125,12 +135,12 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 			SET last_counter = ?, curr_counter = ?
 			WHERE machine_id = ? AND column_no = ?
 			`
-		res, err := tx.Exec(sql,
+		res, err := txSub.Exec(sql,
 			mc.CurrCounter, sub.Counter,
 			c.MachineId, sub.ColumnNo,
 		)
 		if err != nil {
-			tx.Rollback()
+			txSub.Rollback()
 			log.Println("Error>>3.tx.Exec() machine_column = ", err)
 			return nil, err
 		}
@@ -148,7 +158,7 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 			) VALUES(?,?,?,?,?)`
 		sub.ItemId = mc.ItemId
 		sub.Price = mc.Price
-		res, err = tx.Exec(sql,
+		res, err = txSub.Exec(sql,
 			counterId,
 			sub.ColumnNo,
 			sub.ItemId,
@@ -156,12 +166,12 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 			sub.Counter,
 		)
 		if err != nil {
-			tx.Rollback()
+			txSub.Rollback()
 			log.Println("Error>>4.tx.Exec() INSERT counter_sub = ", err)
 			return nil, err
 		}
-		// if success tx.Commit
-		tx.Commit()
+		// if success commit CounterSub
+		txSub.Commit()
 		log.Println("Pass>>4.tx.Exec() INSERT counter_sub")
 		//--------------------------------------------------
 		// Return New CounterSub to confirm

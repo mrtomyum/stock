@@ -1,8 +1,7 @@
 package controller
 
 import (
-
-	"github.com/mrtomyum/nava-sys/api"
+	"github.com/mrtomyum/sys/api"
 	m "github.com/mrtomyum/nava-stock/model"
 	"log"
 	"net/http"
@@ -71,7 +70,7 @@ func (e *Env) GetItem(c *gin.Context) {
 	i.ID, _ = strconv.ParseUint(id, 10, 64)
 	rs := api.Response{}
 	iv, err := i.GetItemView(e.DB)
-	log.Println("return from FindItemByID()")
+	log.Println("return from GetItemView()")
 	if err != nil {
 		log.Println(err)
 		rs.Status = api.ERROR

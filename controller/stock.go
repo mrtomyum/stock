@@ -5,7 +5,7 @@ import (
 	m "github.com/mrtomyum/nava-stock/model"
 	"fmt"
 	"encoding/json"
-	"github.com/mrtomyum/nava-sys/api"
+	"github.com/mrtomyum/sys/api"
 )
 
 func (e *Env) AllStock(w http.ResponseWriter, r *http.Request) {

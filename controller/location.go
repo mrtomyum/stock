@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"encoding/json"
 	"strconv"
-	"github.com/mrtomyum/nava-sys/api"
+	"github.com/mrtomyum/sys/api"
 )
 
 func CreateLocationTree(locations []*m.Location) *m.Location {

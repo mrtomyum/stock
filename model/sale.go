@@ -2,7 +2,7 @@ package model
 
 import (
 	"time"
-	sys "github.com/mrtomyum/nava-sys/model"
+	sys "github.com/mrtomyum/sys/model"
 	"golang.org/x/text/currency"
 )
 

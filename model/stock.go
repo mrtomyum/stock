@@ -2,7 +2,7 @@ package model
 
 import (
 	"github.com/jmoiron/sqlx"
-	sys "github.com/mrtomyum/nava-sys/model"
+	sys "github.com/mrtomyum/sys/model"
 	"log"
 	"time"
 )
