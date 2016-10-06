@@ -105,19 +105,6 @@ const (
 	FAIL
 )
 
-// MachineColumn เก็บยอด Counter ล่าสุดของแต่ละ column ในแต่ละ Machine
-type MachineColumn struct {
-	sys.Base
-	MachineID   uint64          `json:"machine_id" db:"machine_id"`
-	ColumnNo    int             `json:"column_no" db:"column_no"`
-	ItemId      uint64          `json:"item_id" db:"item_id"`
-	Price       decimal.Decimal `json:"price"`
-	LastCounter int             `json:"last_counter" db:"last_counter"`
-	CurrCounter int             `json:"curr_counter" db:"curr_counter"`
-	Size        ColumnSize      `json:"size"`
-	Status      ColumnStatus    `json:"status"`
-}
-
 // Transaction row Batch data received from mobile app daily.
 
 // เก็บ Transaction ที่มีความผิดปกติทั้งหมด เช่น  ข้อมูลที่ส่งมาหา Column ไม่เจอ ไปจนถึง Error ที่แจ้งจาก Machine
@@ -210,6 +197,19 @@ func (m *Machine) Columns(db *sqlx.DB) ([]*MachineColumn, error) {
 		return nil, err
 	}
 	return mc, nil
+}
+
+// MachineColumn เก็บยอด Counter ล่าสุดของแต่ละ column ในแต่ละ Machine
+type MachineColumn struct {
+	sys.Base
+	MachineID   uint64          `json:"machine_id" db:"machine_id"`
+	ColumnNo    int             `json:"column_no" db:"column_no"`
+	ItemId      uint64          `json:"item_id" db:"item_id"`
+	Price       decimal.Decimal `json:"price"`
+	LastCounter int             `json:"last_counter" db:"last_counter"`
+	CurrCounter int             `json:"curr_counter" db:"curr_counter"`
+	Size        ColumnSize      `json:"size"`
+	Status      ColumnStatus    `json:"status"`
 }
 
 func (mc *MachineColumn) Update(db *sqlx.DB) (*MachineColumn, error) {

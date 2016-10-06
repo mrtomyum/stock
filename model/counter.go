@@ -58,6 +58,20 @@ type CounterSub struct {
 	Price     decimal.Decimal `json:"price"`                // from Last updated Price of this Machine.Column
 }
 
+//--------------------------------------------------
+// Check mc.LastCounter ต้องน้อยกว่าหรือเท่ากับ CurrCounter
+//--------------------------------------------------
+func (c *Counter) FoundCounterLessThan(mcs []*MachineColumn) bool {
+	for _, sub := range c.Sub {
+		for _, mc := range mcs {
+			if sub.Counter < mc.LastCounter {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 //---------------------------------------------------------------------------
 // model.Counter.Insert
 // ทำการเก็บผลการบันทึก Counter โดยมีการบันทึก LastCounter และ CurrCounter ลงใน
@@ -65,15 +79,19 @@ type CounterSub struct {
 // และถ้ามีการยกเลิก Counter ที่บันทึกไปแล้วต้องคืนค่า LastCounter และ CurrCounter ด้วย
 //---------------------------------------------------------------------------
 func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
-	//--------------------------------------------------
-	// Check mc.LastCounter ต้องน้อยกว่าหรือเท่ากับ CurrCounter
-	//--------------------------------------------------
-	//Todo: add IF course to compare last counter vs current
-	//if sub.Counter < mc.CurrCounter {
-	//	log.Println("Error>> New counter < Last counter")
-	//	err = errors.New("Error>> New counter < Last counter")
-	//	return nil, err
-
+	// Load Machine Data and validate new counter data.
+	var m Machine
+	m.ID = c.MachineId
+	mcs, err := m.Columns(db)
+	if err != nil {
+		return nil, err
+	}
+	if c.FoundCounterLessThan(mcs) {
+		return nil, errors.New("Found error input counter: New counter < Last counter in the same Machine-Column.")
+	}
+	//---------------------
+	// begin transaction
+	//---------------------
 	tx, err := db.Beginx()
 	if err != nil {
 		return nil, err
