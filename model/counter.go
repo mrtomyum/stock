@@ -61,7 +61,7 @@ type CounterSub struct {
 //--------------------------------------------------
 // Check mc.LastCounter ต้องน้อยกว่าหรือเท่ากับ CurrCounter
 //--------------------------------------------------
-func (c *Counter) FoundCounterLessThan(mcs []*MachineColumn) bool {
+func (c *Counter) FoundCounterLessThan(mcs []MachineColumn) bool {
 	for _, sub := range c.Sub {
 		for _, mc := range mcs {
 			if sub.Counter < mc.LastCounter {
@@ -79,7 +79,9 @@ func (c *Counter) FoundCounterLessThan(mcs []*MachineColumn) bool {
 // และถ้ามีการยกเลิก Counter ที่บันทึกไปแล้วต้องคืนค่า LastCounter และ CurrCounter ด้วย
 //---------------------------------------------------------------------------
 func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
+	//-------------------------------------------------
 	// Load Machine Data and validate new counter data.
+	//-------------------------------------------------
 	var m Machine
 	m.ID = c.MachineId
 	mcs, err := m.Columns(db)
@@ -118,50 +120,34 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		}
 		return nil, err
 	}
-	tx.Commit()
+	tx.Commit() // commit Header transaction
 	log.Println("Pass>>1.tx.Exec() INSERT INTO counter")
 
 	// Loop for range Counter.Sub
 	counterId, _ := res.LastInsertId()
 	var newSubs []*CounterSub
+	txSub, err := db.Beginx()
+	//--------------------------------------------------
+	// Update MachineColumn.LastCounter and CurrCounter
+	//--------------------------------------------------
 	for _, sub := range c.Sub {
-		txSub, err := db.Beginx()
-		//-----------------------------------------
-		// Get related data from other table.
-		// SELECT related data from MachineColumn.
-		//-----------------------------------------
-		var mc MachineColumn
-		sql = `
-			SELECT *
-			FROM machine_column
-			WHERE machine_id = ? AND column_no = ?
-			LIMIT 1
-			`
-		err = db.Get(&mc, sql, c.MachineId, sub.ColumnNo)
-		if err != nil {
-			//txSub.Rollback()
-			log.Println("Error>>2.db.Get() SELECT machine_column = ", err)
-			return nil, err
-		}
-		log.Println("Pass>>2.db.Get() SELECT machine_column")
-
-		//--------------------------------------------------
-		// Update MachineColumn.LastCounter and CurrCounter
-		//--------------------------------------------------
 		sql = `
 			UPDATE machine_column
 			SET last_counter = ?, curr_counter = ?
 			WHERE machine_id = ? AND column_no = ?
 			`
-		res, err := txSub.Exec(sql,
-			mc.CurrCounter, sub.Counter,
-			c.MachineId, sub.ColumnNo,
-		)
-		if err != nil {
-			txSub.Rollback()
-			log.Println("Error>>3.tx.Exec() machine_column = ", err)
-			return nil, err
+		for _, mc := range mcs {
+			_, err := txSub.Exec(sql,
+				mc.CurrCounter, sub.Counter,
+				c.MachineId, mc.ColumnNo,
+			)
+			if err != nil {
+				txSub.Rollback()
+				log.Println("Error>>3.tx.Exec() machine_column = ", err)
+				return nil, err
+			}
 		}
+		log.Println("Update MachineColumn 'MachineID':", c.MachineId, "ColumnNo:", sub.ColumnNo)
 		log.Println("Pass>>3.tx.Exec() UPDATE machine_column")
 		//--------------------------------------------------
 		// Insert CounterSub{}
@@ -174,23 +160,22 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 				price,
 				counter
 			) VALUES(?,?,?,?,?)`
-		sub.ItemId = mc.ItemId
-		sub.Price = mc.Price
-		res, err = txSub.Exec(sql,
-			counterId,
-			sub.ColumnNo,
-			sub.ItemId,
-			sub.Price,
-			sub.Counter,
-		)
-		if err != nil {
-			txSub.Rollback()
-			log.Println("Error>>4.tx.Exec() INSERT counter_sub = ", err)
-			return nil, err
+		for _, mc := range mcs {
+			res, err = txSub.Exec(sql,
+				counterId,
+				sub.ColumnNo,
+				mc.ItemId,
+				mc.Price,
+				sub.Counter,
+			)
+			if err != nil {
+				txSub.Rollback()
+				log.Println("Error>>4.tx.Exec() INSERT counter_sub = ", err)
+				return nil, err
+			}
 		}
-		// if success commit CounterSub
-		txSub.Commit()
 		log.Println("Pass>>4.tx.Exec() INSERT counter_sub")
+
 		//--------------------------------------------------
 		// Return New CounterSub to confirm
 		//--------------------------------------------------
@@ -204,6 +189,7 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		log.Println("Pass>>5.db.Get() SELECT counter_sub")
 		newSubs = append(newSubs, &inserted)
 	}
+	txSub.Commit()
 
 	sql = `SELECT * FROM counter WHERE id = ?`
 	id, _ := res.LastInsertId()

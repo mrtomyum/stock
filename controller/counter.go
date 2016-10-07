@@ -12,7 +12,6 @@ import (
 func (e *Env) PostCounter(ctx *gin.Context) {
 	log.Println("call ctrl.Counter()")
 	ctx.Header("Server", "NAVA Stock")
-	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	c := &model.Counter{}

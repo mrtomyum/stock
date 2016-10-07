@@ -187,16 +187,16 @@ func (m *Machine) Get(db *sqlx.DB) (*Machine, error) {
 	return m, nil
 }
 
-func (m *Machine) Columns(db *sqlx.DB) ([]*MachineColumn, error) {
+func (m *Machine) Columns(db *sqlx.DB) ([]MachineColumn, error) {
 	log.Println("call model.Machine.Columns()")
 
-	var mc []*MachineColumn
+	var mcs []MachineColumn // Todo: Change to []*MachineColumn
 	sql := `SELECT * FROM machine_column WHERE machine_id = ?`
-	err := db.Get(mc, sql, m.ID)
+	err := db.Select(&mcs, sql, m.ID)
 	if err != nil {
 		return nil, err
 	}
-	return mc, nil
+	return mcs, nil
 }
 
 // MachineColumn เก็บยอด Counter ล่าสุดของแต่ละ column ในแต่ละ Machine
