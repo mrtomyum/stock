@@ -187,7 +187,7 @@ func (m *Machine) Get(db *sqlx.DB) (*Machine, error) {
 	return m, nil
 }
 
-func (m *Machine) Columns(db *sqlx.DB) ([]MachineColumn, error) {
+func (m *Machine) GetColumns(db *sqlx.DB) ([]MachineColumn, error) {
 	log.Println("call model.Machine.Columns()")
 
 	var mcs []MachineColumn // Todo: Change to []*MachineColumn

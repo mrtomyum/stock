@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 	"github.com/mrtomyum/sys/api"
-	m "github.com/mrtomyum/nava-stock/model"
+	m "github.com/mrtomyum/stock/model"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -87,7 +87,7 @@ func (e *Env) GetMachineColumns(c *gin.Context) {
 
 	var m m.Machine
 	rs := api.Response{}
-	machineColumns, err := m.Columns(e.DB)
+	machineColumns, err := m.GetColumns(e.DB)
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()

@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 	log "github.com/Sirupsen/logrus"
-	"github.com/mrtomyum/nava-stock/model"
+	"github.com/mrtomyum/stock/model"
 	"github.com/mrtomyum/sys/api"
 	"github.com/gin-gonic/gin"
 	"strconv"

@@ -3,7 +3,7 @@ package main
 import (
 	//"net/http"
 	log "github.com/Sirupsen/logrus"
-	c "github.com/mrtomyum/nava-stock/controller"
+	c "github.com/mrtomyum/stock/controller"
 	"encoding/json"
 	"os"
 	"github.com/jmoiron/sqlx"

@@ -1,7 +1,7 @@
 package controller
 
 import (
-	m "github.com/mrtomyum/nava-stock/model"
+	m "github.com/mrtomyum/stock/model"
 	"net/http"
 	"log"
 	"github.com/gorilla/mux"

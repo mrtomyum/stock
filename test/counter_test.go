@@ -3,14 +3,10 @@ package test
 import (
 	"testing"
 	"github.com/jmoiron/sqlx"
-	"github.com/mrtomyum/nava-stock/model"
+	"github.com/mrtomyum/stock/model"
 	"encoding/json"
 	"os"
 	"log"
-	"net/http"
-	"time"
-	"strings"
-	"github.com/mrtomyum/sys/api"
 )
 
 var url string = "http://localhost:8001"
@@ -27,10 +23,6 @@ var db *sqlx.DB
 func init() {
 	var testDSN = DB_USER + ":" + DB_PASS + "@" + DB_HOST + "/" + DB_NAME + "?parseTime=true"
 	db = sqlx.MustConnect("mysql", testDSN)
-	//e := &controller.Env{DB: db}
-	//app := gin.New()
-	//app.GET("/", e.PostNewCounter)
-	//app.Run(":8001")
 }
 
 func Test_ModelCounterInsert(t *testing.T) {
@@ -74,4 +66,4 @@ func Test_ModelCounterInsert(t *testing.T) {
 //		t.Fail()
 //	}
 //	return
-}
+//}
