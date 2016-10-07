@@ -6,7 +6,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/guregu/null"
 	"github.com/jmoiron/sqlx"
-	sys "github.com/mrtomyum/nava-sys/model"
+	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
 )
 
@@ -64,16 +64,27 @@ func (b machineBrand) MarshalJSON() ([]byte, error) {
 	return json.Marshal(brandStr)
 }
 
+type MachineStatus int
+
+const (
+	NO_STATUS MachineStatus = iota
+	OFFLINE
+	ONLINE
+	ALARM
+)
+
 type Machine struct {
 	sys.Base
-	LocID        uint64       `json:"loc_id" db:"loc_id"`
-	Code         string       `json:"code"`
-	Type         machineType  `json:"type"`
-	Brand        machineBrand `json:"brand"`
-	ProfileID    uint64       `json:"profile_id" db:"profile_id"`
-	SerialNumber null.String  `json:"serial_number" db:"serial_number"`
-	Selection    int          `json:"selection"` //จำนวน Column หรือช่องเก็บสินค้า
-	ClientID     uint64       `json:"client_id" db:"client_id"`
+	LocId        uint64        `json:"loc_id" db:"loc_id"`
+	Code         string        `json:"code"`
+	Type         machineType   `json:"type"`
+	Brand        machineBrand  `json:"brand"`
+	ProfileId    uint64        `json:"profile_id" db:"profile_id"`
+	SerialNumber null.String   `json:"serial_number" db:"serial_number"`
+	Selection    int           `json:"selection"` //จำนวน Column หรือช่องเก็บสินค้า
+	PlaceId      uint64        `json:"place_id" db:"place_id"`
+	Status       MachineStatus `json:"status"`
+	Note         null.String   `json:"note"`
 }
 
 type ColumnSize int
@@ -93,19 +104,6 @@ const (
 	OK ColumnStatus = iota
 	FAIL
 )
-
-// MachineColumn เก็บยอด Counter ล่าสุดของแต่ละ column ในแต่ละ Machine
-type MachineColumn struct {
-	sys.Base
-	MachineID   uint64          `json:"machine_id" db:"machine_id"`
-	ColumnNo    int             `json:"column_no" db:"column_no"`
-	ItemId      uint64          `json:"item_id" db:"item_id"`
-	Price       decimal.Decimal `json:"price"`
-	LastCounter int             `json:"last_counter" db:"last_counter"`
-	CurrCounter int             `json:"curr_counter" db:"curr_counter"`
-	Size        ColumnSize      `json:"size"`
-	Status      ColumnStatus    `json:"status"`
-}
 
 // Transaction row Batch data received from mobile app daily.
 
@@ -157,11 +155,11 @@ func (m *Machine) New(db *sqlx.DB) (*Machine, error) {
 		selection
 		) VALUES(?,?,?,?,?,?,?)`
 	res, err := db.Exec(sql,
-		m.LocID,
+		m.LocId,
 		m.Code,
 		m.Type,
 		m.Brand,
-		m.ProfileID,
+		m.ProfileId,
 		m.SerialNumber,
 		m.Selection,
 	)
@@ -181,7 +179,7 @@ func (m *Machine) New(db *sqlx.DB) (*Machine, error) {
 
 func (m *Machine) Get(db *sqlx.DB) (*Machine, error) {
 	log.Println("call model.Machine.Get()")
-	sql := `SELECT * FROM machine_column WHERE id = ?`
+	sql := `SELECT * FROM machine WHERE id = ? AND deleted IS NULL`
 	err := db.Get(m, sql, m.ID)
 	if err != nil {
 		return nil, err
@@ -189,16 +187,29 @@ func (m *Machine) Get(db *sqlx.DB) (*Machine, error) {
 	return m, nil
 }
 
-func (m *Machine) Columns(db *sqlx.DB) ([]*MachineColumn, error) {
+func (m *Machine) Columns(db *sqlx.DB) ([]MachineColumn, error) {
 	log.Println("call model.Machine.Columns()")
 
-	var mc []*MachineColumn
+	var mcs []MachineColumn // Todo: Change to []*MachineColumn
 	sql := `SELECT * FROM machine_column WHERE machine_id = ?`
-	err := db.Get(mc, sql, m.ID)
+	err := db.Select(&mcs, sql, m.ID)
 	if err != nil {
 		return nil, err
 	}
-	return mc, nil
+	return mcs, nil
+}
+
+// MachineColumn เก็บยอด Counter ล่าสุดของแต่ละ column ในแต่ละ Machine
+type MachineColumn struct {
+	sys.Base
+	MachineID   uint64          `json:"machine_id" db:"machine_id"`
+	ColumnNo    int             `json:"column_no" db:"column_no"`
+	ItemId      uint64          `json:"item_id" db:"item_id"`
+	Price       decimal.Decimal `json:"price"`
+	LastCounter int             `json:"last_counter" db:"last_counter"`
+	CurrCounter int             `json:"curr_counter" db:"curr_counter"`
+	Size        ColumnSize      `json:"size"`
+	Status      ColumnStatus    `json:"status"`
 }
 
 func (mc *MachineColumn) Update(db *sqlx.DB) (*MachineColumn, error) {

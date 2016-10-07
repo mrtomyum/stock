@@ -1,8 +1,7 @@
 package controller
 
 import (
-
-	"github.com/mrtomyum/nava-sys/api"
+	"github.com/mrtomyum/sys/api"
 	m "github.com/mrtomyum/nava-stock/model"
 	"log"
 	"net/http"
@@ -13,6 +12,7 @@ import (
 func (e *Env) GetAllItem(c *gin.Context) {
 	log.Println("call GET AllItem")
 	c.Header("Server", "NAVA Stock")
+	c.Header("Host", "api.nava.work:8001")
 	c.Header("Content-Type", "application/json")
 	c.Header("Access-Control-Allow-Origin", "*")
 
@@ -70,7 +70,7 @@ func (e *Env) GetItem(c *gin.Context) {
 	i.ID, _ = strconv.ParseUint(id, 10, 64)
 	rs := api.Response{}
 	iv, err := i.GetItemView(e.DB)
-	log.Println("return from FindItemByID()")
+	log.Println("return from GetItemView()")
 	if err != nil {
 		log.Println(err)
 		rs.Status = api.ERROR

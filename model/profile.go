@@ -1,7 +1,7 @@
 package model
 
 import (
-	sys "github.com/mrtomyum/nava-sys/model"
+	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
 )
 

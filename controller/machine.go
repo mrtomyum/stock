@@ -2,7 +2,7 @@ package controller
 
 import (
 	"net/http"
-	"github.com/mrtomyum/nava-sys/api"
+	"github.com/mrtomyum/sys/api"
 	m "github.com/mrtomyum/nava-stock/model"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
@@ -45,12 +45,11 @@ func (e *Env) GetThisMachine(ctx *gin.Context) {
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
-		ctx.Status(http.StatusNoContent)
 	} else {
 		rs.Status = api.SUCCESS
 		rs.Data = machine
-		ctx.JSON(http.StatusOK, rs)
 	}
+	ctx.JSON(http.StatusOK, rs)
 	return
 }
 

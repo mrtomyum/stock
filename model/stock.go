@@ -2,7 +2,7 @@ package model
 
 import (
 	"github.com/jmoiron/sqlx"
-	sys "github.com/mrtomyum/nava-sys/model"
+	sys "github.com/mrtomyum/sys/model"
 	"log"
 	"time"
 )
@@ -24,15 +24,6 @@ type StockCard struct {
 	BaseUnit  Unit
 	BaseQty   int64
 }
-
-// ลูกค้า
-type ClientType int
-
-const (
-	FACTORY ClientType = iota
-	EDUCATION
-	OFFICE
-)
 
 type Vehicle struct {
 	sys.Base

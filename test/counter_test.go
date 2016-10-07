@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"time"
 	"strings"
-	"github.com/mrtomyum/nava-sys/api"
+	"github.com/mrtomyum/sys/api"
 )
 
 var url string = "http://localhost:8001"

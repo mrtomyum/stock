@@ -2,11 +2,13 @@ package model
 
 import (
 	"github.com/jmoiron/sqlx"
-	sys "github.com/mrtomyum/nava-sys/model"
+	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
 	"log"
 	"strings"
 	"time"
+	"database/sql/driver"
+	"errors"
 )
 
 const DateFormat = "2006-01-02" // yyyy-mm-dd
@@ -25,10 +27,18 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-//func (d *Date) Scan(src time.Time) error {
-//	d.Time = src
-//	return nil
-//}
+func (d *Date) Value() (driver.Value, error) {
+	return d.Time, nil
+}
+
+func (d *Date) Scan(src interface{}) error {
+	if date, ok := src.(time.Time); ok {
+		d.Time = date
+		return nil
+	}
+	//d.Time = Date(src.(time.Time))
+	return errors.New("wrong type it's not time.Time")
+}
 
 type Counter struct {
 	sys.Base
@@ -48,6 +58,20 @@ type CounterSub struct {
 	Price     decimal.Decimal `json:"price"`                // from Last updated Price of this Machine.Column
 }
 
+//--------------------------------------------------
+// Check mc.LastCounter ต้องน้อยกว่าหรือเท่ากับ CurrCounter
+//--------------------------------------------------
+func (c *Counter) FoundCounterLessThan(mcs []MachineColumn) bool {
+	for _, sub := range c.Sub {
+		for _, mc := range mcs {
+			if sub.Counter < mc.LastCounter {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 //---------------------------------------------------------------------------
 // model.Counter.Insert
 // ทำการเก็บผลการบันทึก Counter โดยมีการบันทึก LastCounter และ CurrCounter ลงใน
@@ -55,6 +79,21 @@ type CounterSub struct {
 // และถ้ามีการยกเลิก Counter ที่บันทึกไปแล้วต้องคืนค่า LastCounter และ CurrCounter ด้วย
 //---------------------------------------------------------------------------
 func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
+	//-------------------------------------------------
+	// Load Machine Data and validate new counter data.
+	//-------------------------------------------------
+	var m Machine
+	m.ID = c.MachineId
+	mcs, err := m.Columns(db)
+	if err != nil {
+		return nil, err
+	}
+	if c.FoundCounterLessThan(mcs) {
+		return nil, errors.New("Found error input counter: New counter < Last counter in the same Machine-Column.")
+	}
+	//---------------------
+	// begin transaction
+	//---------------------
 	tx, err := db.Beginx()
 	if err != nil {
 		return nil, err
@@ -81,49 +120,34 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		}
 		return nil, err
 	}
-	tx.Commit()
+	tx.Commit() // commit Header transaction
 	log.Println("Pass>>1.tx.Exec() INSERT INTO counter")
 
 	// Loop for range Counter.Sub
 	counterId, _ := res.LastInsertId()
 	var newSubs []*CounterSub
+	txSub, err := db.Beginx()
+	//--------------------------------------------------
+	// Update MachineColumn.LastCounter and CurrCounter
+	//--------------------------------------------------
 	for _, sub := range c.Sub {
-		tx, err = db.Beginx()
-		//-----------------------------------------
-		// Get relate data from other table.
-		// SELECT related data from MachineColumn.
-		//-----------------------------------------
-		var mc MachineColumn
-		sql = `
-			SELECT *
-			FROM machine_column
-			WHERE machine_id = ? AND column_no = ?
-			LIMIT 1
-			`
-		err := db.Get(&mc, sql, c.MachineId, sub.ColumnNo)
-		if err != nil {
-			tx.Rollback()
-			log.Println("Error>>2.db.Get() SELECT machine_column = ", err)
-			return nil, err
-		}
-		log.Println("Pass>>2.db.Get() SELECT machine_column")
-		//--------------------------------------------------
-		// Update MachineColumn.LastCounter and CurrCounter
-		//--------------------------------------------------
 		sql = `
 			UPDATE machine_column
 			SET last_counter = ?, curr_counter = ?
 			WHERE machine_id = ? AND column_no = ?
 			`
-		res, err := tx.Exec(sql,
-			mc.CurrCounter, sub.Counter,
-			c.MachineId, sub.ColumnNo,
-		)
-		if err != nil {
-			tx.Rollback()
-			log.Println("Error>>3.tx.Exec() machine_column = ", err)
-			return nil, err
+		for _, mc := range mcs {
+			_, err := txSub.Exec(sql,
+				mc.CurrCounter, sub.Counter,
+				c.MachineId, mc.ColumnNo,
+			)
+			if err != nil {
+				txSub.Rollback()
+				log.Println("Error>>3.tx.Exec() machine_column = ", err)
+				return nil, err
+			}
 		}
+		log.Println("Update MachineColumn 'MachineID':", c.MachineId, "ColumnNo:", sub.ColumnNo)
 		log.Println("Pass>>3.tx.Exec() UPDATE machine_column")
 		//--------------------------------------------------
 		// Insert CounterSub{}
@@ -136,23 +160,22 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 				price,
 				counter
 			) VALUES(?,?,?,?,?)`
-		sub.ItemId = mc.ItemId
-		sub.Price = mc.Price
-		res, err = tx.Exec(sql,
-			counterId,
-			sub.ColumnNo,
-			sub.ItemId,
-			sub.Price,
-			sub.Counter,
-		)
-		if err != nil {
-			tx.Rollback()
-			log.Println("Error>>4.tx.Exec() INSERT counter_sub = ", err)
-			return nil, err
+		for _, mc := range mcs {
+			res, err = txSub.Exec(sql,
+				counterId,
+				sub.ColumnNo,
+				mc.ItemId,
+				mc.Price,
+				sub.Counter,
+			)
+			if err != nil {
+				txSub.Rollback()
+				log.Println("Error>>4.tx.Exec() INSERT counter_sub = ", err)
+				return nil, err
+			}
 		}
-		// if success tx.Commit
-		tx.Commit()
 		log.Println("Pass>>4.tx.Exec() INSERT counter_sub")
+
 		//--------------------------------------------------
 		// Return New CounterSub to confirm
 		//--------------------------------------------------
@@ -166,6 +189,7 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		log.Println("Pass>>5.db.Get() SELECT counter_sub")
 		newSubs = append(newSubs, &inserted)
 	}
+	txSub.Commit()
 
 	sql = `SELECT * FROM counter WHERE id = ?`
 	id, _ := res.LastInsertId()
@@ -177,7 +201,7 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		&newCounter.Created,
 		&newCounter.Updated,
 		&newCounter.Deleted,
-		&newCounter.RecDate.Time,
+		&newCounter.RecDate,
 		&newCounter.MachineId,
 		&newCounter.CounterSum,
 	)
@@ -204,10 +228,8 @@ func (c *Counter) All(db *sqlx.DB) ([]*Counter, error) {
 	counters := []*Counter{} //<<-- น่าจะต้องไม่ใช่ Pointer นะ
 	if row.Next() {
 		err = row.Scan(
-			//&counters[i].ID, &counters[i].Created, &counters[i].Updated, &counters[i].Deleted,
-			//&counters[i].RecDate.Time, &counters[i].MachineId, &counters[i].CounterSum,
 			&c.ID, &c.Created, &c.Updated, &c.Deleted,
-			&c.RecDate.Time, &c.MachineId, &c.CounterSum,
+			&c.RecDate, &c.MachineId, &c.CounterSum,
 		)
 		counters = append(counters, c)
 	}
@@ -225,15 +247,15 @@ func (c *Counter) All(db *sqlx.DB) ([]*Counter, error) {
 func (c *Counter) Get(db *sqlx.DB) (*Counter, error) {
 	log.Println("call model.Counter.Get()")
 	sql := `SELECT * FROM counter WHERE deleted IS NULL AND id = ?`
-	//err := db.Get(&counter, sql, c.ID)
-	row := db.QueryRowx(sql, c.ID)
-	err := row.Scan(
-		&c.ID, &c.Created, &c.Updated, &c.Deleted,
-		&c.RecDate.Time, &c.MachineId, &c.CounterSum,
-	)
+	err := db.Get(c, sql, c.ID)
+	//row := db.QueryRowx(sql, c.ID)
+	//err := row.Scan(
+	//	&c.ID, &c.Created, &c.Updated, &c.Deleted,
+	//	&c.RecDate, &c.MachineId, &c.CounterSum,
+	//)
 	if err != nil {
-		//log.Println("Fail>>1.db.Get()", err)
-		log.Println("Fail>>1.db.QueryRowx", err)
+		log.Println("Fail>>1.db.Get()", err)
+		//log.Println("Fail>>1.db.QueryRowx", err)
 		return nil, err
 	}
 	log.Println("Success>>1.db.QueryRowx")
@@ -247,17 +269,22 @@ func (c *Counter) Get(db *sqlx.DB) (*Counter, error) {
 	return c, nil
 }
 
+//-----------------------------------------------------------------
+// Counter.Update()
+// ระวัง การ model.Counter.Update() จะต้องไม่ update last_counter
+// เราจะ update last_counter เฉพาะตอน Insert() เท่านั้น
+//-----------------------------------------------------------------
 func (c *Counter) Update(db *sqlx.DB) (*Counter, error) {
-	// ระวัง การ model.Counter.Update() จะต้องไม่ update last_counter
-	// เราจะ update last_counter เฉพาะตอน Insert() เท่านั้น
 	var updatedCounter Counter
 	return &updatedCounter, nil
 }
-
+//-----------------------------------------------------------------
+// Counter.Delete()
+// การยกเลิกบันทึก Counter โดยทำการ Update Counter.Deleted เพื่อลบรายการ และ
+// ต้องเอา Counter ก่อนหน้า กลับมาใหม่ จาก CounterSub.Counter ก่อนหน้าด้วย
+// โดยเขียนกลับลงไปใน MachineColumn.CurrCounter และ .LastCounter ตามลำดับ
+//-----------------------------------------------------------------
 func (c *Counter) Delete(db *sqlx.DB) error {
-	// การยกเลิกบันทึก Counter โดยทำการ Update Counter.Deleted เพื่อลบรายการ และ
-	// ต้องเอา Counter ก่อนหน้า กลับมาใหม่ จาก CounterSub.Counter ก่อนหน้าด้วย
-	// โดยเขียนกลับลงไปใน MachineColumn.CurrCounter และ .LastCounter ตามลำดับ
 	return nil
 }
 

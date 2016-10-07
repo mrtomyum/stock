@@ -2,29 +2,30 @@ package model
 
 import (
 	"github.com/jmoiron/sqlx"
-	sys "github.com/mrtomyum/nava-sys/model"
-	"log"
+	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
+	"log"
 )
 
 type Item struct {
 	sys.Base
-	SKU        string `json:"sku"`
-	Name       string `json:"name"`
-	StdPrice   decimal.Decimal  `json:"stdPrice" db:"std_price"`
-	StdCost    decimal.Decimal  `json:"stdCost" db:"std_cost"`
-	BaseUnitID uint64 `json:"baseUnitID" db:"base_unit_id"`
-	CategoryID uint64 `json:"categoryID" db:"category_id"`
-	BrandID    uint64 `json:"brand_id" db:"brand_id"`
+	SKU        string          `json:"sku"`
+	NameTh     string          `json:"name_th" db:"name_th"`
+	NameEn     string          `json:"name_en" db:"name_en"`
+	StdPrice   decimal.Decimal `json:"std_price" db:"std_price"`
+	StdCost    decimal.Decimal `json:"std_cost" db:"std_cost"`
+	BaseUnitID uint64          `json:"base_unit_id" db:"base_unit_id"`
+	CategoryID uint64          `json:"category_id" db:"category_id"`
+	BrandID    uint64          `json:"brand_id" db:"brand_id"`
 }
 
 type ItemView struct {
-	sys.Base
+	//sys.Base
 	Item
-	BaseUnitTH string `json:"baseUnitTH" db:"base_unit_th"`
-	BaseUnitEN string `json:"baseUnitEN" db:"base_unit_en"`
-	CategoryTH string `json:"categoryTH" db:"category_th"`
-	CategoryEN string `json:"categoryEN" db:"category_en"`
+	BaseUnitTH string `json:"base_unit_th" db:"base_unit_th"`
+	BaseUnitEN string `json:"base_unit_en" db:"base_unit_en"`
+	CategoryTH string `json:"category_th" db:"category_th"`
+	CategoryEN string `json:"category_en" db:"category_en"`
 }
 
 type ItemBarcode struct {
@@ -60,20 +61,21 @@ func (i *Item) All(db *sqlx.DB) (Items, error) {
 }
 
 func (i *Item) GetItemView(db *sqlx.DB) (*ItemView, error) {
-	log.Println("call FindItemByID()")
+	log.Println("call model.Item.GetItemView()")
 	var iv ItemView
 	sql := `
 	SELECT
 		item.sku,
-		item.name,
+		item.name_th,
+		item.name_en,
 		item.std_price,
 		item.std_cost,
 		item.base_unit_id,
 		item.category_id,
-		unit.th as base_unit_th,
-		unit.en as base_unit_en,
-		category.th as category_th,
-		category.en as category_en
+		unit.name_th as base_unit_th,
+		unit.name_en as base_unit_en,
+		category.name_th as category_th,
+		category.name_en as category_en
 	FROM item
 	LEFT JOIN unit ON item.base_unit_id = unit.id
 	LEFT JOIN category ON item.category_id = category.id
@@ -82,7 +84,7 @@ func (i *Item) GetItemView(db *sqlx.DB) (*ItemView, error) {
 	//err := db.QueryRowx(sql, i.ID).StructScan(&iv)
 	err := db.Get(&iv, sql, i.ID)
 	if err != nil {
-		log.Println("Error: FindItemByID/Query Error", err)
+		log.Println("Error: model.Item.GetItemView/Query Error", err)
 		return &iv, err
 	}
 	return &iv, nil
@@ -92,7 +94,8 @@ func (i *Item) Insert(db *sqlx.DB) (Item, error) {
 	sql := `
 		INSERT INTO item (
 			sku,
-			name,
+			name_th,
+			name_en,
 			std_price,
 			std_cost,
 			base_unit_id,
@@ -103,7 +106,8 @@ func (i *Item) Insert(db *sqlx.DB) (Item, error) {
 		`
 	rs, err := db.Exec(sql,
 		i.SKU,
-		i.Name,
+		i.NameTh,
+		i.NameEn,
 		i.StdPrice,
 		i.StdCost,
 		i.BaseUnitID,
@@ -131,7 +135,8 @@ func (i *Item) Update(db *sqlx.DB) (*Item, error) {
 		UPDATE item
 		SET
 			sku = ?,
-			name = ?,
+			name_th = ?,
+			name_en = ?,
 			std_price = ?,
 			std_cost = ?,
 			base_unit_id = ?,
@@ -140,7 +145,8 @@ func (i *Item) Update(db *sqlx.DB) (*Item, error) {
 	`
 	_, err := db.Exec(sql,
 		i.SKU,
-		i.Name,
+		i.NameTh,
+		i.NameEn,
 		i.StdPrice,
 		i.StdCost,
 		i.BaseUnitID,

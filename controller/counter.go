@@ -4,7 +4,7 @@ import (
 	"net/http"
 	log "github.com/Sirupsen/logrus"
 	"github.com/mrtomyum/nava-stock/model"
-	"github.com/mrtomyum/nava-sys/api"
+	"github.com/mrtomyum/sys/api"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
@@ -12,7 +12,6 @@ import (
 func (e *Env) PostCounter(ctx *gin.Context) {
 	log.Println("call ctrl.Counter()")
 	ctx.Header("Server", "NAVA Stock")
-	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	c := &model.Counter{}
@@ -40,7 +39,6 @@ func (e *Env) PostCounter(ctx *gin.Context) {
 func (e *Env) GetAllCounter(ctx *gin.Context) {
 	log.Println("call ctrl.Counter.GetAllCounter()")
 	ctx.Header("Server", "NAVA Stock")
-	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	c := model.Counter{}
@@ -66,6 +64,7 @@ func (e *Env) GetCounter(ctx *gin.Context) {
 	ctx.Header("Server", "NAVA Stock")
 	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
+	//ctx.Header("Authorization", "Baerer" + jwt)
 
 	id := ctx.Param("id")
 	c := model.Counter{}
