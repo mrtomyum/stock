@@ -120,13 +120,13 @@ func (e *Env) PutMachineColumn(c *gin.Context) {
 			rs.Status = api.ERROR
 			rs.Message = "No data in ColumnNo."
 		default:
-			updatedColumn, err := mc.Update(e.DB)
+			err := mc.Update(e.DB)
 			if err != nil {
 				rs.Status = api.ERROR
 				rs.Message = err.Error()
 			} else {
 				rs.Status = api.SUCCESS
-				rs.Data = updatedColumn
+				rs.Data = mc
 			}
 			c.JSON(http.StatusOK, rs)
 		}

@@ -43,7 +43,7 @@ func (e *Env) GetAllCounter(ctx *gin.Context) {
 
 	c := model.Counter{}
 	rs := api.Response{}
-	counters, err := c.All(e.DB)
+	counters, err := c.GetAll(e.DB)
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()

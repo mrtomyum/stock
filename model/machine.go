@@ -187,10 +187,10 @@ func (m *Machine) Get(db *sqlx.DB) (*Machine, error) {
 	return m, nil
 }
 
-func (m *Machine) GetColumns(db *sqlx.DB) ([]MachineColumn, error) {
+func (m *Machine) GetColumns(db *sqlx.DB) ([]*MachineColumn, error) {
 	log.Println("call model.Machine.Columns()")
 
-	var mcs []MachineColumn // Todo: Change to []*MachineColumn
+	var mcs []*MachineColumn
 	sql := `SELECT * FROM machine_column WHERE machine_id = ?`
 	err := db.Select(&mcs, sql, m.ID)
 	if err != nil {
@@ -212,7 +212,7 @@ type MachineColumn struct {
 	Status      ColumnStatus    `json:"status"`
 }
 
-func (mc *MachineColumn) Update(db *sqlx.DB) (*MachineColumn, error) {
+func (mc *MachineColumn) Update(db *sqlx.DB) error {
 	log.Println("call model.MachineColumn.Update()")
 
 	sql := `
@@ -236,15 +236,51 @@ func (mc *MachineColumn) Update(db *sqlx.DB) (*MachineColumn, error) {
 		mc.ColumnNo,
 	)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	var updatedMC MachineColumn
+	//var updatedMC MachineColumn
 	id, _ := res.LastInsertId()
-	err = db.Get(&updatedMC, sql, uint64(id))
+	log.Println("Insert MachineColumn_ID = ", id)
+	//err = db.Get(&updatedMC, sql, uint64(id))
+	//if err != nil {
+	//	return nil, err
+	//}
+	return nil
+}
+
+func (m *Machine) GetMachineColumn(db *sqlx.DB, columnNo int) (*MachineColumn, error) {
+	mc := new(MachineColumn)
+	sql := `SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ? LIMIT 1`
+	err := db.Get(mc, sql, m.ID, columnNo)
 	if err != nil {
 		return nil, err
 	}
-	return &updatedMC, nil
+	return mc, nil
+}
 
+func (m *Machine) UpdateColumnCounter(db *sqlx.DB, columnNo int, counter int) error {
+	mc, err := m.GetMachineColumn(db, columnNo)
+	if err != nil {
+		return err
+	}
+	sql := `
+			UPDATE machine_column
+			SET last_counter = ?, curr_counter = ?
+			WHERE machine_id = ?
+			AND column_no = ?
+	//		`
+	_, err = db.Exec(sql,
+		mc.CurrCounter,
+		counter,
+		m.ID,
+		columnNo,
+	)
+	if err != nil {
+		log.Println("Error>> Exec() machine_column = ", err)
+		return err
+	}
+	log.Println("Update MachineColumn 'MachineID':", m.ID, "ColumnNo:", columnNo)
+	log.Println("Pass>>3.tx.Exec() UPDATE machine_column")
+	return nil
 }
