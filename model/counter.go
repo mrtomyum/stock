@@ -80,7 +80,7 @@ func (c *Counter) LessThanLastCount(mcs []*MachineColumn) bool {
 // MachineColumn ด้วย โดยต้องระวังการ Update จะไม่บันทึก LastCounter
 // และถ้ามีการยกเลิก Counter ที่บันทึกไปแล้วต้องคืนค่า LastCounter และ CurrCounter ด้วย
 //---------------------------------------------------------------------------
-func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
+func (c *Counter) InsertInsert(db *sqlx.DB) (*Counter, error) {
 	var machine Machine
 	machine.ID = c.MachineId
 	mcs, err := machine.GetColumns(db)

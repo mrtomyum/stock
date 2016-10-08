@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
+	"errors"
 )
 
 type machineType uint8
@@ -254,7 +255,7 @@ func (m *Machine) GetMachineColumn(db *sqlx.DB, columnNo int) (*MachineColumn, e
 	sql := `SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ? LIMIT 1`
 	err := db.Get(mc, sql, m.ID, columnNo)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Wrong column number in this machine:" + err.Error())
 	}
 	return mc, nil
 }

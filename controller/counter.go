@@ -22,7 +22,7 @@ func (e *Env) PostCounter(ctx *gin.Context) {
 		rs.Message = err.Error()
 		ctx.JSON(http.StatusBadRequest, rs)
 	} else {
-		newCounter, err := c.Insert(e.DB)
+		newCounter, err := c.(e.DB)
 		if err != nil {
 			rs.Status = api.ERROR
 			rs.Message = "CANNOT_INSERT New Counter >>" + err.Error()
