@@ -18,7 +18,7 @@ func (e *Env) GetAllMachines(ctx *gin.Context) {
 
 	m := m.Machine{}
 	rs := api.Response{}
-	machines, err := m.All(e.DB)
+	machines, err := m.GetAll()
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
@@ -67,7 +67,7 @@ func (e *Env) PostNewMachine(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, rs)
 	} else {
 		log.Info(m)
-		newMachine, err := m.New(e.DB) // TODO: ให้ดัก New() ที่ m เป็นค่าว่างด้วย ต้อง Error
+		newMachine, err := m.New() // TODO: ให้ดัก New() ที่ m เป็นค่าว่างด้วย ต้อง Error
 		if err != nil {
 			rs.Status = api.ERROR
 			rs.Message = err.Error()
@@ -87,7 +87,7 @@ func (e *Env) GetMachineColumns(c *gin.Context) {
 
 	var m m.Machine
 	rs := api.Response{}
-	machineColumns, err := m.GetColumns(e.DB)
+	machineColumns, err := m.GetColumns()
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
@@ -120,7 +120,7 @@ func (e *Env) PutMachineColumn(c *gin.Context) {
 			rs.Status = api.ERROR
 			rs.Message = "No data in ColumnNo."
 		default:
-			err := mc.Update(e.DB)
+			err := mc.Update()
 			if err != nil {
 				rs.Status = api.ERROR
 				rs.Message = err.Error()

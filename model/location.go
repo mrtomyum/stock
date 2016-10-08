@@ -5,7 +5,6 @@ import (
 	//"fmt"
 	"encoding/json"
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/sys/model"
 	"log"
 )
@@ -72,11 +71,11 @@ func (this *Location) AddTree(nodes ...*Location) bool {
 	return this.Size() == size + len(nodes)
 }
 
-func (l *Location) All(db *sqlx.DB) ([]*Location, error) {
+func (l *Location) All() ([]*Location, error) {
 	log.Println("call method Location.All()")
 	locations := []*Location{}
 	sql := `SELECT * FROM location`
-	err := db.Select(&locations, sql)
+	err := DB.Select(&locations, sql)
 	if err != nil {
 		log.Fatal("Error in model.Select..", err)
 		return nil, err
@@ -85,7 +84,7 @@ func (l *Location) All(db *sqlx.DB) ([]*Location, error) {
 	return locations, nil
 }
 
-func (l *Location) Get(db *sqlx.DB) ([]*Location, error) {
+func (l *Location) Get() ([]*Location, error) {
 	// TODO: แก้ Select ให้สามารถ Recursive  Parent_id ได้
 	sql := `
 		SELECT * FROM location
@@ -93,7 +92,7 @@ func (l *Location) Get(db *sqlx.DB) ([]*Location, error) {
 		OR parent_id = ?
 		`
 	locations := []*Location{}
-	err := db.Select(&locations, sql, l.ID, l.ID)
+	err := DB.Select(&locations, sql, l.ID, l.ID)
 	if err != nil {
 		log.Fatal("Error in model.Select..", err)
 		return nil, err
@@ -101,7 +100,7 @@ func (l *Location) Get(db *sqlx.DB) ([]*Location, error) {
 	return locations, nil
 }
 
-func (l *Location) Insert(db *sqlx.DB) (*Location, error) {
+func (l *Location) Insert() (*Location, error) {
 	sql := `
 		INSERT INTO location (
 			code,
@@ -111,7 +110,7 @@ func (l *Location) Insert(db *sqlx.DB) (*Location, error) {
 		VALUES (?, ?, ?, ?)
 	`
 	log.Println("Test Location receiver:", l.Code, l.Type, l.ParentID)
-	res, err := db.Exec(sql,
+	res, err := DB.Exec(sql,
 		l.Code,
 		l.Type,
 		l.ParentID,
@@ -122,7 +121,7 @@ func (l *Location) Insert(db *sqlx.DB) (*Location, error) {
 	}
 	id, _ := res.LastInsertId()
 	newLoc := Location{}
-	err = db.Get(&newLoc, "SELECT * FROM location WHERE id =?", id)
+	err = DB.Get(&newLoc, "SELECT * FROM location WHERE id =?", id)
 	if err != nil {
 		log.Println("Error db.GET in model.Location.Show", err)
 	}

@@ -22,7 +22,7 @@ func (e *Env) PostCounter(ctx *gin.Context) {
 		rs.Message = err.Error()
 		ctx.JSON(http.StatusBadRequest, rs)
 	} else {
-		newCounter, err := c.(e.DB)
+		newCounter, err := c.Insert()
 		if err != nil {
 			rs.Status = api.ERROR
 			rs.Message = "CANNOT_INSERT New Counter >>" + err.Error()
@@ -43,7 +43,7 @@ func (e *Env) GetAllCounter(ctx *gin.Context) {
 
 	c := model.Counter{}
 	rs := api.Response{}
-	counters, err := c.GetAll(e.DB)
+	counters, err := c.GetAll()
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
@@ -70,7 +70,7 @@ func (e *Env) GetCounter(ctx *gin.Context) {
 	c := model.Counter{}
 	c.ID, _ = strconv.ParseUint(id, 10, 64)
 	rs := api.Response{}
-	counters, err := c.Get(e.DB)
+	counters, err := c.Get()
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()

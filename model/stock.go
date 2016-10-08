@@ -1,7 +1,6 @@
 package model
 
 import (
-	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/sys/model"
 	"log"
 	"time"
@@ -40,11 +39,11 @@ type RouteMan struct {
 	VehicleID uint64
 }
 
-func (s *Stock) All(db *sqlx.DB) ([]*Stock, error) {
+func (s *Stock) GetAll() ([]*Stock, error) {
 	log.Println("call model.Stock.All()")
 	sql := `SELECT * FROM stock`
 	var stocks []*Stock
-	err := db.Select(&stocks, sql)
+	err := DB.Select(&stocks, sql)
 	if err != nil {
 		log.Println("Error: model.Stock.All() db.Select...", err)
 		return nil, err

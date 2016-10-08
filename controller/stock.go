@@ -14,7 +14,7 @@ func (e *Env) AllStock(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	s := m.Stock{}
 	rs := api.Response{}
-	items, err := s.All(e.DB)
+	items, err := s.GetAll()
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()

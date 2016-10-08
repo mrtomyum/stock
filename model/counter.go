@@ -1,7 +1,6 @@
 package model
 
 import (
-	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
 	"log"
@@ -80,10 +79,10 @@ func (c *Counter) LessThanLastCount(mcs []*MachineColumn) bool {
 // MachineColumn ด้วย โดยต้องระวังการ Update จะไม่บันทึก LastCounter
 // และถ้ามีการยกเลิก Counter ที่บันทึกไปแล้วต้องคืนค่า LastCounter และ CurrCounter ด้วย
 //---------------------------------------------------------------------------
-func (c *Counter) InsertInsert(db *sqlx.DB) (*Counter, error) {
+func (c *Counter) Insert() (*Counter, error) {
 	var machine Machine
 	machine.ID = c.MachineId
-	mcs, err := machine.GetColumns(db)
+	mcs, err := machine.GetColumns()
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +99,7 @@ func (c *Counter) InsertInsert(db *sqlx.DB) (*Counter, error) {
 		counter_sum
 		) VALUES(?,?,?)
 	`
-	res, err := db.Exec(sql,
+	res, err := DB.Exec(sql,
 		c.RecDate.Time,
 		c.MachineId,
 		c.CounterSum,
@@ -115,7 +114,7 @@ func (c *Counter) InsertInsert(db *sqlx.DB) (*Counter, error) {
 	c.ID = uint64(id)
 	for _, sub := range c.Sub {
 		// Update MachineColumn.LastCounter and CurrCounter
-		mc, err := machine.GetMachineColumn(db, sub.ColumnNo)
+		mc, err := machine.GetMachineColumn(sub.ColumnNo)
 		if err != nil {
 			log.Println("Error machine.GetMachineColumn:", err)
 			return nil, err
@@ -126,30 +125,30 @@ func (c *Counter) InsertInsert(db *sqlx.DB) (*Counter, error) {
 		sub.ItemId = mc.ItemId
 		// update SubCounter.Price with last update Price
 		sub.Price = mc.Price
-		err = mc.Update(db)
+		err = mc.Update()
 		if err != nil {
 			log.Println("Error mc.Update(db)", err)
 			return nil, errors.New("Error Update MachineColumn" + err.Error())
 		}
 		// Insert new SubCounter
 		sub.CounterId = c.ID
-		err = sub.Insert(db)
+		err = sub.Insert()
 		if err != nil {
 			log.Println("Error sub.Insert(db)", err)
 			return nil, err
 		}
 	}
-	newCounter, err := c.Get(db)
+	newCounter, err := c.Get()
 	return newCounter, nil
 }
 
-func (c *Counter) GetSub(db *sqlx.DB) ([]*SubCounter, error) {
+func (c *Counter) GetSub() ([]*SubCounter, error) {
 	//--------------------------------------------------
 	// Return New CounterSub of this Counter
 	//--------------------------------------------------
 	var sub []*SubCounter
 	sql := `SELECT * FROM counter_sub WHERE counter_id = ? AND deleted IS NULL`
-	err := db.Select(&sub, sql, c.ID)
+	err := DB.Select(&sub, sql, c.ID)
 	if err != nil {
 		log.Println("Error>>5. model.Counter.GetSub() = ", err)
 		return nil, err
@@ -162,12 +161,12 @@ func (c *Counter) GetSub(db *sqlx.DB) ([]*SubCounter, error) {
 // All will return only []Counter
 // ถ้าต้องการ CounterSub จะต้องคอล Counter.Get() ทีละตัว
 //--------------------------------------------------
-func (c *Counter) GetAll(db *sqlx.DB) ([]*Counter, error) {
+func (c *Counter) GetAll() ([]*Counter, error) {
 	log.Println("call model.Counter.All()")
 	// กรอง WHERE deleted <> null
 	sql := `SELECT * FROM counter WHERE deleted IS NULL`
 	//err := db.Select(&counters, sql)
-	row, err := db.Queryx(sql)
+	row, err := DB.Queryx(sql)
 	defer row.Close()
 	counters := []*Counter{} //<<-- น่าจะต้องไม่ใช่ Pointer นะ
 	if row.Next() {
@@ -188,17 +187,17 @@ func (c *Counter) GetAll(db *sqlx.DB) ([]*Counter, error) {
 //-----------------------------------------------------------------
 // model.Counter.Get() will return single Counter with []CounterSub
 //-----------------------------------------------------------------
-func (c *Counter) Get(db *sqlx.DB) (*Counter, error) {
+func (c *Counter) Get() (*Counter, error) {
 	log.Println("call model.Counter.Get() c.ID=", c.ID)
 	sql := `SELECT * FROM counter WHERE deleted IS NULL AND id = ?`
-	err := db.Get(c, sql, c.ID)
+	err := DB.Get(c, sql, c.ID)
 	if err != nil {
 		log.Println("Fail>>1.db.Get()", err)
 		//log.Println("Fail>>1.db.QueryRowx", err)
 		return nil, err
 	}
 	log.Println("Success>>1.db.QueryRowx")
-	subCounter, err := c.GetSub(db)
+	subCounter, err := c.GetSub()
 	log.Println("subCounter=", subCounter)
 	c.Sub = subCounter
 	log.Println(c.Sub)
@@ -210,7 +209,7 @@ func (c *Counter) Get(db *sqlx.DB) (*Counter, error) {
 // ระวัง การ model.Counter.Update() จะต้องไม่ update last_counter
 // เราจะ update last_counter เฉพาะตอน Insert() เท่านั้น
 //-----------------------------------------------------------------
-func (c *Counter) Update(db *sqlx.DB) (*Counter, error) {
+func (c *Counter) Update() (*Counter, error) {
 	var updatedCounter Counter
 	return &updatedCounter, nil
 }
@@ -220,11 +219,11 @@ func (c *Counter) Update(db *sqlx.DB) (*Counter, error) {
 // ต้องเอา Counter ก่อนหน้า กลับมาใหม่ จาก CounterSub.Counter ก่อนหน้าด้วย
 // โดยเขียนกลับลงไปใน MachineColumn.CurrCounter และ .LastCounter ตามลำดับ
 //-----------------------------------------------------------------
-func (c *Counter) Delete(db *sqlx.DB) error {
+func (c *Counter) Delete() error {
 	return nil
 }
 
-func (sub *SubCounter) Insert(db *sqlx.DB) error {
+func (sub *SubCounter) Insert() error {
 	//--------------------------------------------------
 	// Insert CounterSub{}
 	//--------------------------------------------------
@@ -236,7 +235,7 @@ func (sub *SubCounter) Insert(db *sqlx.DB) error {
 			price,
 			counter
 		) VALUES(?,?,?,?,?)`
-	res, err := db.Exec(sql,
+	res, err := DB.Exec(sql,
 		sub.CounterId,
 		sub.ColumnNo,
 		sub.ItemId,

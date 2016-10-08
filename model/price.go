@@ -41,7 +41,7 @@ func (p JsonPrice) MashalJSON() ([]byte, error) {
 	return output, nil
 }
 
-func (ip *ItemPrice) All(db *sqlx.DB) ([]*ItemPrice, error) {
+func (ip *ItemPrice) GetAll() ([]*ItemPrice, error) {
 	ips := []*ItemPrice{}
 	//todo: ยังไม่เสร็จ
 	return ips, nil
@@ -92,11 +92,11 @@ func (bp *BatchPrice) New(db *sqlx.DB) (*BatchPrice, error) {
 	return &newBatchPrice, nil
 }
 
-func (s *BatchPrice) All(db *sqlx.DB) ([]*BatchPrice, error) {
+func (s *BatchPrice) GetAll() ([]*BatchPrice, error) {
 	log.Println("call model.BatchPrice.All()")
 	prices := []*BatchPrice{}
 	sql := `SELECT * FROM batch_price`
-	err := db.Select(&prices, sql)
+	err := DB.Select(&prices, sql)
 	if err != nil {
 		log.Println(err)
 		return nil, err

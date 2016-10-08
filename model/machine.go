@@ -130,11 +130,11 @@ func MachineBatchSaleIsErr() bool {
 	return false
 }
 
-func (m *Machine) All(db *sqlx.DB) ([]*Machine, error) {
+func (m *Machine) GetAll() ([]*Machine, error) {
 	log.Info(log.Fields{"func": "Machine.All()"})
 	machines := []*Machine{}
 	sql := `SELECT * FROM machine`
-	err := db.Select(&machines, sql)
+	err := DB.Select(&machines, sql)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -144,7 +144,7 @@ func (m *Machine) All(db *sqlx.DB) ([]*Machine, error) {
 
 }
 
-func (m *Machine) New(db *sqlx.DB) (*Machine, error) {
+func (m *Machine) New() (*Machine, error) {
 	log.Println("call model.Machine.New()")
 	sql := `INSERT INTO machine(
 		loc_id,
@@ -155,7 +155,7 @@ func (m *Machine) New(db *sqlx.DB) (*Machine, error) {
 		serial_number,
 		selection
 		) VALUES(?,?,?,?,?,?,?)`
-	res, err := db.Exec(sql,
+	res, err := DB.Exec(sql,
 		m.LocId,
 		m.Code,
 		m.Type,
@@ -170,7 +170,7 @@ func (m *Machine) New(db *sqlx.DB) (*Machine, error) {
 	var newMachine Machine
 	sql = `SELECT * FROM machine WHERE id = ?`
 	id, _ := res.LastInsertId()
-	err = db.Get(&newMachine, sql, uint64(id))
+	err = DB.Get(&newMachine, sql, uint64(id))
 	if err != nil {
 		return nil, err
 	}
@@ -188,12 +188,12 @@ func (m *Machine) Get(db *sqlx.DB) (*Machine, error) {
 	return m, nil
 }
 
-func (m *Machine) GetColumns(db *sqlx.DB) ([]*MachineColumn, error) {
+func (m *Machine) GetColumns() ([]*MachineColumn, error) {
 	log.Println("call model.Machine.Columns()")
 
 	var mcs []*MachineColumn
 	sql := `SELECT * FROM machine_column WHERE machine_id = ?`
-	err := db.Select(&mcs, sql, m.ID)
+	err := DB.Select(&mcs, sql, m.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +213,7 @@ type MachineColumn struct {
 	Status      ColumnStatus    `json:"status"`
 }
 
-func (mc *MachineColumn) Update(db *sqlx.DB) error {
+func (mc *MachineColumn) Update() error {
 	log.Println("call model.MachineColumn.Update()")
 
 	sql := `
@@ -227,7 +227,7 @@ func (mc *MachineColumn) Update(db *sqlx.DB) error {
 		curr_counter = ?
 	WHERE column_no = ?
 	`
-	res, err := db.Exec(sql,
+	res, err := DB.Exec(sql,
 		mc.MachineID,
 		mc.ColumnNo,
 		mc.ItemId,
@@ -243,45 +243,47 @@ func (mc *MachineColumn) Update(db *sqlx.DB) error {
 	//var updatedMC MachineColumn
 	id, _ := res.LastInsertId()
 	log.Println("Insert MachineColumn_ID = ", id)
-	//err = db.Get(&updatedMC, sql, uint64(id))
-	//if err != nil {
-	//	return nil, err
-	//}
 	return nil
 }
 
-func (m *Machine) GetMachineColumn(db *sqlx.DB, columnNo int) (*MachineColumn, error) {
+func (m *Machine) InitMachineColumn() {
+	// Select all MachineColumn from this Machine
+	// Choose Delete old data or Create only missing one?
+	//
+}
+
+func (m *Machine) GetMachineColumn(columnNo int) (*MachineColumn, error) {
 	mc := new(MachineColumn)
 	sql := `SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ? LIMIT 1`
-	err := db.Get(mc, sql, m.ID, columnNo)
+	err := DB.Get(mc, sql, m.ID, columnNo)
 	if err != nil {
 		return nil, errors.New("Wrong column number in this machine:" + err.Error())
 	}
 	return mc, nil
 }
 
-func (m *Machine) UpdateColumnCounter(db *sqlx.DB, columnNo int, counter int) error {
-	mc, err := m.GetMachineColumn(db, columnNo)
-	if err != nil {
-		return err
-	}
-	sql := `
-			UPDATE machine_column
-			SET last_counter = ?, curr_counter = ?
-			WHERE machine_id = ?
-			AND column_no = ?
-	//		`
-	_, err = db.Exec(sql,
-		mc.CurrCounter,
-		counter,
-		m.ID,
-		columnNo,
-	)
-	if err != nil {
-		log.Println("Error>> Exec() machine_column = ", err)
-		return err
-	}
-	log.Println("Update MachineColumn 'MachineID':", m.ID, "ColumnNo:", columnNo)
-	log.Println("Pass>>3.tx.Exec() UPDATE machine_column")
-	return nil
-}
+//func (m *Machine) UpdateColumnCounter(columnNo int, counter int) error {
+//	mc, err := m.GetMachineColumn(columnNo)
+//	if err != nil {
+//		return err
+//	}
+//	sql := `
+//			UPDATE machine_column
+//			SET last_counter = ?, curr_counter = ?
+//			WHERE machine_id = ?
+//			AND column_no = ?
+//	//		`
+//	_, err = DB.Exec(sql,
+//		mc.CurrCounter,
+//		counter,
+//		m.ID,
+//		columnNo,
+//	)
+//	if err != nil {
+//		log.Println("Error>> Exec() machine_column = ", err)
+//		return err
+//	}
+//	log.Println("Update MachineColumn 'MachineID':", m.ID, "ColumnNo:", columnNo)
+//	log.Println("Pass>>3.tx.Exec() UPDATE machine_column")
+//	return nil
+//}

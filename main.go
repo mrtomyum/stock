@@ -4,9 +4,9 @@ import (
 	//"net/http"
 	log "github.com/Sirupsen/logrus"
 	c "github.com/mrtomyum/stock/controller"
+	"github.com/mrtomyum/stock/model"
 	"encoding/json"
 	"os"
-	"github.com/jmoiron/sqlx"
 	"github.com/sebest/logrusly"
 	"github.com/gin-gonic/gin"
 )
@@ -33,11 +33,11 @@ func getConfig(fileName string) string {
 	return dsn
 }
 
-func NewDB(dsn string) (*sqlx.DB) {
-	db := sqlx.MustConnect("mysql", dsn)
-	log.Println("Connected db: ", db)
-	return db //return db so in main can call defer db.Close()
-}
+//func NewDB(dsn string) (*sqlx.DB) {
+//	db := sqlx.MustConnect("mysql", dsn)
+//	log.Println("Connected db: ", db)
+//	return db //return db so in main can call defer db.Close()
+//}
 
 func SetupRoute(c *c.Env) *gin.Engine {
 	r := gin.Default()
@@ -106,7 +106,7 @@ func main() {
 	}).Info("Start Logrus")
 	// Read configuration file from "cofig.json"
 	dsn := getConfig("config.json")
-	db := NewDB(dsn)
+	db := model.NewDB(dsn)
 	c := &c.Env{DB:db}
 	defer db.Close()
 

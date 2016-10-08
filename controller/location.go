@@ -30,7 +30,7 @@ func (e *Env) GetLocationTreeByID(w http.ResponseWriter, r *http.Request) {
 	loc.ID, _ = strconv.ParseUint(id, 10, 64)
 
 	// Todo: use loc.ID to parameter to retrive just tree of this ID
-	locations, err := loc.Get(e.DB)
+	locations, err := loc.Get()
 	rs := new(api.Response)
 	if err != nil {
 		log.Fatal("Error LocationsTreeByID()", err)
@@ -52,7 +52,7 @@ func (e *Env) GetAllLocationTree(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	loc := new(m.Location)
-	locations, err := loc.All(e.DB)
+	locations, err := loc.All()
 	rs := new(api.Response)
 	if err != nil {
 		log.Fatal("Error LocationsTreeAll()", err)
@@ -81,7 +81,7 @@ func (e *Env) PostNewLocation(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("Success decode JSON -> :", l, " Result user decoded -> ", l.Code)
 
-	newLoc, err := l.Insert(e.DB)
+	newLoc, err := l.Insert()
 	rs := new(api.Response)
 	if err != nil {
 		rs.Status = api.ERROR

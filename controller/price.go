@@ -47,7 +47,7 @@ func (e *Env) AllBatchPrice(w http.ResponseWriter, r *http.Request) {
 
 	rs := api.Response{}
 	p := model.BatchPrice{}
-	prices, err := p.All(e.DB)
+	prices, err := p.GetAll()
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()

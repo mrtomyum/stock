@@ -13,11 +13,10 @@ func (e *Env) GetAllItem(c *gin.Context) {
 	log.Println("call GET AllItem")
 	c.Header("Server", "NAVA Stock")
 	c.Header("Host", "api.nava.work:8001")
-	c.Header("Content-Type", "application/json")
 	c.Header("Access-Control-Allow-Origin", "*")
 
 	i := m.Item{}
-	items, err := i.GetAll(e.DB)
+	items, err := i.GetAll()
 	rs := api.Response{}
 	if err != nil {
 		rs.Status = api.ERROR
@@ -33,7 +32,6 @@ func (e *Env) GetAllItem(c *gin.Context) {
 func (e *Env) PostNewItem(c *gin.Context) {
 	log.Println("call POST NewItem")
 	c.Header("Server", "NAVA Stock")
-	c.Header("Content-Type", "application/json")
 	c.Header("Access-Control-Allow-Origin", "*")
 
 	i := new(m.Item)
@@ -44,7 +42,7 @@ func (e *Env) PostNewItem(c *gin.Context) {
 		rs.Message = err.Error()
 		c.JSON(http.StatusBadRequest, rs)
 	} else {
-		newItem, err := i.Insert(e.DB)
+		newItem, err := i.Insert()
 		log.Println("i= ", i)
 		if err != nil {
 			rs.Status = api.ERROR
@@ -62,14 +60,12 @@ func (e *Env) PostNewItem(c *gin.Context) {
 func (e *Env) GetItem(c *gin.Context) {
 	log.Println("call FindItem")
 	c.Header("Server", "NAVA Stock")
-	c.Header("Content-Type", "application/json")
 	c.Header("Access-Control-Allow-Origin", "*")
 	var i m.Item
-	//id, _ := strconv.Atoi(c.Param("id"))
 	id := c.Param("id")
 	i.ID, _ = strconv.ParseUint(id, 10, 64)
 	rs := api.Response{}
-	iv, err := i.GetItemView(e.DB)
+	iv, err := i.GetItemView()
 	log.Println("return from GetItemView()")
 	if err != nil {
 		log.Println(err)
@@ -86,14 +82,13 @@ func (e *Env) GetItem(c *gin.Context) {
 func (e *Env) UpdateItem(c *gin.Context) {
 	log.Println("call UpdateItem")
 	c.Header("Server", "NAVA Stock")
-	c.Header("Content-Type", "application/json")
 	c.Header("Access-Control-Allow-Origin", "*")
 	var i m.Item
 	rs := api.Response{}
 	if c.BindJSON(&i) != nil {
 		c.JSON(http.StatusBadRequest, i)
 	} else {
-		updatedItem, err := i.Update(e.DB)
+		updatedItem, err := i.Update()
 		if err != nil {
 			rs.Status = api.ERROR
 			rs.Message = err.Error()
@@ -105,10 +100,10 @@ func (e *Env) UpdateItem(c *gin.Context) {
 	}
 }
 
-func (e *Env) DelItem(w http.ResponseWriter, r *http.Request) {
+func (e *Env) DelItem(c *gin.Context) {
 	log.Println("call NewItem")
 }
 
-func (e *Env) UndelItem(w http.ResponseWriter, r *http.Request) {
+func (e *Env) UndelItem(c *gin.Context) {
 	log.Println("call NewItem")
 }

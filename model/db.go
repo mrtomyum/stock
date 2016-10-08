@@ -5,8 +5,10 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+var DB *sqlx.DB
+
 func NewDB(dsn string) (*sqlx.DB) {
-	db := sqlx.MustConnect("mysql", dsn)
-	log.Println("Connected db: ", db)
-	return db //return db so in main can call defer db.Close()
+	DB = sqlx.MustConnect("mysql", dsn)
+	log.Println("Connected db: ", DB)
+	return DB //return db so in main can call defer db.Close()
 }
