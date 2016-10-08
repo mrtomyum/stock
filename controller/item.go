@@ -17,7 +17,7 @@ func (e *Env) GetAllItem(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 
 	i := m.Item{}
-	items, err := i.All(e.DB)
+	items, err := i.GetAll(e.DB)
 	rs := api.Response{}
 	if err != nil {
 		rs.Status = api.ERROR
