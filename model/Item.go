@@ -38,8 +38,22 @@ type ItemBarcode struct {
 
 type Items []*Item
 
-func (i *Item) All(db *sqlx.DB) (Items, error) {
-	sql := `SELECT * FROM item`
+func (i *Item) GetAll(db *sqlx.DB) (Items, error) {
+	sql := `
+	SELECT
+		id,
+		created,
+		updated,
+		deleted,
+		sku,
+		name_th,
+		name_en,
+		std_price,
+		std_cost,
+		base_unit_id,
+		category_id,
+		brand_id
+	FROM item`
 	rows, err := db.Queryx(sql)
 	if err != nil {
 		log.Println("Error: db.Queryx in Item.All(): ", err)
