@@ -2,14 +2,29 @@ package model
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/guregu/null"
 	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
-	"errors"
 )
+
+type Machine struct {
+	sys.Base
+	LocId        uint64        `json:"loc_id" db:"loc_id"`
+	Code         string        `json:"code"`
+	Type         machineType   `json:"type"`
+	Brand        machineBrand  `json:"brand"`
+	ProfileId    uint64        `json:"profile_id" db:"profile_id"`
+	SerialNumber null.String   `json:"serial_number" db:"serial_number"`
+	Selection    int           `json:"selection"`   //จำนวน Column หรือช่องเก็บสินค้า
+	PlaceId      uint64        `json:"place_id" db:"place_id"`
+	Status       MachineStatus `json:"status"`
+	Note         null.String   `json:"note"`
+	IsTemplate   bool          `json:"is_template"` // Template for Initialize New Machine data and MachineColumn Slice
+}
 
 type machineType uint8
 
@@ -72,38 +87,6 @@ const (
 	OFFLINE
 	ONLINE
 	ALARM
-)
-
-type Machine struct {
-	sys.Base
-	LocId        uint64        `json:"loc_id" db:"loc_id"`
-	Code         string        `json:"code"`
-	Type         machineType   `json:"type"`
-	Brand        machineBrand  `json:"brand"`
-	ProfileId    uint64        `json:"profile_id" db:"profile_id"`
-	SerialNumber null.String   `json:"serial_number" db:"serial_number"`
-	Selection    int           `json:"selection"` //จำนวน Column หรือช่องเก็บสินค้า
-	PlaceId      uint64        `json:"place_id" db:"place_id"`
-	Status       MachineStatus `json:"status"`
-	Note         null.String   `json:"note"`
-}
-
-type ColumnSize int
-
-const (
-	NO_SIZE ColumnSize = iota //สินค้าไม่มีตัวตน หรือต้องส่งข้อมูลสั่งขายไปยังระบบอื่น
-	S
-	L
-	SPRING_5MM
-	SPRING_10MM
-	SPRING_15MM
-)
-
-type ColumnStatus int
-
-const (
-	OK ColumnStatus = iota
-	FAIL
 )
 
 // Transaction row Batch data received from mobile app daily.
@@ -200,6 +183,26 @@ func (m *Machine) GetColumns() ([]*MachineColumn, error) {
 	return mcs, nil
 }
 
+func (m *Machine) Init(template *Machine) error {
+	// Check If this Machine is blank no data
+	// Copy MachineColumn From Template to This Machine
+	//for i:=1; i=m.Selection; i++ {
+	//
+	//}
+	return nil
+}
+
+func (m *Machine) GetTemplate() ([]*Machine, error) {
+	var templates []*Machine
+	sql := `SELECT * FROM machine
+	WHERE is_template = true`
+	err := DB.Select(templates, sql)
+	if err != nil {
+		return nil, err
+	}
+	return templates, nil
+}
+
 // MachineColumn เก็บยอด Counter ล่าสุดของแต่ละ column ในแต่ละ Machine
 type MachineColumn struct {
 	sys.Base
@@ -212,6 +215,24 @@ type MachineColumn struct {
 	Size        ColumnSize      `json:"size"`
 	Status      ColumnStatus    `json:"status"`
 }
+
+type ColumnSize int
+
+const (
+	NO_SIZE ColumnSize = iota //สินค้าไม่มีตัวตน หรือต้องส่งข้อมูลสั่งขายไปยังระบบอื่น
+	S
+	L
+	SPRING_5MM
+	SPRING_10MM
+	SPRING_15MM
+)
+
+type ColumnStatus int
+
+const (
+	OK ColumnStatus = iota
+	FAIL
+)
 
 func (mc *MachineColumn) Update() error {
 	log.Println("call model.MachineColumn.Update()")

@@ -1,7 +1,6 @@
 package model
 
 import (
-	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
 	"log"
@@ -38,7 +37,7 @@ type ItemBarcode struct {
 
 type Items []*Item
 
-func (i *Item) GetAll(db *sqlx.DB) (Items, error) {
+func (i *Item) GetAll() (Items, error) {
 	sql := `
 	SELECT
 		id,
@@ -54,7 +53,7 @@ func (i *Item) GetAll(db *sqlx.DB) (Items, error) {
 		category_id,
 		brand_id
 	FROM item`
-	rows, err := db.Queryx(sql)
+	rows, err := DB.Queryx(sql)
 	if err != nil {
 		log.Println("Error: db.Queryx in Item.All(): ", err)
 		return nil, err
@@ -74,7 +73,7 @@ func (i *Item) GetAll(db *sqlx.DB) (Items, error) {
 	return items, nil
 }
 
-func (i *Item) GetItemView(db *sqlx.DB) (*ItemView, error) {
+func (i *Item) GetItemView() (*ItemView, error) {
 	log.Println("call model.Item.GetItemView()")
 	var iv ItemView
 	sql := `
@@ -96,7 +95,7 @@ func (i *Item) GetItemView(db *sqlx.DB) (*ItemView, error) {
 	WHERE item.id = ?
 	`
 	//err := db.QueryRowx(sql, i.ID).StructScan(&iv)
-	err := db.Get(&iv, sql, i.ID)
+	err := DB.Get(&iv, sql, i.ID)
 	if err != nil {
 		log.Println("Error: model.Item.GetItemView/Query Error", err)
 		return &iv, err
@@ -104,7 +103,7 @@ func (i *Item) GetItemView(db *sqlx.DB) (*ItemView, error) {
 	return &iv, nil
 }
 
-func (i *Item) Insert(db *sqlx.DB) (Item, error) {
+func (i *Item) Insert() (Item, error) {
 	sql := `
 		INSERT INTO item (
 			sku,
@@ -118,7 +117,7 @@ func (i *Item) Insert(db *sqlx.DB) (Item, error) {
 			?,?,?,?,?,?
 		)
 		`
-	rs, err := db.Exec(sql,
+	rs, err := DB.Exec(sql,
 		i.SKU,
 		i.NameTh,
 		i.NameEn,
@@ -135,7 +134,7 @@ func (i *Item) Insert(db *sqlx.DB) (Item, error) {
 	lastID, _ := rs.LastInsertId()
 
 	// Check result
-	err = db.QueryRowx("SELECT * FROM item WHERE id =?", lastID).
+	err = DB.QueryRowx("SELECT * FROM item WHERE id =?", lastID).
 		StructScan(&item)
 	if err != nil {
 		return item, err
@@ -144,7 +143,7 @@ func (i *Item) Insert(db *sqlx.DB) (Item, error) {
 	return item, nil
 }
 
-func (i *Item) Update(db *sqlx.DB) (*Item, error) {
+func (i *Item) Update() (*Item, error) {
 	sql := `
 		UPDATE item
 		SET
@@ -157,7 +156,7 @@ func (i *Item) Update(db *sqlx.DB) (*Item, error) {
 			category_id = ?
 		WHERE id = ?
 	`
-	_, err := db.Exec(sql,
+	_, err := DB.Exec(sql,
 		i.SKU,
 		i.NameTh,
 		i.NameEn,
@@ -174,7 +173,7 @@ func (i *Item) Update(db *sqlx.DB) (*Item, error) {
 	// Get updated record back from DB to confirm
 	sql = `SELECT * FROM item WHERE id = ?`
 	var updatedItem Item
-	err = db.Get(&updatedItem, sql, i.ID)
+	err = DB.Get(&updatedItem, sql, i.ID)
 	if err != nil {
 		log.Println("Error after db.Get()")
 		return nil, err

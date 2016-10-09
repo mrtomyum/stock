@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 	"github.com/mrtomyum/sys/api"
-	m "github.com/mrtomyum/stock/model"
+	"github.com/mrtomyum/stock/model"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -16,7 +16,7 @@ func (e *Env) GetAllMachines(ctx *gin.Context) {
 	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
-	m := m.Machine{}
+	m := model.Machine{}
 	rs := api.Response{}
 	machines, err := m.GetAll()
 	if err != nil {
@@ -38,7 +38,7 @@ func (e *Env) GetThisMachine(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	id := ctx.Param("id")
-	m := m.Machine{}
+	m := model.Machine{}
 	m.ID, _ = strconv.ParseUint(id, 10, 64)
 	rs := api.Response{}
 	machine, err := m.Get(e.DB)
@@ -59,7 +59,7 @@ func (e *Env) PostNewMachine(c *gin.Context) {
 	c.Header("Content-Type", "application/json")
 	c.Header("Access-Control-Allow-Origin", "*")
 
-	var m m.Machine
+	var m model.Machine
 	rs := api.Response{}
 	if err := c.BindJSON(&m); err != nil {
 		rs.Status = api.ERROR
@@ -85,7 +85,7 @@ func (e *Env) GetMachineColumns(c *gin.Context) {
 	c.Header("Content-Type", "application/json")
 	c.Header("Access-Control-Allow-Origin", "*")
 
-	var m m.Machine
+	var m model.Machine
 	rs := api.Response{}
 	machineColumns, err := m.GetColumns()
 	if err != nil {
@@ -106,7 +106,7 @@ func (e *Env) PutMachineColumn(c *gin.Context) {
 	c.Header("Content-Type", "application/json")
 	c.Header("Access-Control-Allow-Origin", "*")
 
-	var mc m.MachineColumn
+	var mc model.MachineColumn
 	rs := api.Response{}
 	if err := c.BindJSON(&mc); err != nil {
 		rs.Status = api.ERROR
@@ -133,3 +133,4 @@ func (e *Env) PutMachineColumn(c *gin.Context) {
 	}
 	return
 }
+

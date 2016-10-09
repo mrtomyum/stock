@@ -1,8 +1,6 @@
 package model
 
 import (
-	//"encoding/json"
-	//"fmt"
 	"encoding/json"
 	"fmt"
 	sys "github.com/mrtomyum/sys/model"

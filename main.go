@@ -9,6 +9,8 @@ import (
 	"os"
 	"github.com/sebest/logrusly"
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"github.com/mrtomyum/sys/api"
 )
 
 var logglyToken string = "4cd7bdfb-0345-4205-aeee-53e85a030eda"
@@ -56,11 +58,12 @@ func SetupRoute(c *c.Env) *gin.Engine {
 		machineV1.GET("/", c.GetAllMachines)
 		machineV1.GET("/:id", c.GetThisMachine)
 		machineV1.GET("/:id/columns", c.GetMachineColumns)
+		machineV1.GET("/templates", GetMachineTemplate)
 	}
 
 	columnV1 := r.Group("/v1/columns")
 	{
-		columnV1.PUT("/columns/:id", c.PutMachineColumn)
+		columnV1.PUT("/:id", c.PutMachineColumn)
 	}
 
 	counterV1 := r.Group("/v1/counters")
@@ -113,4 +116,18 @@ func main() {
 	r := SetupRoute(c)
 
 	r.Run(":8001")
+}
+
+func GetMachineTemplate(c *gin.Context) {
+	var m *model.Machine
+	rs := api.Response{}
+	templates, err := m.GetTemplate()
+	if err != nil {
+		rs.Status = api.ERROR
+		rs.Message = err.Error()
+	}
+	rs.Status = api.SUCCESS
+	rs.Self = "api.nava.work/v1/machine/template"
+	rs.Data = templates
+	c.JSON(http.StatusOK, rs)
 }
