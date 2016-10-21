@@ -58,7 +58,7 @@ func SetupRoute(c *c.Env) *gin.Engine {
 		machineV1.GET("/", c.GetAllMachines)
 		machineV1.GET("/:id", c.GetThisMachine)
 		machineV1.GET("/:id/columns", c.GetMachineColumns)
-		machineV1.GET("/templates", GetMachineTemplate)
+		machineV1.GET("/:id/templates", GetMachineTemplate)
 	}
 
 	columnV1 := r.Group("/v1/columns")

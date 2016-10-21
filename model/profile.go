@@ -7,9 +7,11 @@ import (
 
 type Profile struct {
 	sys.Base
-	Code        string      `json:"code"`
-	MachineType machineType `json:"machine_type" db:"machine_type"`
-	PriceLevel  int         `json:"price_level" db:"price_level"`
+	MachineID uint64 `json:"machine_id" db:"machine_id"` // one to one relate to Machine
+	ItemRow   int `json:"planogram_row" db:"planogram_row"`
+	ItemCol   int `json:"planogram_col" db:"planogram_col"`
+	Matrix    [][]MachineColumn
+                                                         // สร้าง MachineColumn Data Templat เพื่ออ่านทีละแถวแสดงผลทั้งภาพ และชื่อสินค้าและราคา
 }
 
 type ProfileItem struct {
@@ -19,4 +21,3 @@ type ProfileItem struct {
 	ItemID    uint64          `json:"item_id" db:"item_id"`
 	Price     decimal.Decimal `json:"price" db:"price"`
 }
-

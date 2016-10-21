@@ -13,17 +13,19 @@ import (
 
 type Machine struct {
 	sys.Base
-	LocId        uint64        `json:"loc_id" db:"loc_id"`
-	Code         string        `json:"code"`
-	Type         machineType   `json:"type"`
-	Brand        machineBrand  `json:"brand"`
-	ProfileId    uint64        `json:"profile_id" db:"profile_id"`
-	SerialNumber null.String   `json:"serial_number" db:"serial_number"`
-	Selection    int           `json:"selection"`   //จำนวน Column หรือช่องเก็บสินค้า
-	PlaceId      uint64        `json:"place_id" db:"place_id"`
-	Status       MachineStatus `json:"status"`
-	Note         null.String   `json:"note"`
-	IsTemplate   bool          `json:"is_template"` // Template for Initialize New Machine data and MachineColumn Slice
+	LocId        uint64           `json:"loc_id" db:"loc_id"`
+	Code         string           `json:"code"`
+	Type         machineType      `json:"type"`
+	Brand        machineBrand     `json:"brand"`
+	ProfileId    uint64           `json:"profile_id" db:"profile_id"` // ref. parent MachineId
+	SerialNumber null.String      `json:"serial_number" db:"serial_number"`
+	Selection    int              `json:"selection"`                  //จำนวน Column หรือช่องเก็บสินค้า
+	PlaceId      uint64           `json:"place_id" db:"place_id"`
+	Status       MachineStatus    `json:"status"`
+	Note         null.String      `json:"note"`
+	IsProfile    bool             `json:"is_profile"`                 // Profile template for Initialize New Machine each column data such as item, price
+	PriceLevel   int              `json:"price_level" db:"price_level"`
+	Sub          []*MachineColumn `json:"sub"`
 }
 
 type machineType uint8
