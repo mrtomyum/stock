@@ -9,51 +9,7 @@ import (
 	"strconv"
 )
 
-//func (e *Env) AllMachine(w http.ResponseWriter, r *http.Request) {
-func (e *Env) GetAllMachines(ctx *gin.Context) {
-	log.Info(log.Fields{"func":"controller.GetAllMachines()"})
-	ctx.Header("Server", "NAVA Stock")
-	ctx.Header("Content-Type", "application/json")
-	ctx.Header("Access-Control-Allow-Origin", "*")
-
-	m := model.Machine{}
-	rs := api.Response{}
-	machines, err := m.GetAll()
-	if err != nil {
-		rs.Status = api.ERROR
-		rs.Message = err.Error()
-		ctx.Status(http.StatusNoContent)
-	} else {
-		rs.Status = api.SUCCESS
-		rs.Data = machines
-		ctx.JSON(http.StatusOK, rs)
-	}
-	return
-}
-
-func (e *Env) GetThisMachine(ctx *gin.Context) {
-	log.Info(log.Fields{"func":"controller.GetThisMachine()"})
-	ctx.Header("Server", "NAVA Stock")
-	ctx.Header("Content-Type", "application/json")
-	ctx.Header("Access-Control-Allow-Origin", "*")
-
-	id := ctx.Param("id")
-	m := model.Machine{}
-	m.ID, _ = strconv.ParseUint(id, 10, 64)
-	rs := api.Response{}
-	machine, err := m.Get(e.DB)
-	if err != nil {
-		rs.Status = api.ERROR
-		rs.Message = err.Error()
-	} else {
-		rs.Status = api.SUCCESS
-		rs.Data = machine
-	}
-	ctx.JSON(http.StatusOK, rs)
-	return
-}
-
-func (e *Env) PostNewMachine(c *gin.Context) {
+func PostNewMachine(c *gin.Context) {
 	log.Info(log.Fields{"func":"controller.Machine.PostNewMachine()"})
 	c.Header("Server", "NAVA Stock")
 	c.Header("Content-Type", "application/json")
@@ -79,7 +35,50 @@ func (e *Env) PostNewMachine(c *gin.Context) {
 	}
 }
 
-func (e *Env) GetMachineColumns(c *gin.Context) {
+func GetAllMachines(ctx *gin.Context) {
+	log.Info(log.Fields{"func":"controller.GetAllMachines()"})
+	ctx.Header("Server", "NAVA Stock")
+	ctx.Header("Content-Type", "application/json")
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
+	m := model.Machine{}
+	rs := api.Response{}
+	machines, err := m.GetAll()
+	if err != nil {
+		rs.Status = api.ERROR
+		rs.Message = err.Error()
+		ctx.Status(http.StatusNoContent)
+	} else {
+		rs.Status = api.SUCCESS
+		rs.Data = machines
+		ctx.JSON(http.StatusOK, rs)
+	}
+	return
+}
+
+func GetThisMachine(ctx *gin.Context) {
+	log.Info(log.Fields{"func":"controller.GetThisMachine()"})
+	ctx.Header("Server", "NAVA Stock")
+	ctx.Header("Content-Type", "application/json")
+	ctx.Header("Access-Control-Allow-Origin", "*")
+
+	id := ctx.Param("id")
+	m := model.Machine{}
+	m.ID, _ = strconv.ParseUint(id, 10, 64)
+	rs := api.Response{}
+	machine, err := m.Get()
+	if err != nil {
+		rs.Status = api.ERROR
+		rs.Message = err.Error()
+	} else {
+		rs.Status = api.SUCCESS
+		rs.Data = machine
+	}
+	ctx.JSON(http.StatusOK, rs)
+	return
+}
+
+func GetMachineColumns(c *gin.Context) {
 	log.Info(log.Fields{"func":"controller.Machine.GetMachineColumns()"})
 	c.Header("Server", "NAVA Stock")
 	c.Header("Content-Type", "application/json")
@@ -100,7 +99,21 @@ func (e *Env) GetMachineColumns(c *gin.Context) {
 	return
 }
 
-func (e *Env) PutMachineColumn(c *gin.Context) {
+func GetMachineTemplate(c *gin.Context) {
+	var m *model.Machine
+	rs := api.Response{}
+	templates, err := m.GetTemplate()
+	if err != nil {
+		rs.Status = api.ERROR
+		rs.Message = err.Error()
+	}
+	rs.Status = api.SUCCESS
+	rs.Self = "api.nava.work/v1/machine/template"
+	rs.Data = templates
+	c.JSON(http.StatusOK, rs)
+}
+
+func PutMachineColumn(c *gin.Context) {
 	log.Info(log.Fields{"func":"controller.Machine.PutMachineColumn()"})
 	c.Header("Server", "NAVA Stock")
 	c.Header("Content-Type", "application/json")
@@ -133,4 +146,3 @@ func (e *Env) PutMachineColumn(c *gin.Context) {
 	}
 	return
 }
-

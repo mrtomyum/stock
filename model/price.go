@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"math"
 	"log"
-	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/sys/model"
 	"golang.org/x/text/currency"
 
@@ -58,7 +57,7 @@ type BatchPrice struct {
 	Price     currency.Amount `json:"price"`
 }
 
-func (bp *BatchPrice) New(db *sqlx.DB) (*BatchPrice, error) {
+func (bp *BatchPrice) New() (*BatchPrice, error) {
 	log.Println("call model.BatchPrice.New()")
 	sql := `
 		INSERT INTO batch_price(
@@ -69,7 +68,7 @@ func (bp *BatchPrice) New(db *sqlx.DB) (*BatchPrice, error) {
 		)
 		VALUES(?,?,?,?)
 		`
-	res, err := db.Exec(sql,
+	res, err := DB.Exec(sql,
 		bp.Recorded,
 		bp.MachineID,
 		bp.ColumnNo,
@@ -81,7 +80,7 @@ func (bp *BatchPrice) New(db *sqlx.DB) (*BatchPrice, error) {
 	}
 	id, _ := res.LastInsertId()
 	newBatchPrice := BatchPrice{}
-	err = db.Get(
+	err = DB.Get(
 		&newBatchPrice,
 		`SELECT * FROM batch_price WHERE id = ?`,
 		id)

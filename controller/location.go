@@ -4,11 +4,9 @@ import (
 	m "github.com/mrtomyum/stock/model"
 	"net/http"
 	"log"
-	"github.com/gorilla/mux"
-	"fmt"
-	"encoding/json"
 	"strconv"
 	"github.com/mrtomyum/sys/api"
+	"github.com/gin-gonic/gin"
 )
 
 func CreateLocationTree(locations []*m.Location) *m.Location {
@@ -19,14 +17,29 @@ func CreateLocationTree(locations []*m.Location) *m.Location {
 	return tree
 }
 
-func (e *Env) GetLocationTreeByID(w http.ResponseWriter, r *http.Request) {
+func GetAllLocationTree(ctx *gin.Context) {
 	log.Println("call ShowLocationTree()")
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	loc := new(m.Location)
+	rs := new(api.Response)
+	locations, err := loc.All()
+	if err != nil {
+		log.Fatal("Error LocationsTreeAll()", err)
+		rs.Status = api.ERROR
+		rs.Message = "Location not found or Error."
+		ctx.JSON(http.StatusBadRequest, rs)
+		return
+	}
+	tree := CreateLocationTree(locations)
+	rs.Status = api.SUCCESS
+	rs.Data = tree.Child
+	ctx.JSON(http.StatusOK, rs)
+}
+func GetLocationTreeByID(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	loc := new(m.Location)
-	v := mux.Vars(r)
-	id := v["id"]
+	id := ctx.Param("id")
 	loc.ID, _ = strconv.ParseUint(id, 10, 64)
 
 	// Todo: use loc.ID to parameter to retrive just tree of this ID
@@ -34,64 +47,35 @@ func (e *Env) GetLocationTreeByID(w http.ResponseWriter, r *http.Request) {
 	rs := new(api.Response)
 	if err != nil {
 		log.Fatal("Error LocationsTreeByID()", err)
-		w.WriteHeader(http.StatusNoContent)
 		rs.Status = api.ERROR
 		rs.Message = "Location not found or Error."
-	} else {
-		w.WriteHeader(http.StatusOK)
-		tree := CreateLocationTree(locations)
-		rs.Status = api.SUCCESS
-		rs.Data = tree.Child
+		ctx.JSON(http.StatusNoContent, rs)
 	}
-	output, _ := json.Marshal(rs)
-	fmt.Fprintf(w, string(output))
+	tree := CreateLocationTree(locations)
+	rs.Status = api.SUCCESS
+	rs.Data = tree.Child
+	ctx.JSON(http.StatusOK, rs)
 }
 
-func (e *Env) GetAllLocationTree(w http.ResponseWriter, r *http.Request) {
+func PostNewLocation(ctx *gin.Context) {
 	log.Println("call ShowLocationTree()")
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	loc := new(m.Location)
-	locations, err := loc.All()
-	rs := new(api.Response)
-	if err != nil {
-		log.Fatal("Error LocationsTreeAll()", err)
-		w.WriteHeader(http.StatusNotFound)
-		rs.Status = api.ERROR
-		rs.Message = "Location not found or Error."
-	} else {
-		w.WriteHeader(http.StatusOK)
-		tree := CreateLocationTree(locations)
-		rs.Status = api.SUCCESS
-		rs.Data = tree.Child
-	}
-	output, _ := json.Marshal(rs)
-	fmt.Fprintf(w, string(output))
-}
-
-func (e *Env) PostNewLocation(w http.ResponseWriter, r *http.Request) {
-	log.Println("call ShowLocationTree()")
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	l := m.Location{}
-	d := json.NewDecoder(r.Body)
-	err := d.Decode(&l)
-	if err != nil {
+	if ctx.BindJSON(&l) != nil {
+		ctx.JSON(http.StatusBadRequest, l)
 		log.Println("Error in Decoded request body.")
 	}
-	log.Println("Success decode JSON -> :", l, " Result user decoded -> ", l.Code)
+	log.Println("Success decode JSON -> :", l, " Result location decoded -> ", l.Code)
 
 	newLoc, err := l.Insert()
 	rs := new(api.Response)
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
-		w.WriteHeader(http.StatusBadRequest)
-	} else {
-		rs.Status = api.SUCCESS
-		rs.Data = newLoc
-		w.WriteHeader(http.StatusOK)
+		ctx.JSON(http.StatusBadRequest, rs)
+		return
 	}
-	output, _ := json.Marshal(rs)
-	fmt.Fprintf(w, "%s", string(output))
+	rs.Status = api.SUCCESS
+	rs.Data = newLoc
+	ctx.JSON(http.StatusOK, rs)
 }

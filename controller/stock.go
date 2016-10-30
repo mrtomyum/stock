@@ -8,7 +8,7 @@ import (
 	"github.com/mrtomyum/sys/api"
 )
 
-func (e *Env) AllStock(w http.ResponseWriter, r *http.Request) {
+func AllStock(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "nava Stock")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -28,22 +28,22 @@ func (e *Env) AllStock(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(output))
 }
 
-func (e *Env) FindStockByID(w http.ResponseWriter, r *http.Request) {
+func FindStockByID(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (e *Env) NewStock(w http.ResponseWriter, r *http.Request) {
+func NewStock(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (e *Env) UpdateStock(w http.ResponseWriter, r *http.Request) {
+func UpdateStock(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (e *Env) DelStock(w http.ResponseWriter, r *http.Request) {
+func DelStock(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (e *Env) UndelStock(w http.ResponseWriter, r *http.Request) {
+func UndelStock(w http.ResponseWriter, r *http.Request) {
 
 }

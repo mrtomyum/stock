@@ -6,7 +6,6 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/guregu/null"
-	"github.com/jmoiron/sqlx"
 	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
 )
@@ -163,10 +162,10 @@ func (m *Machine) New() (*Machine, error) {
 	return &newMachine, nil
 }
 
-func (m *Machine) Get(db *sqlx.DB) (*Machine, error) {
+func (m *Machine) Get() (*Machine, error) {
 	log.Println("call model.Machine.Get()")
 	sql := `SELECT * FROM machine WHERE id = ? AND deleted IS NULL`
-	err := db.Get(m, sql, m.ID)
+	err := DB.Get(m, sql, m.ID)
 	if err != nil {
 		return nil, err
 	}

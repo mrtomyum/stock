@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func (e *Env) PostCounter(ctx *gin.Context) {
+func PostCounter(ctx *gin.Context) {
 	log.Println("call ctrl.Counter()")
 	ctx.Header("Server", "NAVA Stock")
 	ctx.Header("Access-Control-Allow-Origin", "*")
@@ -36,7 +36,7 @@ func (e *Env) PostCounter(ctx *gin.Context) {
 	return
 }
 
-func (e *Env) GetAllCounter(ctx *gin.Context) {
+func GetAllCounter(ctx *gin.Context) {
 	log.Println("call ctrl.Counter.GetAllCounter()")
 	ctx.Header("Server", "NAVA Stock")
 	ctx.Header("Access-Control-Allow-Origin", "*")
@@ -59,7 +59,7 @@ func (e *Env) GetAllCounter(ctx *gin.Context) {
 //====================================
 // ขอข้อมูลเคาทเตอร์ เฉพาะรายการตาม id
 //====================================
-func (e *Env) GetCounter(ctx *gin.Context) {
+func GetCounter(ctx *gin.Context) {
 	log.Println("call ctrl.Counter.GetCounterById()")
 	ctx.Header("Server", "NAVA Stock")
 	ctx.Header("Content-Type", "application/json")
@@ -83,11 +83,11 @@ func (e *Env) GetCounter(ctx *gin.Context) {
 	return
 }
 
-func (e *Env) PutCounter(ctx *gin.Context) {
+func PutCounter(ctx *gin.Context) {
 
 }
 
-func (e *Env) DeleteCounter(ctx *gin.Context) {
+func DeleteCounter(ctx *gin.Context) {
 
 }
 

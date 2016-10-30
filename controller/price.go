@@ -14,7 +14,7 @@ import (
 // บันทึกราคาจากหน้าตู้
 //=================
 
-func (e *Env) NewBatchPrice(w http.ResponseWriter, r *http.Request) {
+func NewBatchPrice(w http.ResponseWriter, r *http.Request) {
 	log.Println("call NewBatchPrice()")
 	w.Header().Set("Server", "nava Stock")
 	w.Header().Set("Content-Type", "application/json")
@@ -25,7 +25,7 @@ func (e *Env) NewBatchPrice(w http.ResponseWriter, r *http.Request) {
 	err := d.Decode(&bp)
 
 	rs := api.Response{}
-	newPrice, err := bp.New(e.DB)
+	newPrice, err := bp.New()
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
@@ -39,7 +39,7 @@ func (e *Env) NewBatchPrice(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(output))
 }
 
-func (e *Env) AllBatchPrice(w http.ResponseWriter, r *http.Request) {
+func AllBatchPrice(w http.ResponseWriter, r *http.Request) {
 	log.Println("call AllMachineBatchSale()")
 	w.Header().Set("Server", "nava Stock")
 	w.Header().Set("Content-Type", "application/json")
