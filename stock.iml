@@ -12,5 +12,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="GOPATH &lt;nava-stock&gt;" level="project" />
     <orderEntry type="library" name="GOPATH &lt;stock&gt;" level="project" />
+    <orderEntry type="library" name="GOPATH &lt;stock&gt;" level="project" />
   </component>
 </module>

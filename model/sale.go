@@ -1,9 +1,9 @@
 package model
 
 import (
-	"time"
 	sys "github.com/mrtomyum/sys/model"
-	"golang.org/x/text/currency"
+	"github.com/shopspring/decimal"
+	"time"
 )
 
 // RouteMan สามารถขายสินค้านอกตู้ได้ในหลายๆกรณี เช่นยังเติมของไม่เสร็จ และเก็บเงินสดจากการขายนำส่งต่างหากได้
@@ -13,8 +13,8 @@ type VanSaleRawData struct {
 	Recorded   *time.Time      `json:"recorded"`
 	Barcode    string          `json:"barcode"`
 	Qty        int             `json:"qty"`
-	PriceUnit  currency.Amount `json:"price_unit"`
-	PriceTotal currency.Amount `json:"price_total"`
+	PriceUnit  decimal.Decimal `json:"price_unit"`
+	PriceTotal decimal.Decimal `json:"price_total"`
 }
 
 // ใช้ type นี้  map DB
@@ -24,8 +24,8 @@ type VanSale struct {
 	Barcode    string          `json:"barcode"`
 	ItemID     uint64          `json:"item_id"`
 	Qty        int             `json:"qty"`
-	UnitPrice  currency.Amount `json:"unit_price"`
-	TotalPrice currency.Amount `json:"total_price"`
+	UnitPrice  decimal.Decimal `json:"unit_price"`
+	TotalPrice decimal.Decimal `json:"total_price"`
 }
 
 // Design this struct for data from VMC telemetry system.
@@ -40,6 +40,6 @@ type VanSale struct {
 //	MachineID uint64          `json:"machine_id"`
 //	ColumnNo  int             `json:"column_no"`
 //	ItemID    uint64          `json:"item_id"`
-//	Price     currency.Amount `json:"price"`
+//	Price     decimal.Decimal `json:"price"`
 //	//Status SaleStatus `json:"status"`
 //}

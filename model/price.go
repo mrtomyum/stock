@@ -2,20 +2,18 @@ package model
 
 import (
 	"encoding/json"
-	"math"
-	"log"
 	sys "github.com/mrtomyum/sys/model"
-	"golang.org/x/text/currency"
-
-	"time"
 	"github.com/shopspring/decimal"
+	"log"
+	"math"
+	"time"
 )
 
 type MyPrice struct {
 	sys.Base
 	Value    int64
 	Digit    float64
-	Currency currency.Amount
+	Currency decimal.Decimal
 }
 
 type ItemPrice struct {
@@ -31,8 +29,8 @@ type JsonPrice struct {
 }
 
 func (p JsonPrice) MashalJSON() ([]byte, error) {
-	decimal := float64(p.Value) * math.Pow(10, - p.Digit)
-	output, err := json.Marshal(decimal)
+	dec := float64(p.Value) * math.Pow(10, -p.Digit)
+	output, err := json.Marshal(dec)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -54,7 +52,7 @@ type BatchPrice struct {
 	Recorded  *time.Time      `json:"recorded"`
 	MachineID uint64          `json:"machine_id"`
 	ColumnNo  int             `json:"column_no"`
-	Price     currency.Amount `json:"price"`
+	Price     decimal.Decimal `json:"price"`
 }
 
 func (bp *BatchPrice) New() (*BatchPrice, error) {
