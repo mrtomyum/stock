@@ -64,7 +64,7 @@ func GetThisMachine(ctx *gin.Context) {
 
 	id := ctx.Param("id")
 	m := model.Machine{}
-	m.ID, _ = strconv.ParseUint(id, 10, 64)
+	m.Id, _ = strconv.ParseUint(id, 10, 64)
 	rs := api.Response{}
 	machine, err := m.Get()
 	if err != nil {

@@ -63,7 +63,7 @@ func GetItem(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	var i m.Item
 	id := ctx.Param("id")
-	i.ID, _ = strconv.ParseUint(id, 10, 64)
+	i.Id, _ = strconv.ParseUint(id, 10, 64)
 	rs := api.Response{}
 	iv, err := i.GetItemView()
 	log.Println("return from GetItemView()")

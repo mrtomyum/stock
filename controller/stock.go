@@ -3,47 +3,42 @@ package controller
 import (
 	"net/http"
 	m "github.com/mrtomyum/stock/model"
-	"fmt"
-	"encoding/json"
 	"github.com/mrtomyum/sys/api"
+	"github.com/gin-gonic/gin"
 )
 
-func AllStock(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Server", "nava Stock")
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	s := m.Stock{}
+func GetAllStock(ctx *gin.Context) {
+	ctx.Header("Server", "nava Stock")
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	s := m.StockItem{}
 	rs := api.Response{}
 	items, err := s.GetAll()
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
-		w.WriteHeader(http.StatusNoContent)
-	} else {
-		rs.Status = api.SUCCESS
-		rs.Data = items
-		w.WriteHeader(http.StatusOK)
+		ctx.JSON(http.StatusNoContent, rs)
 	}
-	output, _ := json.Marshal(rs)
-	fmt.Fprintf(w, string(output))
+	rs.Status = api.SUCCESS
+	rs.Data = items
+	ctx.JSON(http.StatusOK, rs)
 }
 
-func FindStockByID(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func NewStock(w http.ResponseWriter, r *http.Request) {
+func NewStock(ctx *gin.Context) {
 
 }
 
-func UpdateStock(w http.ResponseWriter, r *http.Request) {
+func FindStockByID(ctx *gin.Context) {
 
 }
 
-func DelStock(w http.ResponseWriter, r *http.Request) {
+func UpdateStock(ctx *gin.Context) {
 
 }
 
-func UndelStock(w http.ResponseWriter, r *http.Request) {
+func DelStock(ctx *gin.Context) {
+
+}
+
+func UndelStock(ctx *gin.Context) {
 
 }

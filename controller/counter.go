@@ -68,7 +68,7 @@ func GetCounter(ctx *gin.Context) {
 
 	id := ctx.Param("id")
 	c := model.Counter{}
-	c.ID, _ = strconv.ParseUint(id, 10, 64)
+	c.Id, _ = strconv.ParseUint(id, 10, 64)
 	rs := api.Response{}
 	counters, err := c.Get()
 	if err != nil {

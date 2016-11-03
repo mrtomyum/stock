@@ -16,8 +16,8 @@ type Profile struct {
 
 type ProfileItem struct {
 	sys.Base
-	ProfileID uint64          `json:"profile_id" db:"profile_id"`
+	ProfileId uint64          `json:"profile_id" db:"profile_id"`
 	ColumnNo  int             `json:"column_no" db:"column_no"`
-	ItemID    uint64          `json:"item_id" db:"item_id"`
+	ItemId    uint64          `json:"item_id" db:"item_id"`
 	Price     decimal.Decimal `json:"price" db:"price"`
 }

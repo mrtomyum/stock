@@ -4,7 +4,7 @@ import "github.com/gin-gonic/gin"
 
 func SetupRoute() *gin.Engine {
 	r := gin.Default()
-	itemV1 := r.Group("/v1/items")
+	itemV1 := r.Group("/v1/item")
 	{
 		itemV1.GET("/", GetAllItem)
 		itemV1.GET("/:id", GetItem)
@@ -13,21 +13,21 @@ func SetupRoute() *gin.Engine {
 		//itemV1.GET("/:id/prices", c.GetItemPriceByID)
 	}
 
-	machineV1 := r.Group("/v1/machines")
+	machineV1 := r.Group("/v1/machine")
 	{
 		machineV1.POST("/", PostNewMachine)
 		machineV1.GET("/", GetAllMachines)
 		machineV1.GET("/:id", GetThisMachine)
 		machineV1.GET("/:id/columns", GetMachineColumns)
-		machineV1.GET("/:id/templates", GetMachineTemplate)
+		machineV1.GET("/:id/template", GetMachineTemplate)
 	}
 
-	columnV1 := r.Group("/v1/columns")
+	columnV1 := r.Group("/v1/column")
 	{
 		columnV1.PUT("/:id", PutMachineColumn)
 	}
 
-	counterV1 := r.Group("/v1/counters")
+	counterV1 := r.Group("/v1/counter")
 	{
 		counterV1.POST("/", PostCounter)
 		counterV1.GET("/", GetAllCounter)
@@ -36,11 +36,16 @@ func SetupRoute() *gin.Engine {
 		counterV1.DELETE("/:id", DeleteCounter)
 	}
 
-	locationV1 := r.Group("/v1/locations")
+	locationV1 := r.Group("/v1/location")
 	{
 		locationV1.GET("/", GetAllLocationTree)
 		locationV1.GET("/:id", GetLocationTreeByID)
 		locationV1.POST("/", PostNewLocation)
+	}
+
+	stockV1 := r.Group("/v1/stock")
+	{
+		stockV1.GET("/", GetAllStock)
 	}
 
 	// ## Batch

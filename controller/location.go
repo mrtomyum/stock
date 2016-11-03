@@ -40,7 +40,7 @@ func GetLocationTreeByID(ctx *gin.Context) {
 
 	loc := new(m.Location)
 	id := ctx.Param("id")
-	loc.ID, _ = strconv.ParseUint(id, 10, 64)
+	loc.Id, _ = strconv.ParseUint(id, 10, 64)
 
 	// Todo: use loc.ID to parameter to retrive just tree of this ID
 	locations, err := loc.Get()

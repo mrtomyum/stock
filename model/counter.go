@@ -81,7 +81,7 @@ func (c *Counter) LessThanLastCount(mcs []*MachineColumn) bool {
 //---------------------------------------------------------------------------
 func (c *Counter) Insert() (*Counter, error) {
 	var machine Machine
-	machine.ID = c.MachineId
+	machine.Id = c.MachineId
 	mcs, err := machine.GetColumns()
 	if err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func (c *Counter) Insert() (*Counter, error) {
 	log.Println("Pass>>1.tx.Exec() INSERT INTO counter")
 
 	id, _ := res.LastInsertId()
-	c.ID = uint64(id)
+	c.Id = uint64(id)
 	for _, sub := range c.Sub {
 		// Update MachineColumn.LastCounter and CurrCounter
 		mc, err := machine.GetMachineColumn(sub.ColumnNo)
@@ -131,7 +131,7 @@ func (c *Counter) Insert() (*Counter, error) {
 			return nil, errors.New("Error Update MachineColumn" + err.Error())
 		}
 		// Insert new SubCounter
-		sub.CounterId = c.ID
+		sub.CounterId = c.Id
 		err = sub.Insert()
 		if err != nil {
 			log.Println("Error sub.Insert(db)", err)
@@ -148,7 +148,7 @@ func (c *Counter) GetSub() ([]*SubCounter, error) {
 	//--------------------------------------------------
 	var sub []*SubCounter
 	sql := `SELECT * FROM counter_sub WHERE counter_id = ? AND deleted IS NULL`
-	err := DB.Select(&sub, sql, c.ID)
+	err := DB.Select(&sub, sql, c.Id)
 	if err != nil {
 		log.Println("Error>>5. model.Counter.GetSub() = ", err)
 		return nil, err
@@ -171,7 +171,7 @@ func (c *Counter) GetAll() ([]*Counter, error) {
 	counters := []*Counter{} //<<-- น่าจะต้องไม่ใช่ Pointer นะ
 	if row.Next() {
 		err = row.Scan(
-			&c.ID, &c.Created, &c.Updated, &c.Deleted,
+			&c.Id, &c.Created, &c.Updated, &c.Deleted,
 			&c.RecDate, &c.MachineId, &c.CounterSum,
 		)
 		counters = append(counters, c)
@@ -188,9 +188,9 @@ func (c *Counter) GetAll() ([]*Counter, error) {
 // model.Counter.Get() will return single Counter with []CounterSub
 //-----------------------------------------------------------------
 func (c *Counter) Get() (*Counter, error) {
-	log.Println("call model.Counter.Get() c.ID=", c.ID)
+	log.Println("call model.Counter.Get() c.ID=", c.Id)
 	sql := `SELECT * FROM counter WHERE deleted IS NULL AND id = ?`
-	err := DB.Get(c, sql, c.ID)
+	err := DB.Get(c, sql, c.Id)
 	if err != nil {
 		log.Println("Fail>>1.db.Get()", err)
 		//log.Println("Fail>>1.db.QueryRowx", err)

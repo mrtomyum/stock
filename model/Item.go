@@ -9,35 +9,40 @@ import (
 type Item struct {
 	sys.Base
 	SKU        string          `json:"sku"`
-	NameTh     string          `json:"name_th" db:"name_th"`
+	Name       string          `json:"name" db:"name"`
 	NameEn     string          `json:"name_en" db:"name_en"`
 	StdPrice   decimal.Decimal `json:"std_price" db:"std_price"`
 	StdCost    decimal.Decimal `json:"std_cost" db:"std_cost"`
-	BaseUnitID uint64          `json:"base_unit_id" db:"base_unit_id"`
-	CategoryID uint64          `json:"category_id" db:"category_id"`
+	BaseUnitId uint64          `json:"base_unit_id" db:"base_unit_id"`
+	CategoryId uint64          `json:"category_id" db:"category_id"`
 	BrandID    uint64          `json:"brand_id" db:"brand_id"`
 }
 
 type ItemView struct {
 	//sys.Base
 	Item
-	BaseUnitTH string `json:"base_unit_th" db:"base_unit_th"`
-	BaseUnitEN string `json:"base_unit_en" db:"base_unit_en"`
-	CategoryTH string `json:"category_th" db:"category_th"`
-	CategoryEN string `json:"category_en" db:"category_en"`
+	BaseUnit   string `json:"base_unit" db:"base_unit"`
+	BaseUnitEn string `json:"base_unit_en" db:"base_unit_en"`
+	Category   string `json:"category" db:"category"`
+	CategoryEn string `json:"category_en" db:"category_en"`
 }
 
-type ItemBarcode struct {
+type ItemBar struct {
 	sys.Base
-	ItemID uint64
-	UnitID uint64
-	Code   string
-	Price  decimal.Decimal
+	ItemId uint64 `json:"item_id" db:"item_id"`      // สินค้า
+	UnitId uint64 `json:"unit_id" db:"unit_id"`      // หน่วยนับ
+	Code   string `json:"code" db:"code"`            // รหัสบาร์โค้ด
+	Ratio  int    `json:"ratio" db:"ratio"`          // เป็นตัวคูณ ratio in times of BaseUnit.
+	Price  decimal.Decimal `json:"price" db:"price"` // ราคาขายเฉพาะของบาร์โค้ดนั้น(ถ้ามี)
 }
 
-type Items []*Item
+type Brand struct {
+	sys.Base
+	Name   string
+	NameEn string
+}
 
-func (i *Item) GetAll() (Items, error) {
+func (i *Item) GetAll() ([]*Item, error) {
 	sql := `
 	SELECT
 		id,
@@ -59,7 +64,7 @@ func (i *Item) GetAll() (Items, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items Items
+	var items []*Item
 	for rows.Next() {
 		i := new(Item)
 		err = rows.StructScan(&i)
@@ -95,7 +100,7 @@ func (i *Item) GetItemView() (*ItemView, error) {
 	WHERE item.id = ?
 	`
 	//err := db.QueryRowx(sql, i.ID).StructScan(&iv)
-	err := DB.Get(&iv, sql, i.ID)
+	err := DB.Get(&iv, sql, i.Id)
 	if err != nil {
 		log.Println("Error: model.Item.GetItemView/Query Error", err)
 		return &iv, err
@@ -119,12 +124,12 @@ func (i *Item) Insert() (Item, error) {
 		`
 	rs, err := DB.Exec(sql,
 		i.SKU,
-		i.NameTh,
+		i.Name,
 		i.NameEn,
 		i.StdPrice,
 		i.StdCost,
-		i.BaseUnitID,
-		i.CategoryID,
+		i.BaseUnitId,
+		i.CategoryId,
 	)
 	var item Item
 	if err != nil {
@@ -158,13 +163,13 @@ func (i *Item) Update() (*Item, error) {
 	`
 	_, err := DB.Exec(sql,
 		i.SKU,
-		i.NameTh,
+		i.Name,
 		i.NameEn,
 		i.StdPrice,
 		i.StdCost,
-		i.BaseUnitID,
-		i.CategoryID,
-		i.ID,
+		i.BaseUnitId,
+		i.CategoryId,
+		i.Id,
 	)
 	if err != nil {
 		log.Println("Error after db.Exec()")
@@ -173,7 +178,7 @@ func (i *Item) Update() (*Item, error) {
 	// Get updated record back from DB to confirm
 	sql = `SELECT * FROM item WHERE id = ?`
 	var updatedItem Item
-	err = DB.Get(&updatedItem, sql, i.ID)
+	err = DB.Get(&updatedItem, sql, i.Id)
 	if err != nil {
 		log.Println("Error after db.Get()")
 		return nil, err

@@ -165,7 +165,7 @@ func (m *Machine) New() (*Machine, error) {
 func (m *Machine) Get() (*Machine, error) {
 	log.Println("call model.Machine.Get()")
 	sql := `SELECT * FROM machine WHERE id = ? AND deleted IS NULL`
-	err := DB.Get(m, sql, m.ID)
+	err := DB.Get(m, sql, m.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func (m *Machine) GetColumns() ([]*MachineColumn, error) {
 
 	var mcs []*MachineColumn
 	sql := `SELECT * FROM machine_column WHERE machine_id = ?`
-	err := DB.Select(&mcs, sql, m.ID)
+	err := DB.Select(&mcs, sql, m.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +277,7 @@ func (m *Machine) InitMachineColumn() {
 func (m *Machine) GetMachineColumn(columnNo int) (*MachineColumn, error) {
 	mc := new(MachineColumn)
 	sql := `SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ? LIMIT 1`
-	err := DB.Get(mc, sql, m.ID, columnNo)
+	err := DB.Get(mc, sql, m.Id, columnNo)
 	if err != nil {
 		return nil, errors.New("Wrong column number in this machine:" + err.Error())
 	}

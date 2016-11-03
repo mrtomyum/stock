@@ -18,7 +18,7 @@ type MyPrice struct {
 
 type ItemPrice struct {
 	sys.Base
-	ItemID    uint64
+	ItemId    uint64
 	Locations []*Location
 	Value     decimal.Decimal
 }

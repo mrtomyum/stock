@@ -41,7 +41,8 @@ type Location struct {
 	sys.Base
 	Code     string      `json:"code"`
 	Type     LocType     `json:"type"`
-	ParentID uint64      `json:"-" db:"parent_id"`
+	ParentId uint64      `json:"-" db:"parent_id"`
+	Movable  bool        `json:"movable"`
 	Child    []*Location `json:"nodes,omitempty" db:"-"`
 }
 
@@ -56,7 +57,7 @@ func (this *Location) Size() int {
 func (this *Location) AddTree(nodes ...*Location) bool {
 	var size = this.Size()
 	for _, node := range nodes {
-		if node.ParentID == this.ID {
+		if node.ParentId == this.Id {
 			this.Child = append(this.Child, node)
 		} else {
 			for _, c := range this.Child {
@@ -90,7 +91,7 @@ func (l *Location) Get() ([]*Location, error) {
 		OR parent_id = ?
 		`
 	locations := []*Location{}
-	err := DB.Select(&locations, sql, l.ID, l.ID)
+	err := DB.Select(&locations, sql, l.Id, l.Id)
 	if err != nil {
 		log.Fatal("Error in model.Select..", err)
 		return nil, err
@@ -107,11 +108,11 @@ func (l *Location) Insert() (*Location, error) {
 		)
 		VALUES (?, ?, ?, ?)
 	`
-	log.Println("Test Location receiver:", l.Code, l.Type, l.ParentID)
+	log.Println("Test Location receiver:", l.Code, l.Type, l.ParentId)
 	res, err := DB.Exec(sql,
 		l.Code,
 		l.Type,
-		l.ParentID,
+		l.ParentId,
 	)
 	if err != nil {
 		log.Println("Error db.Exec in model.Location.Show", err)

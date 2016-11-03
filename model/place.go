@@ -4,14 +4,6 @@ import (
 	sys "github.com/mrtomyum/sys/model"
 )
 
-type Client struct {
-	sys.Base
-	Code   string `json:"code"`
-	NameTH string `json:"name_th" db:"name_th"`
-	NameEN string `json:"name_en" db:"name_en"`
-	//PriceLevel int
-}
-
 type PlaceType int
 
 const (

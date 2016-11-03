@@ -22,7 +22,7 @@ type VanSale struct {
 	sys.Base
 	Recorded   *time.Time      `json:"recorded"`
 	Barcode    string          `json:"barcode"`
-	ItemID     uint64          `json:"item_id"`
+	ItemId     uint64          `json:"item_id"`
 	Qty        int             `json:"qty"`
 	UnitPrice  decimal.Decimal `json:"unit_price"`
 	TotalPrice decimal.Decimal `json:"total_price"`
