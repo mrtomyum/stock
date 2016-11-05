@@ -23,6 +23,19 @@ func GetAllStock(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, rs)
 }
 
+func NewDoc(ctx *gin.Context) {
+	var d m.Doc
+	rs := api.Response{}
+	if ctx.Bind(&d) != nil {
+		rs.Message = "Cannot bind JSON requested."
+		rs.Status = api.ERROR
+		ctx.JSON(http.StatusBadRequest, rs)
+		return
+	}
+	rs.Status = api.SUCCESS
+	ctx.JSON(http.StatusOK, rs)
+}
+
 func NewStock(ctx *gin.Context) {
 
 }

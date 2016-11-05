@@ -12,7 +12,6 @@ import (
 func PostNewMachine(c *gin.Context) {
 	log.Info(log.Fields{"func":"controller.Machine.PostNewMachine()"})
 	c.Header("Server", "NAVA Stock")
-	c.Header("Content-Type", "application/json")
 	c.Header("Access-Control-Allow-Origin", "*")
 
 	var m model.Machine
@@ -38,7 +37,6 @@ func PostNewMachine(c *gin.Context) {
 func GetAllMachines(ctx *gin.Context) {
 	log.Info(log.Fields{"func":"controller.GetAllMachines()"})
 	ctx.Header("Server", "NAVA Stock")
-	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	m := model.Machine{}
@@ -59,7 +57,6 @@ func GetAllMachines(ctx *gin.Context) {
 func GetThisMachine(ctx *gin.Context) {
 	log.Info(log.Fields{"func":"controller.GetThisMachine()"})
 	ctx.Header("Server", "NAVA Stock")
-	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	id := ctx.Param("id")
@@ -116,7 +113,6 @@ func GetMachineTemplate(c *gin.Context) {
 func PutMachineColumn(c *gin.Context) {
 	log.Info(log.Fields{"func":"controller.Machine.PutMachineColumn()"})
 	c.Header("Server", "NAVA Stock")
-	c.Header("Content-Type", "application/json")
 	c.Header("Access-Control-Allow-Origin", "*")
 
 	var mc model.MachineColumn

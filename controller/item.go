@@ -36,10 +36,10 @@ func PostNewItem(ctx *gin.Context) {
 
 	i := new(m.Item)
 	rs := new(api.Response)
-	if err := ctx.BindJSON(&i); err != nil {
-		log.Println("NewItem: Error decode.Decode(&i) >>", err)
+	if ctx.BindJSON(&i) != nil {
+		//log.Println("NewItem: Error decode.Decode(&i) >>", err)
 		rs.Status = api.ERROR
-		rs.Message = err.Error()
+		rs.Message = "Cannot Bind JSON requested."
 		ctx.JSON(http.StatusBadRequest, rs)
 	} else {
 		newItem, err := i.Insert()

@@ -22,7 +22,6 @@ const (
 	RO              // Reserve Order
 	PR              // Purchase Requisition
 	PO              // Purchase Order
-	IV              // Invoice
 )
 
 type ItemStatus int
