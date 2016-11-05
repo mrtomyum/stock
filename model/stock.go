@@ -14,7 +14,7 @@ import (
 type Stock struct {
 	sys.Base
 	DocSubId uint64          `json:"doc_sub_id" db:"doc_sub_id"` //
-	DocDate  Date            `json:"doc_date" db:"doc_date"`
+	DocDate  sys.Date        `json:"doc_date" db:"doc_date"`
 	ItemId   uint64          `json:"item_id" db:"item_id"`
 	LocId    uint64          `json:"loc_id" db:"loc_id"`
 	BaseUnit Unit            `json:"base_unit" db:"base_unit"`   // หน่วยนับฐาน
