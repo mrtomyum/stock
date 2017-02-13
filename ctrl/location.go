@@ -1,4 +1,4 @@
-package controller
+package ctrl
 
 import (
 	m "github.com/mrtomyum/stock/model"
@@ -35,15 +35,15 @@ func GetAllLocationTree(ctx *gin.Context) {
 	rs.Data = tree.Child
 	ctx.JSON(http.StatusOK, rs)
 }
+
 func GetLocationTreeByID(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
-	loc := new(m.Location)
+	l := new(m.Location)
 	id := ctx.Param("id")
-	loc.Id, _ = strconv.ParseUint(id, 10, 64)
+	l.Id, _ = strconv.ParseUint(id, 10, 64)
 
-	// Todo: use loc.ID to parameter to retrive just tree of this ID
-	locations, err := loc.Get()
+	locations, err := l.Get()
 	rs := new(api.Response)
 	if err != nil {
 		log.Fatal("Error LocationsTreeByID()", err)

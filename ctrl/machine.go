@@ -1,4 +1,4 @@
-package controller
+package ctrl
 
 import (
 	"net/http"
@@ -20,18 +20,18 @@ func PostNewMachine(c *gin.Context) {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
 		c.JSON(http.StatusBadRequest, rs)
-	} else {
-		log.Info(m)
-		newMachine, err := m.New() // TODO: ให้ดัก New() ที่ m เป็นค่าว่างด้วย ต้อง Error
-		if err != nil {
-			rs.Status = api.ERROR
-			rs.Message = err.Error()
-		} else {
-			rs.Status = api.SUCCESS
-			rs.Data = newMachine
-		}
-		c.JSON(http.StatusOK, rs)
+		return
 	}
+	log.Info(m)
+	newMachine, err := m.New() // TODO: ให้ดัก New() ที่ m เป็นค่าว่างด้วย ต้อง Error
+	if err != nil {
+		rs.Status = api.ERROR
+		rs.Message = err.Error()
+	} else {
+		rs.Status = api.SUCCESS
+		rs.Data = newMachine
+	}
+	c.JSON(http.StatusOK, rs)
 }
 
 func GetAllMachines(ctx *gin.Context) {
@@ -141,4 +141,8 @@ func PutMachineColumn(c *gin.Context) {
 		}
 	}
 	return
+}
+
+func PostNewMachineColumns(c *gin.Context) {
+
 }

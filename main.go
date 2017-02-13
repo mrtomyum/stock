@@ -3,10 +3,10 @@ package main
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/sebest/logrusly"
-	"github.com/mrtomyum/stock/controller"
+	"github.com/mrtomyum/stock/ctrl"
 )
 
-var logglyToken string = "4cd7bdfb-0345-4205-aeee-53e85a030eda"
+var logglyToken string = "3db1e177-a815-4887-a1f6-4a1a2b56b4b1"
 
 func main() {
 	//Log
@@ -18,6 +18,6 @@ func main() {
 		"name": "Tom NAVA Stock",
 	}).Info("Start Logrus")
 
-	server := controller.SetupRoute()
+	server := ctrl.Router()
 	server.Run(":8001")
 }

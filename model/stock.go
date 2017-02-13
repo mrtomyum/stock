@@ -6,7 +6,6 @@ import (
 	"log"
 )
 
-
 // Stock คือ Stock Card นั่นเอง เก็บรายการสินค้าและ Loc ที่เดินรายการ ผ่าน Doc
 // ทั้งนี้ระบบสต๊อคบัญชีคู่ หมายความว่าจะต้องมี Stock อย่างน้อย 2 รายการ
 // โดยมีจำนวน Qty และ Value เป็น + และ - คู่กัน
@@ -61,4 +60,10 @@ func (s *StockItem) GetAll() ([]*StockItem, error) {
 		return nil, err
 	}
 	return stocks, nil
+}
+
+type Unit struct {
+	sys.Base
+	Name   string `json:"name" db:"name"`
+	NameEn string `json:"name_en" db:"name_en"`
 }

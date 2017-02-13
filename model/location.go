@@ -83,6 +83,7 @@ func (l *Location) All() ([]*Location, error) {
 	return locations, nil
 }
 
+// Method Get จะดึง Location ของตัวมันเองและลูกๆ ที่มันเป็นแม่ *ยังไม่สามารถ Reqursive ลงไปหาหลานๆได้
 func (l *Location) Get() ([]*Location, error) {
 	// TODO: แก้ Select ให้สามารถ Recursive  Parent_id ได้
 	sql := `

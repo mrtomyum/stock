@@ -1,8 +1,8 @@
-package controller
+package ctrl
 
 import "github.com/gin-gonic/gin"
 
-func SetupRoute() *gin.Engine {
+func Router() *gin.Engine {
 	r := gin.Default()
 	itemV1 := r.Group("/v1/item")
 	{
@@ -24,6 +24,7 @@ func SetupRoute() *gin.Engine {
 
 	columnV1 := r.Group("/v1/column")
 	{
+		machineV1.POST("/", PostNewMachineColumns)
 		columnV1.PUT("/:id", PutMachineColumn)
 	}
 
@@ -34,6 +35,7 @@ func SetupRoute() *gin.Engine {
 		counterV1.GET("/:id", GetCounter)
 		counterV1.PUT("/:id", PutCounter)
 		counterV1.DELETE("/:id", DeleteCounter)
+		//counterV1.GET("/machine/:id", GetCounterByMachineId)
 	}
 
 	locationV1 := r.Group("/v1/location")
