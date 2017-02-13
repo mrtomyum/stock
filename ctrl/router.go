@@ -24,7 +24,6 @@ func Router() *gin.Engine {
 
 	columnV1 := r.Group("/v1/column")
 	{
-		machineV1.POST("/", PostNewMachineColumns)
 		columnV1.PUT("/:id", PutMachineColumn)
 	}
 

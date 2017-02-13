@@ -8,6 +8,7 @@ import (
 	"github.com/guregu/null"
 	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
+	"database/sql"
 )
 
 type Machine struct {
@@ -18,11 +19,11 @@ type Machine struct {
 	Brand        machineBrand     `json:"brand"`
 	ProfileId    uint64           `json:"profile_id" db:"profile_id"` // ref. parent MachineId
 	SerialNumber null.String      `json:"serial_number" db:"serial_number"`
-	Selection    int              `json:"selection"`                  //จำนวน Column หรือช่องเก็บสินค้า
+	Selection    int              `json:"selection"` //จำนวน Column หรือช่องเก็บสินค้า
 	PlaceId      uint64           `json:"place_id" db:"place_id"`
 	Status       MachineStatus    `json:"status"`
 	Note         null.String      `json:"note"`
-	IsProfile    bool             `json:"is_profile"`                 // Profile template for Initialize New Machine each column data such as item, price
+	IsProfile    bool             `json:"is_profile"` // Profile template for Initialize New Machine each column data such as item, price
 	PriceLevel   int              `json:"price_level" db:"price_level"`
 	Sub          []*MachineColumn `json:"sub"`
 }
@@ -30,7 +31,7 @@ type Machine struct {
 type machineType uint8
 
 const (
-	NO_TYPE machineType = iota
+	NO_TYPE          machineType = iota
 	CAN
 	CUP_HOT_COLD
 	CUP_FRESH_COFFEE
@@ -60,7 +61,7 @@ func (t machineType) MarshalJSON() ([]byte, error) {
 type machineBrand int
 
 const (
-	NO_BRAND machineBrand = iota
+	NO_BRAND      machineBrand = iota
 	NATIONAL
 	SANDEN
 	FUJI_ELECTRIC
@@ -96,7 +97,7 @@ const (
 type MachineErrType int
 
 const (
-	X MachineErrType = iota // UNIDENTIFIED ERROR
+	X                 MachineErrType = iota // UNIDENTIFIED ERROR
 	COLUMN_NOT_FOUND
 	COUNTER_OVER_SALE
 )
@@ -128,8 +129,24 @@ func (m *Machine) GetAll() ([]*Machine, error) {
 
 }
 
+// rowExists ใช้ตรวจสอบว่าตารางที่กำลังจะ insert มีข้อมูลอยู่หรือไม่? https://snippets.aktagon.com/snippets/756-checking-if-a-row-exists-in-go-database-sql-and-sqlx-
+func rowExists(query string, args ...interface{}) bool {
+	var exists bool
+	query = fmt.Sprintf("SELECT exists (%s)", query)
+	err := DB.QueryRow(query, args...).Scan(&exists)
+	if err != nil && err != sql.ErrNoRows {
+		log.Fatalf("error checking if row exists '%s' %v", args, err)
+	}
+	log.Println("exists =", exists)
+	return exists
+}
+
 func (m *Machine) New() (*Machine, error) {
+	// Exist ตรวจสอบรหัสตู้ m.Code ว่าซ้ำอยู่หรือไม่?
 	log.Println("call model.Machine.New()")
+	if rowExists("SELECT * FROM machine WHERE code = ?", m.Code) {
+		return nil, errors.New("มี Machine นี้อยู่แล้วใน Database กรุณาลบของเดิมทิ้งก่อนเพิ่มใหม่")
+	}
 	sql := `INSERT INTO machine(
 		loc_id,
 		code,
@@ -137,8 +154,9 @@ func (m *Machine) New() (*Machine, error) {
 		brand,
 		profile_id,
 		serial_number,
-		selection
-		) VALUES(?,?,?,?,?,?,?)`
+		selection,
+		place_id
+		) VALUES(?,?,?,?,?,?,?,?)`
 	res, err := DB.Exec(sql,
 		m.LocId,
 		m.Code,
@@ -220,7 +238,7 @@ type MachineColumn struct {
 type ColumnSize int
 
 const (
-	NO_SIZE ColumnSize = iota //สินค้าไม่มีตัวตน หรือต้องส่งข้อมูลสั่งขายไปยังระบบอื่น
+	NO_SIZE     ColumnSize = iota //สินค้าไม่มีตัวตน หรือต้องส่งข้อมูลสั่งขายไปยังระบบอื่น
 	S
 	L
 	SPRING_5MM
@@ -231,9 +249,21 @@ const (
 type ColumnStatus int
 
 const (
-	OK ColumnStatus = iota
+	OK   ColumnStatus = iota
 	FAIL
 )
+
+func (m *Machine) ColumnExist() (bool) {
+	sql := `SELECT * FROM machine_column WHERE machine_id = ?`
+	rows, err := DB.Queryx(sql, m.Id)
+	if err != nil {
+		return false
+	}
+	if rows.Next() {
+		return false
+	}
+	return true
+}
 
 func (mc *MachineColumn) Update() error {
 	log.Println("call model.MachineColumn.Update()")
@@ -282,6 +312,31 @@ func (m *Machine) GetMachineColumn(columnNo int) (*MachineColumn, error) {
 		return nil, errors.New("Wrong column number in this machine:" + err.Error())
 	}
 	return mc, nil
+}
+
+// NewColumn เพิ่มคอลัมน์ให้ครบตามจำนวน Selection ที่กำหนด ระวัง!! ถ้า Machine มี column ใดๆอยู่จะ Error ต้องลบ Column เดิมทิ้งก่อน
+func (m *Machine) NewColumn(selection int) error {
+	// ตรวจสอบก่อนว่ามี MachineColumn อยู่หรือไม่?
+	if m.ColumnExist() {
+		return errors.New("ตู้นี้มี MachineColumn เดิมอยู่ กรุณาลบข้อมูลเดิมทิ้งก่อน")
+	}
+	sql := `INSERT INTO machine_column(
+		machine_id,
+		column_no
+		) VALUES(?,?)
+	`
+	for col := 1; col == selection; col++ {
+		res, err := DB.Exec(sql,
+			m.Id,
+			col,
+		)
+		if err != nil {
+			return err
+		}
+		number, _ := res.RowsAffected()
+		log.Println("Inserted", number, "row in MachineColumn so far", col, " from", selection)
+	}
+	return nil
 }
 
 //func (m *Machine) UpdateColumnCounter(columnNo int, counter int) error {

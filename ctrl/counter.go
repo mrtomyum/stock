@@ -2,7 +2,8 @@ package ctrl
 
 import (
 	"net/http"
-	log "github.com/Sirupsen/logrus"
+	//log "github.com/Sirupsen/logrus"
+	"log"
 	"github.com/mrtomyum/stock/model"
 	"github.com/mrtomyum/sys/api"
 	"github.com/gin-gonic/gin"
@@ -21,17 +22,17 @@ func PostCounter(ctx *gin.Context) {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
 		ctx.JSON(http.StatusBadRequest, rs)
+		return
+	}
+	newCounter, err := c.Insert()
+	if err != nil {
+		rs.Status = api.ERROR
+		rs.Message = "CANNOT_INSERT New Counter >>" + err.Error()
+		ctx.JSON(http.StatusConflict, rs)
 	} else {
-		newCounter, err := c.Insert()
-		if err != nil {
-			rs.Status = api.ERROR
-			rs.Message = "CANNOT_INSERT New Counter >>" + err.Error()
-			ctx.JSON(http.StatusConflict, rs)
-		} else {
-			rs.Status = api.SUCCESS
-			rs.Data = newCounter
-			ctx.JSON(http.StatusOK, rs)
-		}
+		rs.Status = api.SUCCESS
+		rs.Data = newCounter
+		ctx.JSON(http.StatusOK, rs)
 	}
 	return
 }
