@@ -140,7 +140,7 @@ func rowExists(query string, args ...interface{}) bool {
 }
 
 func (m *Machine) New() (*Machine, error) {
-	// Exist ตรวจสอบรหัสตู้ m.Code ว่าซ้ำอยู่หรือไม่?
+	// rowExists ตรวจสอบรหัสตู้ m.Code ว่าซ้ำอยู่หรือไม่?
 	log.Println("call model.Machine.New()")
 	if rowExists("SELECT * FROM machine WHERE code = ?", m.Code) {
 		return nil, errors.New("มี Machine นี้อยู่แล้วใน Database กรุณาลบของเดิมทิ้งก่อนเพิ่มใหม่")
@@ -217,6 +217,43 @@ func (m *Machine) GetTemplate() ([]*Machine, error) {
 		return nil, err
 	}
 	return templates, nil
+}
+func (m *Machine) InitMachineColumn() {
+	// Select all MachineColumn from this Machine
+	// Choose Delete old data or Create only missing one?
+	//
+}
+
+func (m *Machine) GetMachineColumn(columnNo int) (*MachineColumn, error) {
+	column := new(MachineColumn)
+	sql := `SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ? LIMIT 1`
+	err := DB.Get(column, sql, m.Id, columnNo)
+	if err != nil {
+		return nil, errors.New("Wrong column number in this machine:" + err.Error())
+	}
+	return column, nil
+}
+
+// NewColumn เพิ่มคอลัมน์ให้ครบตามจำนวน Selection ที่กำหนด ระวัง!! ถ้า Machine มี column ใดๆอยู่จะ Error ต้องลบ Column เดิมทิ้งก่อน
+func (m *Machine) NewColumn(selection int) error {
+	sql := `INSERT INTO machine_column(
+		machine_id,
+		column_no
+		) VALUES(?,?)
+	`
+	for col := 1; col == selection; col++ {
+		// ตรวจสอบก่อนว่ามี ColumnNo ซ้ำอยู่หรือไม่?
+		if rowExists("SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ?", m.Id, col) {
+			continue
+		}
+		res, err := DB.Exec(sql, m.Id, col)
+		if err != nil {
+			return err
+		}
+		number, _ := res.RowsAffected()
+		log.Println("Inserted", number, "row in MachineColumn so far", col, " from", selection)
+	}
+	return nil
 }
 
 

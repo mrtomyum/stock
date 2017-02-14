@@ -29,17 +29,17 @@ func PostCounter(ctx *gin.Context) {
 		rs.Status = api.ERROR
 		rs.Message = "CANNOT_INSERT New Counter >>" + err.Error()
 		ctx.JSON(http.StatusConflict, rs)
-	} else {
-		rs.Status = api.SUCCESS
-		rs.Data = newCounter
-		ctx.JSON(http.StatusOK, rs)
 	}
+	rs.Status = api.SUCCESS
+	rs.Data = newCounter
+	ctx.JSON(http.StatusOK, rs)
 	return
 }
 
 func GetAllCounter(ctx *gin.Context) {
 	log.Println("call ctrl.Counter.GetAllCounter()")
 	ctx.Header("Server", "NAVA Stock")
+	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	c := model.Counter{}

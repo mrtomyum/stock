@@ -25,15 +25,15 @@ type SubCounter struct {
 	Price     decimal.Decimal `json:"price"`                // from Last updated Price of this Machine.Column
 }
 
-func (c *Counter) LessThanLastCount(mcs []*MachineColumn) bool {
-	//-------------------------------------------------
-	// Check mc.LastCounter ต้องน้อยกว่าหรือเท่ากับ CurrCounter
-	// Load MachineColumn table and validate new counter must greater than last counter.
-	//-------------------------------------------------
+//-------------------------------------------------
+// Check mc.LastCounter ต้องน้อยกว่าหรือเท่ากับ CurrCounter
+// Load MachineColumn table and validate new counter must greater than last counter.
+//-------------------------------------------------
+func (c *Counter) LessThanLastCount(columns []*MachineColumn) bool {
 
 	for _, sub := range c.Sub {
-		for _, mc := range mcs {
-			if sub.ColumnNo == mc.ColumnNo && sub.Counter < mc.LastCounter {
+		for _, column := range columns {
+			if sub.ColumnNo == column.ColumnNo && sub.Counter < column.LastCounter {
 				return true
 			}
 		}
@@ -50,11 +50,12 @@ func (c *Counter) LessThanLastCount(mcs []*MachineColumn) bool {
 func (c *Counter) Insert() (*Counter, error) {
 	var machine Machine
 	machine.Id = c.MachineId
-	mcs, err := machine.GetColumns()
+	columns, err := machine.GetColumns() // เอาข้อมูล lastCounter จาก columns ล่าสุดออกมา
 	if err != nil {
 		return nil, err
 	}
-	if c.LessThanLastCount(mcs) {
+	// ตรวจว่า เคาท์เตอร์ที่จดมาหากน้อยกว่าเคาท์เตอร์ล่าสุด ให้ออกและแจ้ง Error
+	if c.LessThanLastCount(columns) {
 		return nil, errors.New("Found error input counter: New counter < Last counter in the same Machine-Column.")
 	}
 	//---------------------
@@ -77,23 +78,24 @@ func (c *Counter) Insert() (*Counter, error) {
 		return nil, err
 	}
 	log.Println("Pass>>1.tx.Exec() INSERT INTO counter")
+	log.Println(c)
 
 	id, _ := res.LastInsertId()
 	c.Id = uint64(id)
 	for _, sub := range c.Sub {
 		// Update MachineColumn.LastCounter and CurrCounter
-		mc, err := machine.GetMachineColumn(sub.ColumnNo)
+		column, err := machine.GetMachineColumn(sub.ColumnNo)
 		if err != nil {
 			log.Println("Error machine.GetMachineColumn:", err)
 			return nil, err
 		}
-		mc.LastCounter = mc.CurrCounter
-		mc.CurrCounter = sub.Counter
+		column.LastCounter = column.CurrCounter
+		column.CurrCounter = sub.Counter
 		// update SubCounter.ItemId with last fulfill ItemId
-		sub.ItemId = mc.ItemId
+		sub.ItemId = column.ItemId
 		// update SubCounter.Price with last update Price
-		sub.Price = mc.Price
-		err = mc.Update()
+		sub.Price = column.Price
+		err = column.Update()
 		if err != nil {
 			log.Println("Error mc.Update(db)", err)
 			return nil, errors.New("Error Update MachineColumn" + err.Error())
@@ -110,10 +112,10 @@ func (c *Counter) Insert() (*Counter, error) {
 	return newCounter, nil
 }
 
+//--------------------------------------------------
+// Return New CounterSub of this Counter
+//--------------------------------------------------
 func (c *Counter) GetSub() ([]*SubCounter, error) {
-	//--------------------------------------------------
-	// Return New CounterSub of this Counter
-	//--------------------------------------------------
 	var sub []*SubCounter
 	sql := `SELECT * FROM counter_sub WHERE counter_id = ? AND deleted IS NULL`
 	err := DB.Select(&sub, sql, c.Id)
