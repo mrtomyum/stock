@@ -4,6 +4,7 @@ import (
 	"github.com/shopspring/decimal"
 	"log"
 	"errors"
+	"fmt"
 )
 
 type Counter struct {
@@ -231,6 +232,14 @@ func (c *Counter) GetByMachineCode(code string) (counters []*Counter, err error)
 	err = DB.Select(&counters, sql2, id)
 	if err != nil {
 		return nil, err
+	}
+	for _, counter := range counters {
+		sql3 := `SELECT * FROM counter_sub WHERE counter_id = ?`
+		err = DB.Select(&counter.Sub, sql3, counter.Id)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println("add counter sub")
 	}
 	return counters, nil
 }

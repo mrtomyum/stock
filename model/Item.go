@@ -1,13 +1,12 @@
 package model
 
 import (
-	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
 	"log"
 )
 
 type Item struct {
-	sys.Base
+	Base
 	SKU        string          `json:"sku"`
 	Name       string          `json:"name" db:"name"`
 	NameEn     string          `json:"name_en" db:"name_en"`
@@ -28,7 +27,7 @@ type ItemView struct {
 }
 
 type ItemBar struct {
-	sys.Base
+	Base
 	ItemId uint64 `json:"item_id" db:"item_id"`      // สินค้า
 	UnitId uint64 `json:"unit_id" db:"unit_id"`      // หน่วยนับ
 	Code   string `json:"code" db:"code"`            // รหัสบาร์โค้ด
@@ -37,7 +36,7 @@ type ItemBar struct {
 }
 
 type Brand struct {
-	sys.Base
+	Base
 	Name   string
 	NameEn string
 }
