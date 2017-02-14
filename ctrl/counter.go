@@ -70,17 +70,34 @@ func GetCounter(ctx *gin.Context) {
 	id := ctx.Param("id")
 	c := model.Counter{}
 	c.Id, _ = strconv.ParseUint(id, 10, 64)
-	rs := api.Response{}
 	counters, err := c.Get()
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
 		ctx.Status(http.StatusNoContent)
-	} else {
-		rs.Status = api.SUCCESS
-		rs.Data = counters
-		ctx.JSON(http.StatusOK, rs)
+		return
 	}
+	rs.Status = api.SUCCESS
+	rs.Data = counters
+	ctx.JSON(http.StatusOK, rs)
+	return
+}
+
+func GetCounterByMachineCode(ctx *gin.Context) {
+	log.Println("call ctrl.Counter.GetCounterByMachineCode()")
+	ctx.Header("Content-Type", "application/json")
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	machineCode := ctx.Param("code")
+	c := model.Counter{}
+	counters, err := c.GetByMachineCode(machineCode)
+	if err != nil {
+		rs.Status = api.ERROR
+		rs.Message = err.Error()
+		ctx.JSON(http.StatusNotFound, counters)
+	}
+	rs.Status = api.SUCCESS
+	rs.Data = counters
+	ctx.JSON(http.StatusOK, rs)
 	return
 }
 

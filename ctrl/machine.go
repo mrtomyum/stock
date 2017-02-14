@@ -33,7 +33,7 @@ func PostNewMachine(c *gin.Context) {
 		c.JSON(http.StatusConflict, rs)
 		return
 	}
-	// Todo: ตรวจสอบ MachineType เพื่อ Insert Column ให้อัตโนมัติ
+	// ตรวจสอบ MachineType เพื่อ Insert Column ให้อัตโนมัติ
 	switch newMachine.Type {
 	case model.CAN, model.SEE_THROUGH:
 		m.NewColumn(m.Selection)

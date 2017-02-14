@@ -10,21 +10,21 @@ import (
 )
 
 type MyPrice struct {
-	sys.Base
+	Base
 	Value    int64
 	Digit    float64
 	Currency decimal.Decimal
 }
 
 type ItemPrice struct {
-	sys.Base
+	Base
 	ItemId    uint64
 	Locations []*Location
 	Value     decimal.Decimal
 }
 
 type JsonPrice struct {
-	sys.Base
+	Base
 	MyPrice
 }
 

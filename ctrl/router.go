@@ -27,14 +27,22 @@ func Router() *gin.Engine {
 		columnV1.PUT("/:id", PutMachineColumn)
 	}
 
-	counterV1 := r.Group("/v1/counter")
+	counterV1 := r.Group("/v1/counter/")
 	{
-		counterV1.POST("/", PostCounter)
 		counterV1.GET("/", GetAllCounter)
-		counterV1.GET("/:id", GetCounter)
-		counterV1.PUT("/:id", PutCounter)
-		counterV1.DELETE("/:id", DeleteCounter)
-		//counterV1.GET("/machine/:id", GetCounterByMachineId)
+		counterV1.POST("/", PostCounter)
+
+		//counterV1.GET("/:id/", GetCounter)
+		//counterV1.PUT("/:id", PutCounter)
+		//counterV1.DELETE("/:id", DeleteCounter)
+		//counterByMachineCode := r.Group("/machineCode")
+		//{
+		counterV1.GET("/machineCode/:code", GetCounterByMachineCode)
+		//}
+		//counterByRouteMan := r.Group("/routeman")
+		//{
+		//	counterByRouteMan.GET("/:id", GetByRoutemanId)
+		//}
 	}
 
 	locationV1 := r.Group("/v1/location")

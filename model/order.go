@@ -37,7 +37,7 @@ const (
 )
 
 type OrderItem struct {
-	sys.Base
+	Base
 	OrderID   uint64
 	Status    ItemStatus `json:"status"`
 	Date      time.Time  `json:"date"`

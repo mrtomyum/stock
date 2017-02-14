@@ -11,7 +11,7 @@ import (
 // โดยมีจำนวน Qty และ Value เป็น + และ - คู่กัน
 // ทั้งนี้ BaseCost จะถูกคำนวณกลับจาก Lot.Cost ที่ผูกกันผ่าน StockLot
 type Stock struct {
-	sys.Base
+	Base
 	DocSubId uint64          `json:"doc_sub_id" db:"doc_sub_id"` //
 	DocDate  sys.Date        `json:"doc_date" db:"doc_date"`
 	ItemId   uint64          `json:"item_id" db:"item_id"`
@@ -33,7 +33,7 @@ type StockLot struct {
 // มีลักษณะเหมือน Lot/Serial Control แต่พิเศษคือ 1 Record = 1 ชิ้น  ที่ BaseUnit
 // ประโยชน์คือเพื่อให้ทราบต้นทุนต่อหน่วยฐานที่เล็กที่สุดได้แบบ ชิ้นต่อชิ้น
 type Lot struct {
-	sys.Base
+	Base
 	ItemId    uint64 `json:"item_id" db:"item_id"`
 	Cost      decimal.Decimal
 	CurrLocId uint64 `json:"curr_loc_id" db:"curr_loc_id"`
@@ -43,7 +43,7 @@ type Lot struct {
 // ณ Location หนึ่งๆ
 // ของสินค้าแต่ละ Item ซึ่งจะถูก Update ทุกครั้งที่มีการเคลื่อนไหวของ Stock
 type StockItem struct {
-	sys.Base
+	Base
 	ItemId uint64 `json:"item_id" db:"item_id"`
 	LocId  uint64 `json:"loc_id" db:"loc_id"`
 	Qty    int64  `json:"qty" db:"qty"`
@@ -63,7 +63,7 @@ func (s *StockItem) GetAll() ([]*StockItem, error) {
 }
 
 type Unit struct {
-	sys.Base
+	Base
 	Name   string `json:"name" db:"name"`
 	NameEn string `json:"name_en" db:"name_en"`
 }

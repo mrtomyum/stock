@@ -1,14 +1,13 @@
 package model
 
 import (
-	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
 	"log"
 	"errors"
 )
 
 type Counter struct {
-	sys.Base
+	Base
 	//RecDate    *time.Time `json:"rec_date" db:"rec_date"`
 	RecDate    Date   `json:"rec_date" db:"rec_date"`
 	MachineId  uint64 `json:"machine_id" db:"machine_id"`
@@ -17,7 +16,7 @@ type Counter struct {
 }
 
 type SubCounter struct {
-	sys.Base
+	Base
 	CounterId uint64          `json:"-" db:"counter_id"`    // FK
 	ColumnNo  int             `json:"column_no" db:"column_no"`
 	Counter   int             `json:"counter" db:"counter"`
@@ -218,6 +217,24 @@ func (sub *SubCounter) Insert() error {
 	log.Println("Pass>> Exec() INSERT counter_sub", id)
 	return nil
 }
+
+func (c *Counter) GetByMachineCode(code string) (counters []*Counter, err error) {
+	// หา machine_id จาก machine code ที่ได้รับ
+	sql1 := `SELECT id FROM machine WHERE code = ?`
+	var id uint64
+	err = DB.Get(&id, sql1, code)
+	if err != nil {
+		return nil, err
+	}
+
+	sql2 := `SELECT * FROM counter WHERE machine_id = ?`
+	err = DB.Select(&counters, sql2, id)
+	if err != nil {
+		return nil, err
+	}
+	return counters, nil
+}
+
 //func GetCounter(db *sqlx.DB, ids []uint64) ([]*Counter, error) {
 //	sql := `SELECT * FROM batch_counter WHERE id = ?`
 //	sales := []*Counter{}

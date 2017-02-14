@@ -3,7 +3,6 @@ package model
 import (
 	"encoding/json"
 	"fmt"
-	sys "github.com/mrtomyum/sys/model"
 	"log"
 )
 
@@ -38,7 +37,7 @@ func (lt LocType) MarshalJSON() ([]byte, error) {
 }
 
 type Location struct {
-	sys.Base
+	Base
 	Code     string      `json:"code"`
 	Type     LocType     `json:"type"`
 	ParentId uint64      `json:"-" db:"parent_id"`

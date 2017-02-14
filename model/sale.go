@@ -1,7 +1,6 @@
 package model
 
 import (
-	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
 	"time"
 )
@@ -19,7 +18,7 @@ type VanSaleRawData struct {
 
 // ใช้ type นี้  map DB
 type VanSale struct {
-	sys.Base
+	Base
 	Recorded   *time.Time      `json:"recorded"`
 	Barcode    string          `json:"barcode"`
 	ItemId     uint64          `json:"item_id"`

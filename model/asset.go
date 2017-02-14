@@ -7,7 +7,7 @@ import (
 // Asset ทะเบียนสินทรัพย์ จะต้องมีการกำหนดผู้รับผิดชอบแต่ละชิ้น
 // โดยให้ตารางอื่นอ้าง AssetId กลับมา
 type Asset struct {
-	sys.Base
+	Base
 	Name    string
 	Code    string
 	UserId  uint64
@@ -15,7 +15,7 @@ type Asset struct {
 }
 
 type Vehicle struct {
-	sys.Base
+	Base
 	Name      string // V1, V2,...
 	NamePlate string // ทะเบียนรถ
 	Brand     string // ยี่ห้อ
@@ -25,7 +25,7 @@ type Vehicle struct {
 
 // ข้อมูลฝ่ายบริการเติมสินค้า ลงทะเบียนเบิกกุญแจรถตอนเช้า จะมีผลกับการขาย VanSale  ไม่ต้องระบุรหัสรถ และผู้ขับ RouteMan อีก
 type RouteMan struct {
-	sys.Base
+	Base
 	UserId    uint64
 	Driver    sys.User
 	VehicleID uint64

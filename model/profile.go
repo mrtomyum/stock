@@ -1,12 +1,11 @@
 package model
 
 import (
-	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
 )
 
 type Profile struct {
-	sys.Base
+	Base
 	MachineID uint64 `json:"machine_id" db:"machine_id"` // one to one relate to Machine
 	ItemRow   int `json:"planogram_row" db:"planogram_row"`
 	ItemCol   int `json:"planogram_col" db:"planogram_col"`
@@ -15,7 +14,7 @@ type Profile struct {
 }
 
 type ProfileItem struct {
-	sys.Base
+	Base
 	ProfileId uint64          `json:"profile_id" db:"profile_id"`
 	ColumnNo  int             `json:"column_no" db:"column_no"`
 	ItemId    uint64          `json:"item_id" db:"item_id"`

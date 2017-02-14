@@ -1,9 +1,5 @@
 package model
 
-import (
-	sys "github.com/mrtomyum/sys/model"
-)
-
 type PlaceType int
 
 const (
@@ -19,7 +15,7 @@ const (
 )
 
 type Place struct {
-	sys.Base
+	Base
 	ClientID uint64    `json:"client_id"`
 	NameTh   string    `json:"name_th" db:"name_th"`
 	NameEn   string    `json:"name_en" db:"name_en"`

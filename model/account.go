@@ -1,12 +1,11 @@
 package model
 
 import (
-	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
 )
 
 type Account struct {
-	sys.Base
+	Base
 	Code     string `json:"code" db:"code"`
 	Name     string `json:"name" db:"name"`
 	NameEn   string `json:"name_en" db:"name_en"`
