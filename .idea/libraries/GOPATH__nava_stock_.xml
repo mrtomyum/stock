@@ -50,7 +50,6 @@
       <root url="file:///usr/local/go/src/strconv" />
       <root url="file:///usr/local/go/src/encoding" />
     </CLASSES>
-    <JAVADOC />
     <SOURCES>
       <root url="file:///usr/local/go/src/sort" />
       <root url="file://$PROJECT_DIR$/../../../golang.org" />
