@@ -26,7 +26,7 @@ var MockBatchSales string = `
 `
 
 // Mock User table
-var mockUsers = []model.User{
+var mockUsers = []*model.User{
 	{Name: "tom", Title: model.ADMIN},
 	{Name: "kwang", Title: model.ADMIN},
 	{Name: "eak", Title: model.STOREMAN},

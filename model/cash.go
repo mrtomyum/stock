@@ -23,27 +23,3 @@ type CashCollection struct {
 	Balance         decimal.Decimal                           // ผลต่างของ เงินที่นับได้ - เงินที่ต้องนำส่ง ติดลบคือเงินขาด ติดบวกคือเงินเกิน CollectionValue - CounterValue
 }
 
-type User struct {
-	Id     uint64 `json:"id"`
-	Name   string `json:"name"`
-	Secret []byte `json:"-"`
-	Title  UserTitle `json:"title"`
-}
-
-type UserTitle int
-
-const (
-	ADMIN    UserTitle = iota
-	ROUTEMAN
-	STOREMAN
-	CASHIER
-)
-
-func (u *User) New() error {
-	sql := `INSERT INTO user(name) VALUES(?)`
-	_, err := DB.Exec(sql, u.Name)
-	if err != nil {
-		return err
-	}
-	return nil
-}
