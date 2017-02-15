@@ -1,9 +1,21 @@
 package ctrl
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/contrib/static"
+)
 
 func Router() *gin.Engine {
 	r := gin.Default()
+
+	// Serve Static file
+	r.Static("/html", "view/html")
+	r.Static("/js", "view/public/js")
+	r.Static("/css", "view/public/css")
+	r.Static("/img", "view/public/img")
+	r.Static("/json", "view/public/json")
+	r.Use(static.Serve("/", static.LocalFile("view", true)))
+
 	itemV1 := r.Group("/v1/item")
 	{
 		itemV1.GET("/", GetAllItem)
@@ -29,15 +41,16 @@ func Router() *gin.Engine {
 
 	counterV1 := r.Group("/v1/counter/")
 	{
-		counterV1.GET("/", GetAllCounter)
-		counterV1.POST("/", PostCounter)
+		counterV1.POST("/new/machine_code/:code", PostNewCounter)
+		counterV1.GET("/last/machine_code/:code", GetLastCounterByMachineCode)
 
+		// ยังไม่ใช้
+		counterV1.GET("/", GetAllCounter)
 		//counterV1.GET("/:id/", GetCounter)
 		//counterV1.PUT("/:id", PutCounter)
 		//counterV1.DELETE("/:id", DeleteCounter)
 		//counterByMachineCode := r.Group("/machineCode")
 		//{
-		counterV1.GET("/machineCode/:code", GetCounterByMachineCode)
 		//}
 		//counterByRouteMan := r.Group("/routeman")
 		//{

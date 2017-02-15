@@ -221,7 +221,7 @@ func (sub *SubCounter) Insert() error {
 	return nil
 }
 
-func (c *Counter) GetByMachineCode(code string) (counters []*Counter, err error) {
+func (c *Counter) GetAllByMachineCode(code string) (counters []*Counter, err error) {
 	// หา machine_id จาก machine code ที่ได้รับ
 	sql1 := `SELECT id FROM machine WHERE code = ?`
 	var id uint64
@@ -230,7 +230,7 @@ func (c *Counter) GetByMachineCode(code string) (counters []*Counter, err error)
 		return nil, err
 	}
 
-	sql2 := `SELECT * FROM counter WHERE machine_id = ?`
+	sql2 := `SELECT * FROM counter WHERE machine_id = ? ORDER BY created DESC`
 	err = DB.Select(&counters, sql2, id)
 	if err != nil {
 		return nil, err
@@ -244,6 +244,31 @@ func (c *Counter) GetByMachineCode(code string) (counters []*Counter, err error)
 		fmt.Println("add counter sub")
 	}
 	return counters, nil
+}
+
+func (c *Counter) GetLastByMachineCode(code string) error {
+	// หา machine_id จาก machine code ที่ได้รับ
+	sql1 := `SELECT id FROM machine WHERE code = ?`
+	var id uint64
+	err := DB.Get(&id, sql1, code)
+	if err != nil {
+		return err
+	}
+
+	sql2 := `SELECT * FROM counter WHERE machine_id = ? ORDER BY created DESC LIMIT 1 `
+	err = DB.Get(c, sql2, id)
+	if err != nil {
+		log.Println("Error when select last counter: ", err)
+		return err
+	}
+
+	sql3 := `SELECT * FROM counter_sub WHERE counter_id = ?`
+	err = DB.Select(&c.Sub, sql3, id)
+	if err != nil {
+		log.Println("Error when select counter_sub: ", err)
+		return err
+	}
+	return nil
 }
 
 //func GetCounter(db *sqlx.DB, ids []uint64) ([]*Counter, error) {

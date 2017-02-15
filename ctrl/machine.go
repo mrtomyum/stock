@@ -63,6 +63,7 @@ func GetAllMachines(ctx *gin.Context) {
 	return
 }
 
+// GetThisMachine คืน JSON ข้อมูล Machine แต่ละตู้พร้อม Sub Columns ทั้งหมด
 func GetThisMachine(ctx *gin.Context) {
 	//log.Info(log.Fields{"func":"ctrl.GetThisMachine()"})
 	ctx.Header("Server", "NAVA Stock")
@@ -73,6 +74,7 @@ func GetThisMachine(ctx *gin.Context) {
 	m.Id, _ = strconv.ParseUint(id, 10, 64)
 	rs := api.Response{}
 	machine, err := m.Get()
+	// todo: แนบ MachineColumn มาด้วย
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
@@ -92,16 +94,16 @@ func GetMachineColumns(c *gin.Context) {
 
 	var m model.Machine
 	rs := api.Response{}
+
 	machineColumns, err := m.GetColumns()
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
 		c.Status(http.StatusNoContent)
-	} else {
-		rs.Status = api.SUCCESS
-		rs.Data = machineColumns
-		c.JSON(http.StatusOK, rs)
 	}
+	rs.Status = api.SUCCESS
+	rs.Data = machineColumns
+	c.JSON(http.StatusOK, rs)
 	return
 }
 
@@ -151,4 +153,3 @@ func PutMachineColumn(c *gin.Context) {
 	}
 	return
 }
-

@@ -3,7 +3,6 @@ package model
 import (
 	"github.com/shopspring/decimal"
 	"log"
-	"errors"
 )
 
 // MachineColumn เก็บยอด Counter ล่าสุดของแต่ละ column ในแต่ละ Machine

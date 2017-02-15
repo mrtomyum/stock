@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-func PostCounter(ctx *gin.Context) {
+func PostNewCounter(ctx *gin.Context) {
 	log.Println("call ctrl.Counter()")
 	ctx.Header("Server", "NAVA Stock")
 	ctx.Header("Access-Control-Allow-Origin", "*")
@@ -83,20 +83,20 @@ func GetCounter(ctx *gin.Context) {
 	return
 }
 
-func GetCounterByMachineCode(ctx *gin.Context) {
+func GetLastCounterByMachineCode(ctx *gin.Context) {
 	log.Println("call ctrl.Counter.GetCounterByMachineCode()")
 	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	machineCode := ctx.Param("code")
 	c := model.Counter{}
-	counters, err := c.GetByMachineCode(machineCode)
+	err := c.GetLastByMachineCode(machineCode)
 	if err != nil {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
-		ctx.JSON(http.StatusNotFound, counters)
+		ctx.JSON(http.StatusNotFound, c)
 	}
 	rs.Status = api.SUCCESS
-	rs.Data = counters
+	rs.Data = c
 	ctx.JSON(http.StatusOK, rs)
 	return
 }
