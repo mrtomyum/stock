@@ -35,7 +35,7 @@ func getConfig(fileName string) string {
 
 func init() {
 	// Read configuration file from "cofig.json"
-	dsn := getConfig("./config.json")
+	dsn := getConfig("../config.json")
 	DB = sqlx.MustConnect("mysql", dsn)
 	log.Println("Connected db: ", DB)
 }

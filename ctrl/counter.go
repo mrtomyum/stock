@@ -10,6 +10,10 @@ import (
 	"strconv"
 )
 
+// PostNewCounter สร้างรายการจด Counter ใหม่ของแต่ละตู้
+// โดยร้องขอมาเป็น JSON counter + counter_sub
+// ผลลัพธ์นี้จะต้องสร้างใบนำส่งเงินรอไว้ (cash/matching)
+// หากส่งซ้ำ ระบบจะสนใจเฉพาะรายการล่าสุด และแก้ไขใบนำส่งเงินที่สร้างไว้
 func PostNewCounter(ctx *gin.Context) {
 	log.Println("call ctrl.Counter()")
 	ctx.Header("Server", "NAVA Stock")
@@ -58,7 +62,7 @@ func GetAllCounter(ctx *gin.Context) {
 }
 
 //====================================
-// ขอข้อมูลเคาทเตอร์ เฉพาะรายการตาม id
+// ขอข้อมูลเคาทเตอร์ เฉพาะรายการตาม id ของ Counter
 //====================================
 func GetCounter(ctx *gin.Context) {
 	log.Println("call ctrl.Counter.GetCounterById()")
@@ -83,6 +87,9 @@ func GetCounter(ctx *gin.Context) {
 	return
 }
 
+//====================================
+// GetLastCounterByMachineCode ขอข้อมูลเคาท์เตอร์ล่าสุดของแต่ละตู้ตาม MachineCode
+//====================================
 func GetLastCounterByMachineCode(ctx *gin.Context) {
 	log.Println("call ctrl.Counter.GetCounterByMachineCode()")
 	ctx.Header("Content-Type", "application/json")
@@ -94,6 +101,7 @@ func GetLastCounterByMachineCode(ctx *gin.Context) {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
 		ctx.JSON(http.StatusNotFound, c)
+		return
 	}
 	rs.Status = api.SUCCESS
 	rs.Data = c

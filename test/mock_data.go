@@ -1,5 +1,7 @@
 package test
 
+import "github.com/mrtomyum/stock/model"
+
 var MockBatchSales string = `
 	[
 		{
@@ -22,3 +24,14 @@ var MockBatchSales string = `
 		}
 	]
 `
+
+// Mock User table
+var mockUsers = []model.User{
+	{Name: "tom", Title: model.ADMIN},
+	{Name: "kwang", Title: model.ADMIN},
+	{Name: "eak", Title: model.STOREMAN},
+	{Name: "lek", Title: model.ROUTEMAN},
+	{Name: "tam", Title: model.ROUTEMAN},
+	{Name: "est", Title: model.ROUTEMAN},
+}
+
