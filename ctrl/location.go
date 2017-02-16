@@ -21,7 +21,7 @@ func GetAllLocationTree(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	loc := new(m.Location)
 	rs := new(Response)
-	locations, err := loc.All()
+	locations, err := loc.All(db)
 	if err != nil {
 		log.Fatal("Error LocationsTreeAll()", err)
 		rs.Status = ERROR
@@ -42,7 +42,7 @@ func GetLocationTreeByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 	l.Id, _ = strconv.ParseUint(id, 10, 64)
 
-	locations, err := l.Get()
+	locations, err := l.Get(db)
 	rs := new(Response)
 	if err != nil {
 		log.Fatal("Error LocationsTreeByID()", err)
@@ -66,7 +66,7 @@ func PostNewLocation(ctx *gin.Context) {
 	}
 	log.Println("Success decode JSON -> :", l, " Result location decoded -> ", l.Code)
 
-	newLoc, err := l.Insert()
+	newLoc, err := l.Insert(db)
 	rs := new(Response)
 	if err != nil {
 		rs.Status = ERROR

@@ -24,7 +24,7 @@ func NewBatchPrice(w http.ResponseWriter, r *http.Request) {
 	err := d.Decode(&bp)
 
 	rs := Response{}
-	newPrice, err := bp.New()
+	newPrice, err := bp.New(db)
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()
@@ -46,7 +46,7 @@ func AllBatchPrice(w http.ResponseWriter, r *http.Request) {
 
 	rs := Response{}
 	p := model.BatchPrice{}
-	prices, err := p.GetAll()
+	prices, err := p.GetAll(db)
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()

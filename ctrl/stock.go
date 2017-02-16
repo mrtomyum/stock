@@ -11,7 +11,7 @@ func GetAllStock(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	s := m.StockItem{}
 	rs := Response{}
-	items, err := s.GetAll()
+	items, err := s.GetAll(db)
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()

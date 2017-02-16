@@ -52,7 +52,7 @@ func (c *Counter) LessThanLastCount(columns []*MachineColumn) bool {
 func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 	var machine Machine
 	machine.Id = c.MachineId
-	columns, err := machine.GetColumns() // เอาข้อมูล lastCounter จาก columns ล่าสุดออกมา
+	columns, err := machine.GetColumns(db) // เอาข้อมูล lastCounter จาก columns ล่าสุดออกมา
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 	c.Id = uint64(id)
 	for _, sub := range c.Sub {
 		// Update MachineColumn.LastCounter and CurrCounter
-		column, err := machine.GetMachineColumn(sub.ColumnNo)
+		column, err := machine.GetMachineColumn(db, sub.ColumnNo)
 		if err != nil {
 			log.Println("Error machine.GetMachineColumn:", err)
 			return nil, err
@@ -97,7 +97,7 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		sub.ItemId = column.ItemId
 		// update SubCounter.Price with last update Price
 		sub.Price = column.Price
-		err = column.Update()
+		err = column.Update(db)
 		if err != nil {
 			log.Println("Error mc.Update(db)", err)
 			return nil, errors.New("Error Update MachineColumn" + err.Error())
@@ -223,10 +223,10 @@ func (sub *SubCounter) Insert(db *sqlx.DB) error {
 	return nil
 }
 
-func (c *Counter) GetAllByMachineCode(code string) (counters []*Counter, err error) {
+func (c *Counter) GetAllByMachineCode(db *sqlx.DB, code string) (counters []*Counter, err error) {
 	// หา machine_id จาก machine code ที่ได้รับ
 	// todo: ควรเปลี่ยน args จาก code string -> m Machine
-	id, err := GetMachineIdFromCode(code)
+	id, err := GetMachineIdFromCode(db, code)
 	if err != nil {
 		return nil, err
 	}
@@ -246,10 +246,10 @@ func (c *Counter) GetAllByMachineCode(code string) (counters []*Counter, err err
 	return counters, nil
 }
 
-func (c *Counter) GetLastByMachineCode(code string) error {
+func (c *Counter) GetLastByMachineCode(db *sqlx.DB, code string) error {
 	// จากตู้ไหน? หา machine_id จาก machine code ที่ได้รับ
 	// todo: ควรเปลี่ยน args จาก code string -> m Machine
-	id, err := GetMachineIdFromCode(code)
+	id, err := GetMachineIdFromCode(db, code)
 	if err != nil {
 		return err
 	}

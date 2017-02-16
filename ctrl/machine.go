@@ -15,6 +15,7 @@ func PostNewMachine(c *gin.Context) {
 	log.Println("ctrl.Machine.PostNewMachine()")
 	c.Header("Server", "NAVA Stock")
 	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Content-Type", "application/json")
 
 	var m model.Machine
 	rs := Response{}
@@ -25,7 +26,7 @@ func PostNewMachine(c *gin.Context) {
 		return
 	}
 	//log.Info(m)
-	newMachine, err := m.New() // TODO: ให้ดัก New() ที่ m เป็นค่าว่างด้วย ต้อง Error
+	newMachine, err := m.New(db) // TODO: ให้ดัก New() ที่ m เป็นค่าว่างด้วย ต้อง Error
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()
@@ -35,7 +36,7 @@ func PostNewMachine(c *gin.Context) {
 	// ตรวจสอบ MachineType เพื่อ Insert Column ให้อัตโนมัติ
 	switch newMachine.Type {
 	case model.CAN, model.SEE_THROUGH:
-		m.NewColumn(m.Selection)
+		m.NewColumn(db, m.Selection)
 	}
 	rs.Status = SUCCESS
 	rs.Data = newMachine
@@ -46,10 +47,11 @@ func GetAllMachines(ctx *gin.Context) {
 	//log.Info(log.Fields{"func":"ctrl.GetAllMachines()"})
 	ctx.Header("Server", "NAVA Stock")
 	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.Header("Content-Type", "application/json")
 
 	m := model.Machine{}
 	rs := Response{}
-	machines, err := m.GetAll()
+	machines, err := m.GetAll(db)
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()
@@ -72,7 +74,7 @@ func GetThisMachine(ctx *gin.Context) {
 	m := model.Machine{}
 	m.Id, _ = strconv.ParseUint(id, 10, 64)
 	rs := Response{}
-	machine, err := m.Get()
+	machine, err := m.Get(db)
 	// todo: แนบ MachineColumn มาด้วย
 	if err != nil {
 		rs.Status = ERROR
@@ -94,7 +96,7 @@ func GetMachineColumns(c *gin.Context) {
 	var m model.Machine
 	rs := Response{}
 
-	machineColumns, err := m.GetColumns()
+	machineColumns, err := m.GetColumns(db)
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()
@@ -109,7 +111,7 @@ func GetMachineColumns(c *gin.Context) {
 func GetMachineTemplate(c *gin.Context) {
 	var m *model.Machine
 	rs := Response{}
-	templates, err := m.GetTemplate()
+	templates, err := m.GetTemplate(db)
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()
@@ -124,6 +126,7 @@ func PutMachineColumn(c *gin.Context) {
 	//log.Info(log.Fields{"func":"ctrl.Machine.PutMachineColumn()"})
 	c.Header("Server", "NAVA Stock")
 	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Content-Type", "application/json")
 
 	var col model.MachineColumn
 	rs := Response{}
@@ -139,7 +142,7 @@ func PutMachineColumn(c *gin.Context) {
 			rs.Status = ERROR
 			rs.Message = "No data in ColumnNo."
 		default:
-			err := col.Update()
+			err := col.Update(db)
 			if err != nil {
 				rs.Status = ERROR
 				rs.Message = err.Error()
@@ -162,8 +165,8 @@ func PostMachineColumnInit(ctx *gin.Context) {
 	m := new(model.Machine)
 	m.Id, _ = strconv.ParseUint(id, 10, 64)
 	rs := Response{}
-	m, err := m.Get()
-	count, err := m.InitMachineColumn()
+	m, err := m.Get(db)
+	count, err := m.InitMachineColumn(db)
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()

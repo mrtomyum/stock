@@ -2,16 +2,16 @@ package model
 
 import (
 	"log"
-	"github.com/jmoiron/sqlx"
 	"encoding/json"
 	"os"
 	"time"
 	"strings"
 	"database/sql"
 	"github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 )
 
-var db *sqlx.DB
+//var db *sqlx.DB
 
 type Config struct {
 	DBHost string `json:"db_host"`
@@ -36,7 +36,7 @@ func GetConfig(fileName string) string {
 
 
 // ใช้สำหรับล้างตารางทดสอบ Mock การเขียนลง DB Table ใดๆ พร้อม Reset Auto Increment index ให้ด้วย
-func ResetTable(tableName string) error {
+func ResetTable(db *sqlx.DB, tableName string) error {
 	sql1 := `TRUNCATE  ` + tableName
 	res, err := db.Exec(sql1)
 	if err != nil {

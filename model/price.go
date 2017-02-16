@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"time"
+	"github.com/jmoiron/sqlx"
 )
 
 type MyPrice struct {
@@ -55,7 +56,7 @@ type BatchPrice struct {
 	Price     decimal.Decimal `json:"price"`
 }
 
-func (bp *BatchPrice) New() (*BatchPrice, error) {
+func (bp *BatchPrice) New(db *sqlx.DB) (*BatchPrice, error) {
 	log.Println("call model.BatchPrice.New()")
 	sql := `
 		INSERT INTO batch_price(
@@ -89,7 +90,7 @@ func (bp *BatchPrice) New() (*BatchPrice, error) {
 	return &newBatchPrice, nil
 }
 
-func (s *BatchPrice) GetAll() ([]*BatchPrice, error) {
+func (s *BatchPrice) GetAll(db *sqlx.DB) ([]*BatchPrice, error) {
 	log.Println("call model.BatchPrice.All()")
 	prices := []*BatchPrice{}
 	sql := `SELECT * FROM batch_price`

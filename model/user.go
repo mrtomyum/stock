@@ -8,6 +8,7 @@ import (
 	//"golang.org/x/crypto/bcrypt"
 	//"time"
 	//"strings"
+	"github.com/jmoiron/sqlx"
 )
 
 type User struct {
@@ -26,7 +27,7 @@ const (
 	CASHIER
 )
 
-func (u *User) New() error {
+func (u *User) New(db *sqlx.DB) error {
 	sql := `INSERT INTO user(name, title) VALUES(?,?)`
 	_, err := db.Exec(sql, u.Name, u.Title)
 	if err != nil {

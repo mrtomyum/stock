@@ -7,6 +7,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/guregu/null"
 	"database/sql"
+	"github.com/jmoiron/sqlx"
 )
 
 type Machine struct {
@@ -113,7 +114,7 @@ func MachineBatchSaleIsErr() bool {
 	return false
 }
 
-func (m *Machine) GetAll() ([]*Machine, error) {
+func (m *Machine) GetAll(db *sqlx.DB) ([]*Machine, error) {
 	log.Info(log.Fields{"func": "Machine.All()"})
 	machines := []*Machine{}
 	sql := `SELECT * FROM machine`
@@ -128,7 +129,7 @@ func (m *Machine) GetAll() ([]*Machine, error) {
 }
 
 // rowExists ใช้ตรวจสอบว่าตารางที่กำลังจะ insert มีข้อมูลอยู่หรือไม่? https://snippets.aktagon.com/snippets/756-checking-if-a-row-exists-in-go-database-sql-and-sqlx-
-func rowExists(query string, args ...interface{}) bool {
+func rowExists(db *sqlx.DB, query string, args ...interface{}) bool {
 	var exists bool
 	query = fmt.Sprintf("SELECT exists (%s)", query)
 	err := db.QueryRow(query, args...).Scan(&exists)
@@ -139,10 +140,10 @@ func rowExists(query string, args ...interface{}) bool {
 	return exists
 }
 
-func (m *Machine) New() (*Machine, error) {
+func (m *Machine) New(db *sqlx.DB) (*Machine, error) {
 	// rowExists ตรวจสอบรหัสตู้ m.Code ว่าซ้ำอยู่หรือไม่?
 	log.Println("call model.Machine.New()")
-	if rowExists("SELECT * FROM machine WHERE code = ?", m.Code) {
+	if rowExists(db, "SELECT * FROM machine WHERE code = ?", m.Code) {
 		return nil, errors.New("มี Machine นี้อยู่แล้วใน Database กรุณาลบของเดิมทิ้งก่อนเพิ่มใหม่")
 	}
 	sql := `INSERT INTO machine(
@@ -175,7 +176,7 @@ func (m *Machine) New() (*Machine, error) {
 	if err != nil {
 		return nil, err
 	}
-	_, err = newMachine.InitMachineColumn()
+	_, err = newMachine.InitMachineColumn(db)
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +184,7 @@ func (m *Machine) New() (*Machine, error) {
 	return &newMachine, nil
 }
 
-func (m *Machine) Get() (*Machine, error) {
+func (m *Machine) Get(db *sqlx.DB) (*Machine, error) {
 	log.Println("call model.Machine.Get()")
 	sql := `SELECT * FROM machine WHERE id = ? AND deleted IS NULL`
 	err := db.Get(m, sql, m.Id)
@@ -193,7 +194,7 @@ func (m *Machine) Get() (*Machine, error) {
 	return m, nil
 }
 
-func (m *Machine) GetColumns() ([]*MachineColumn, error) {
+func (m *Machine) GetColumns(db *sqlx.DB) ([]*MachineColumn, error) {
 	log.Println("call model.Machine.Columns()")
 	var mcs []*MachineColumn
 	sql := `SELECT * FROM machine_column WHERE machine_id = ?`
@@ -213,7 +214,7 @@ func (m *Machine) Init(template *Machine) error {
 	return nil
 }
 
-func (m *Machine) GetTemplate() ([]*Machine, error) {
+func (m *Machine) GetTemplate(db *sqlx.DB) ([]*Machine, error) {
 	var templates []*Machine
 	sql := `SELECT * FROM machine
 	WHERE is_template = true`
@@ -224,7 +225,7 @@ func (m *Machine) GetTemplate() ([]*Machine, error) {
 	return templates, nil
 }
 
-func (m *Machine) InitMachineColumn() (count int, err error) {
+func (m *Machine) InitMachineColumn(db *sqlx.DB) (count int, err error) {
 	// Create only missing one.
 	sql1 := `INSERT INTO machine_column(machine_id, column_no) VALUES(?, ?)`
 	sql2 := `SELECT * FROM machine_column WHERE id =?`
@@ -232,7 +233,7 @@ func (m *Machine) InitMachineColumn() (count int, err error) {
 
 	for n := 1; n <= m.Selection; n++ {
 		fmt.Println("Loop times= ", n)
-		if rowExists("SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ?", m.Id, n) {
+		if rowExists(db, "SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ?", m.Id, n) {
 			fmt.Printf("Machine: %v Column: %v exist.\n", m.Id, n)
 			continue
 		}
@@ -256,7 +257,7 @@ func (m *Machine) InitMachineColumn() (count int, err error) {
 	return count, nil
 }
 
-func (m *Machine) GetMachineColumn(columnNo int) (*MachineColumn, error) {
+func (m *Machine) GetMachineColumn(db *sqlx.DB, columnNo int) (*MachineColumn, error) {
 	column := new(MachineColumn)
 	sql := `SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ? LIMIT 1`
 	err := db.Get(column, sql, m.Id, columnNo)
@@ -267,7 +268,7 @@ func (m *Machine) GetMachineColumn(columnNo int) (*MachineColumn, error) {
 }
 
 // NewColumn เพิ่มคอลัมน์ให้ครบตามจำนวน Selection ที่กำหนด ระวัง!! ถ้า Machine มี column ใดๆอยู่จะ Error ต้องลบ Column เดิมทิ้งก่อน
-func (m *Machine) NewColumn(selection int) error {
+func (m *Machine) NewColumn(db *sqlx.DB, selection int) error {
 	sql := `INSERT INTO machine_column(
 		machine_id,
 		column_no,
@@ -276,7 +277,7 @@ func (m *Machine) NewColumn(selection int) error {
 	`
 	for col := 1; col == selection; col++ {
 		// ตรวจสอบก่อนว่ามี ColumnNo ซ้ำอยู่หรือไม่?
-		if rowExists("SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ?", m.Id, col) {
+		if rowExists(db, "SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ?", m.Id, col) {
 			continue
 		}
 		// Todo: max_qty ควร Refactor โดยบันทึกตอน Fulfill เปลี่ยนสินค้าในคอลัมน์
@@ -290,10 +291,10 @@ func (m *Machine) NewColumn(selection int) error {
 	return nil
 }
 
-func (m *Machine) Update() (*Machine, error) {
+func (m *Machine) Update(db *sqlx.DB) (*Machine, error) {
 	// rowExists ตรวจสอบรหัสตู้ m.Code ว่าซ้ำอยู่หรือไม่?
 	log.Println("call model.Machine.New()")
-	if !rowExists("SELECT * FROM machine WHERE code = ?", m.Code) {
+	if !rowExists(db, "SELECT * FROM machine WHERE code = ?", m.Code) {
 		return nil, errors.New("ไม่มี Machine รหัสนี้ นี้อยู่ใน Database กรุณาเพิ่มใหม่")
 	}
 	sql := `UPDATE machine(
@@ -329,7 +330,7 @@ func (m *Machine) Update() (*Machine, error) {
 	return &newMachine, nil
 }
 
-func GetMachineIdFromCode(code string) (uint64, error) {
+func GetMachineIdFromCode(db *sqlx.DB, code string) (uint64, error) {
 	sql1 := `SELECT id FROM machine WHERE code = ?`
 	var id uint64
 	err := db.Get(&id, sql1, code)

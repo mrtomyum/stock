@@ -4,6 +4,7 @@ import (
 	sys "github.com/mrtomyum/sys/model"
 	"github.com/shopspring/decimal"
 	"log"
+	"github.com/jmoiron/sqlx"
 )
 
 // Stock คือ Stock Card นั่นเอง เก็บรายการสินค้าและ Loc ที่เดินรายการ ผ่าน Doc
@@ -50,7 +51,7 @@ type StockItem struct {
 	Value  decimal.Decimal
 }
 
-func (s *StockItem) GetAll() ([]*StockItem, error) {
+func (s *StockItem) GetAll(db *sqlx.DB) ([]*StockItem, error) {
 	log.Println("call model.Stock.All()")
 	sql := `SELECT * FROM stock`
 	var stocks []*StockItem

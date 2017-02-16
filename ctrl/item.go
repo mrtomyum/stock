@@ -15,7 +15,7 @@ func GetAllItem(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	i := m.Item{}
-	items, err := i.GetAll()
+	items, err := i.GetAll(db)
 	rs := Response{}
 	if err != nil {
 		rs.Status = ERROR
@@ -41,7 +41,7 @@ func PostNewItem(ctx *gin.Context) {
 		rs.Message = "Cannot Bind JSON requested."
 		ctx.JSON(http.StatusBadRequest, rs)
 	} else {
-		newItem, err := i.Insert()
+		newItem, err := i.Insert(db)
 		log.Println("i= ", i)
 		if err != nil {
 			rs.Status = ERROR
@@ -64,7 +64,7 @@ func GetItem(ctx *gin.Context) {
 	id := ctx.Param("id")
 	i.Id, _ = strconv.ParseUint(id, 10, 64)
 	rs := Response{}
-	iv, err := i.GetItemView()
+	iv, err := i.GetItemView(db)
 	log.Println("return from GetItemView()")
 	if err != nil {
 		log.Println(err)
@@ -87,7 +87,7 @@ func UpdateItem(ctx *gin.Context) {
 	if ctx.BindJSON(&i) != nil {
 		ctx.JSON(http.StatusBadRequest, i)
 	} else {
-		updatedItem, err := i.Update()
+		updatedItem, err := i.Update(db)
 		if err != nil {
 			rs.Status = ERROR
 			rs.Message = err.Error()

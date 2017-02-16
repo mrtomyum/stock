@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"github.com/jmoiron/sqlx"
 )
 
 type LocType int
@@ -69,7 +70,7 @@ func (this *Location) AddTree(nodes ...*Location) bool {
 	return this.Size() == size + len(nodes)
 }
 
-func (l *Location) All() ([]*Location, error) {
+func (l *Location) All(db *sqlx.DB) ([]*Location, error) {
 	log.Println("call method Location.All()")
 	locations := []*Location{}
 	sql := `SELECT * FROM location`
@@ -83,7 +84,7 @@ func (l *Location) All() ([]*Location, error) {
 }
 
 // Method Get จะดึง Location ของตัวมันเองและลูกๆ ที่มันเป็นแม่ *ยังไม่สามารถ Reqursive ลงไปหาหลานๆได้
-func (l *Location) Get() ([]*Location, error) {
+func (l *Location) Get(db *sqlx.DB) ([]*Location, error) {
 	// TODO: แก้ Select ให้สามารถ Recursive  Parent_id ได้
 	sql := `
 		SELECT * FROM location
@@ -99,7 +100,7 @@ func (l *Location) Get() ([]*Location, error) {
 	return locations, nil
 }
 
-func (l *Location) Insert() (*Location, error) {
+func (l *Location) Insert(db *sqlx.DB) (*Location, error) {
 	sql := `
 		INSERT INTO location (
 			code,

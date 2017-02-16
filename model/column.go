@@ -3,6 +3,7 @@ package model
 import (
 	"github.com/shopspring/decimal"
 	"log"
+	"github.com/jmoiron/sqlx"
 )
 
 // MachineColumn เก็บยอด Counter ล่าสุดของแต่ละ column ในแต่ละ Machine
@@ -37,7 +38,7 @@ const (
 	COL_OK
 )
 
-func (m *Machine) ColumnExist() (bool) {
+func (m *Machine) ColumnExist(db *sqlx.DB) (bool) {
 	sql := `SELECT * FROM machine_column WHERE machine_id = ?`
 	rows, err := db.Queryx(sql, m.Id)
 	if err != nil {
@@ -49,7 +50,7 @@ func (m *Machine) ColumnExist() (bool) {
 	return true
 }
 
-func (mc *MachineColumn) Update() error {
+func (mc *MachineColumn) Update(db *sqlx.DB) error {
 	log.Println("call model.MachineColumn.Update()")
 
 	sql := `

@@ -95,7 +95,7 @@ func GetLastCounterByMachineCode(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	machineCode := ctx.Param("code")
 	c := model.Counter{}
-	err := c.GetLastByMachineCode(machineCode)
+	err := c.GetLastByMachineCode(db, machineCode)
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()

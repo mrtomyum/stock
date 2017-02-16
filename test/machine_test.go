@@ -12,7 +12,7 @@ func TestNewColumn(t *testing.T) {
 		Selection: 30,
 		Sub:       columns,
 	}
-	err := m.NewColumn(m.Selection)
+	err := m.NewColumn(mockDB, m.Selection)
 	if err != nil {
 		t.Error(err)
 	}
