@@ -117,7 +117,7 @@ func (m *Machine) GetAll() ([]*Machine, error) {
 	log.Info(log.Fields{"func": "Machine.All()"})
 	machines := []*Machine{}
 	sql := `SELECT * FROM machine`
-	err := DB.Select(&machines, sql)
+	err := db.Select(&machines, sql)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -131,7 +131,7 @@ func (m *Machine) GetAll() ([]*Machine, error) {
 func rowExists(query string, args ...interface{}) bool {
 	var exists bool
 	query = fmt.Sprintf("SELECT exists (%s)", query)
-	err := DB.QueryRow(query, args...).Scan(&exists)
+	err := db.QueryRow(query, args...).Scan(&exists)
 	if err != nil && err != sql.ErrNoRows {
 		log.Fatalf("error checking if row exists '%s' %v", args, err)
 	}
@@ -155,7 +155,7 @@ func (m *Machine) New() (*Machine, error) {
 		selection,
 		place_id
 		) VALUES(?,?,?,?,?,?,?,?)`
-	res, err := DB.Exec(sql,
+	res, err := db.Exec(sql,
 		m.LocId,
 		m.Code,
 		m.Type,
@@ -171,7 +171,7 @@ func (m *Machine) New() (*Machine, error) {
 	var newMachine Machine
 	sql = `SELECT * FROM machine WHERE id = ?`
 	id, _ := res.LastInsertId()
-	err = DB.Get(&newMachine, sql, uint64(id))
+	err = db.Get(&newMachine, sql, uint64(id))
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +186,7 @@ func (m *Machine) New() (*Machine, error) {
 func (m *Machine) Get() (*Machine, error) {
 	log.Println("call model.Machine.Get()")
 	sql := `SELECT * FROM machine WHERE id = ? AND deleted IS NULL`
-	err := DB.Get(m, sql, m.Id)
+	err := db.Get(m, sql, m.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +197,7 @@ func (m *Machine) GetColumns() ([]*MachineColumn, error) {
 	log.Println("call model.Machine.Columns()")
 	var mcs []*MachineColumn
 	sql := `SELECT * FROM machine_column WHERE machine_id = ?`
-	err := DB.Select(&mcs, sql, m.Id)
+	err := db.Select(&mcs, sql, m.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -217,7 +217,7 @@ func (m *Machine) GetTemplate() ([]*Machine, error) {
 	var templates []*Machine
 	sql := `SELECT * FROM machine
 	WHERE is_template = true`
-	err := DB.Select(templates, sql)
+	err := db.Select(templates, sql)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +237,7 @@ func (m *Machine) InitMachineColumn() (count int, err error) {
 			continue
 		}
 		fmt.Printf("Machine: %v Column: %v Not Exist.\n", m.Id, n)
-		res, err := DB.Exec(sql1, m.Id, n)
+		res, err := db.Exec(sql1, m.Id, n)
 		if err != nil {
 			return 0, err
 		}
@@ -245,7 +245,7 @@ func (m *Machine) InitMachineColumn() (count int, err error) {
 		fmt.Println("LastInsertId:", id)
 		count++
 		col := new(MachineColumn)
-		err = DB.Get(col, sql2, id)
+		err = db.Get(col, sql2, id)
 		if err != nil {
 			return 0, err
 		}
@@ -259,7 +259,7 @@ func (m *Machine) InitMachineColumn() (count int, err error) {
 func (m *Machine) GetMachineColumn(columnNo int) (*MachineColumn, error) {
 	column := new(MachineColumn)
 	sql := `SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ? LIMIT 1`
-	err := DB.Get(column, sql, m.Id, columnNo)
+	err := db.Get(column, sql, m.Id, columnNo)
 	if err != nil {
 		return nil, errors.New("Wrong column number in this machine:" + err.Error())
 	}
@@ -280,7 +280,7 @@ func (m *Machine) NewColumn(selection int) error {
 			continue
 		}
 		// Todo: max_qty ควร Refactor โดยบันทึกตอน Fulfill เปลี่ยนสินค้าในคอลัมน์
-		res, err := DB.Exec(sql, m.Id, col, 30)
+		res, err := db.Exec(sql, m.Id, col, 30)
 		if err != nil {
 			return err
 		}
@@ -306,7 +306,7 @@ func (m *Machine) Update() (*Machine, error) {
 		selection,
 		place_id
 		) VALUES(?,?,?,?,?,?,?,?)`
-	res, err := DB.Exec(sql,
+	res, err := db.Exec(sql,
 		m.LocId,
 		m.Code,
 		m.Type,
@@ -321,7 +321,7 @@ func (m *Machine) Update() (*Machine, error) {
 	var newMachine Machine
 	sql = `SELECT * FROM machine WHERE id = ?`
 	id, _ := res.LastInsertId()
-	err = DB.Get(&newMachine, sql, uint64(id))
+	err = db.Get(&newMachine, sql, uint64(id))
 	if err != nil {
 		return nil, err
 	}
@@ -332,7 +332,7 @@ func (m *Machine) Update() (*Machine, error) {
 func GetMachineIdFromCode(code string) (uint64, error) {
 	sql1 := `SELECT id FROM machine WHERE code = ?`
 	var id uint64
-	err := DB.Get(&id, sql1, code)
+	err := db.Get(&id, sql1, code)
 	if err != nil {
 		return 0, err
 	}

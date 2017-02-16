@@ -39,7 +39,7 @@ const (
 
 func (m *Machine) ColumnExist() (bool) {
 	sql := `SELECT * FROM machine_column WHERE machine_id = ?`
-	rows, err := DB.Queryx(sql, m.Id)
+	rows, err := db.Queryx(sql, m.Id)
 	if err != nil {
 		return false
 	}
@@ -63,7 +63,7 @@ func (mc *MachineColumn) Update() error {
 		curr_counter = ?
 	WHERE column_no = ?
 	`
-	res, err := DB.Exec(sql,
+	res, err := db.Exec(sql,
 		mc.MachineID,
 		mc.ColumnNo,
 		mc.ItemId,

@@ -57,7 +57,7 @@ func (i *Item) GetAll() ([]*Item, error) {
 		category_id,
 		brand_id
 	FROM item`
-	rows, err := DB.Queryx(sql)
+	rows, err := db.Queryx(sql)
 	if err != nil {
 		log.Println("Error: db.Queryx in Item.All(): ", err)
 		return nil, err
@@ -99,7 +99,7 @@ func (i *Item) GetItemView() (*ItemView, error) {
 	WHERE item.id = ?
 	`
 	//err := db.QueryRowx(sql, i.ID).StructScan(&iv)
-	err := DB.Get(&iv, sql, i.Id)
+	err := db.Get(&iv, sql, i.Id)
 	if err != nil {
 		log.Println("Error: model.Item.GetItemView/Query Error", err)
 		return &iv, err
@@ -121,7 +121,7 @@ func (i *Item) Insert() (Item, error) {
 			?,?,?,?,?,?
 		)
 		`
-	rs, err := DB.Exec(sql,
+	rs, err := db.Exec(sql,
 		i.SKU,
 		i.Name,
 		i.NameEn,
@@ -138,7 +138,7 @@ func (i *Item) Insert() (Item, error) {
 	lastID, _ := rs.LastInsertId()
 
 	// Check result
-	err = DB.QueryRowx("SELECT * FROM item WHERE id =?", lastID).
+	err = db.QueryRowx("SELECT * FROM item WHERE id =?", lastID).
 		StructScan(&item)
 	if err != nil {
 		return item, err
@@ -160,7 +160,7 @@ func (i *Item) Update() (*Item, error) {
 			category_id = ?
 		WHERE id = ?
 	`
-	_, err := DB.Exec(sql,
+	_, err := db.Exec(sql,
 		i.SKU,
 		i.Name,
 		i.NameEn,
@@ -177,7 +177,7 @@ func (i *Item) Update() (*Item, error) {
 	// Get updated record back from DB to confirm
 	sql = `SELECT * FROM item WHERE id = ?`
 	var updatedItem Item
-	err = DB.Get(&updatedItem, sql, i.Id)
+	err = db.Get(&updatedItem, sql, i.Id)
 	if err != nil {
 		log.Println("Error after db.Get()")
 		return nil, err

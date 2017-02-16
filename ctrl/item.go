@@ -1,7 +1,6 @@
 package ctrl
 
 import (
-	"github.com/mrtomyum/sys/api"
 	m "github.com/mrtomyum/stock/model"
 	"log"
 	"net/http"
@@ -12,18 +11,18 @@ import (
 func GetAllItem(ctx *gin.Context) {
 	log.Println("call GET AllItem")
 	ctx.Header("Server", "NAVA Stock")
-	ctx.Header("Host", "api.nava.work:8001")
+	ctx.Header("Host", "nava.work:8001")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	i := m.Item{}
 	items, err := i.GetAll()
-	rs := api.Response{}
+	rs := Response{}
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		ctx.JSON(http.StatusBadRequest, rs)
 	} else {
-		rs.Status = api.SUCCESS
+		rs.Status = SUCCESS
 		rs.Data = items
 		ctx.JSON(http.StatusFound, rs)
 	}
@@ -35,21 +34,21 @@ func PostNewItem(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	i := new(m.Item)
-	rs := new(api.Response)
+	rs := new(Response)
 	if ctx.BindJSON(&i) != nil {
 		//log.Println("NewItem: Error decode.Decode(&i) >>", err)
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = "Cannot Bind JSON requested."
 		ctx.JSON(http.StatusBadRequest, rs)
 	} else {
 		newItem, err := i.Insert()
 		log.Println("i= ", i)
 		if err != nil {
-			rs.Status = api.ERROR
+			rs.Status = ERROR
 			rs.Message = "CANNOT_UPDATE >>" + err.Error()
 			ctx.JSON(http.StatusConflict, rs)
 		} else {
-			rs.Status = api.SUCCESS
+			rs.Status = SUCCESS
 			rs.Data = newItem
 			ctx.JSON(http.StatusOK, rs)
 		}
@@ -64,15 +63,15 @@ func GetItem(ctx *gin.Context) {
 	var i m.Item
 	id := ctx.Param("id")
 	i.Id, _ = strconv.ParseUint(id, 10, 64)
-	rs := api.Response{}
+	rs := Response{}
 	iv, err := i.GetItemView()
 	log.Println("return from GetItemView()")
 	if err != nil {
 		log.Println(err)
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 	} else {
-		rs.Status = api.SUCCESS
+		rs.Status = SUCCESS
 		rs.Data = iv
 	}
 	ctx.JSON(200, rs)
@@ -84,16 +83,16 @@ func UpdateItem(ctx *gin.Context) {
 	ctx.Header("Server", "NAVA Stock")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	var i m.Item
-	rs := api.Response{}
+	rs := Response{}
 	if ctx.BindJSON(&i) != nil {
 		ctx.JSON(http.StatusBadRequest, i)
 	} else {
 		updatedItem, err := i.Update()
 		if err != nil {
-			rs.Status = api.ERROR
+			rs.Status = ERROR
 			rs.Message = err.Error()
 		} else {
-			rs.Status = api.SUCCESS
+			rs.Status = SUCCESS
 			rs.Data = updatedItem
 		}
 		ctx.JSON(http.StatusOK, rs)

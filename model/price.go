@@ -66,7 +66,7 @@ func (bp *BatchPrice) New() (*BatchPrice, error) {
 		)
 		VALUES(?,?,?,?)
 		`
-	res, err := DB.Exec(sql,
+	res, err := db.Exec(sql,
 		bp.Recorded,
 		bp.MachineID,
 		bp.ColumnNo,
@@ -78,7 +78,7 @@ func (bp *BatchPrice) New() (*BatchPrice, error) {
 	}
 	id, _ := res.LastInsertId()
 	newBatchPrice := BatchPrice{}
-	err = DB.Get(
+	err = db.Get(
 		&newBatchPrice,
 		`SELECT * FROM batch_price WHERE id = ?`,
 		id)
@@ -93,7 +93,7 @@ func (s *BatchPrice) GetAll() ([]*BatchPrice, error) {
 	log.Println("call model.BatchPrice.All()")
 	prices := []*BatchPrice{}
 	sql := `SELECT * FROM batch_price`
-	err := DB.Select(&prices, sql)
+	err := db.Select(&prices, sql)
 	if err != nil {
 		log.Println(err)
 		return nil, err

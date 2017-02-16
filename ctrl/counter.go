@@ -5,7 +5,6 @@ import (
 	//log "github.com/Sirupsen/logrus"
 	"log"
 	"github.com/mrtomyum/stock/model"
-	"github.com/mrtomyum/sys/api"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
@@ -20,21 +19,21 @@ func PostNewCounter(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	c := &model.Counter{}
-	rs := api.Response{}
+	rs := Response{}
 	if err := ctx.BindJSON(&c); err != nil {
 		log.Println("ctx.BindJSON decode Error: ", err)
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		ctx.JSON(http.StatusBadRequest, rs)
 		return
 	}
-	newCounter, err := c.Insert()
+	newCounter, err := c.Insert(db)
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = "CANNOT_INSERT New Counter >>" + err.Error()
 		ctx.JSON(http.StatusConflict, rs)
 	}
-	rs.Status = api.SUCCESS
+	rs.Status = SUCCESS
 	rs.Data = newCounter
 	ctx.JSON(http.StatusOK, rs)
 	return
@@ -47,14 +46,14 @@ func GetAllCounter(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	c := model.Counter{}
-	rs := api.Response{}
-	counters, err := c.GetAll()
+	rs := Response{}
+	counters, err := c.GetAll(db)
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		ctx.Status(http.StatusNoContent)
 	} else {
-		rs.Status = api.SUCCESS
+		rs.Status = SUCCESS
 		rs.Data = counters
 		ctx.JSON(http.StatusOK, rs)
 	}
@@ -74,14 +73,14 @@ func GetCounter(ctx *gin.Context) {
 	id := ctx.Param("id")
 	c := model.Counter{}
 	c.Id, _ = strconv.ParseUint(id, 10, 64)
-	counters, err := c.Get()
+	counters, err := c.Get(db)
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		ctx.Status(http.StatusNoContent)
 		return
 	}
-	rs.Status = api.SUCCESS
+	rs.Status = SUCCESS
 	rs.Data = counters
 	ctx.JSON(http.StatusOK, rs)
 	return
@@ -98,12 +97,12 @@ func GetLastCounterByMachineCode(ctx *gin.Context) {
 	c := model.Counter{}
 	err := c.GetLastByMachineCode(machineCode)
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		ctx.JSON(http.StatusNotFound, c)
 		return
 	}
-	rs.Status = api.SUCCESS
+	rs.Status = SUCCESS
 	rs.Data = c
 	ctx.JSON(http.StatusOK, rs)
 	return
@@ -131,14 +130,14 @@ func DeleteCounter(ctx *gin.Context) {
 //	if err != nil {
 //		log.Println("Decode Error: ", err)
 //	}
-//	rs := api.Response{}
+//	rs := Response{}
 //	newCounters, err := model.NewArrayCounter(e.DB, cs)
 //	if err != nil {
-//		rs.Status = api.ERROR
+//		rs.Status = ERROR
 //		rs.Message = err.Error()
 //		w.WriteHeader(http.StatusConflict)
 //	} else {
-//		rs.Status = api.SUCCESS
+//		rs.Status = SUCCESS
 //		rs.Data = newCounters
 //		w.WriteHeader(http.StatusOK)
 //	}

@@ -54,7 +54,7 @@ func (s *StockItem) GetAll() ([]*StockItem, error) {
 	log.Println("call model.Stock.All()")
 	sql := `SELECT * FROM stock`
 	var stocks []*StockItem
-	err := DB.Select(&stocks, sql)
+	err := db.Select(&stocks, sql)
 	if err != nil {
 		log.Println("Error: model.Stock.All() db.Select...", err)
 		return nil, err

@@ -3,7 +3,6 @@ package ctrl
 import (
 	"net/http"
 	m "github.com/mrtomyum/stock/model"
-	"github.com/mrtomyum/sys/api"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,28 +10,28 @@ func GetAllStock(ctx *gin.Context) {
 	ctx.Header("Server", "nava Stock")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	s := m.StockItem{}
-	rs := api.Response{}
+	rs := Response{}
 	items, err := s.GetAll()
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		ctx.JSON(http.StatusNoContent, rs)
 	}
-	rs.Status = api.SUCCESS
+	rs.Status = SUCCESS
 	rs.Data = items
 	ctx.JSON(http.StatusOK, rs)
 }
 
 func NewDoc(ctx *gin.Context) {
 	var d m.Doc
-	rs := api.Response{}
+	rs := Response{}
 	if ctx.Bind(&d) != nil {
 		rs.Message = "Cannot bind JSON requested."
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		ctx.JSON(http.StatusBadRequest, rs)
 		return
 	}
-	rs.Status = api.SUCCESS
+	rs.Status = SUCCESS
 	ctx.JSON(http.StatusOK, rs)
 }
 

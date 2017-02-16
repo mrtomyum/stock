@@ -11,7 +11,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-var DB *sqlx.DB
+var db *sqlx.DB
 
 type Config struct {
 	DBHost string `json:"db_host"`
@@ -33,25 +33,19 @@ func GetConfig(fileName string) string {
 	return dsn
 }
 
-func init() {
-	// Read configuration file from "cofig.json"
-	//dsn := GetConfig("./model/config.json") // เปิดใช้งานจริงเมื่อ Docker Container run --link ตรงเข้า mariadb เท่านั้น
-	dsn := GetConfig("./model/config_debug.json")
-	DB = sqlx.MustConnect("mysql", dsn)
-	log.Println("Connected db: ", DB)
-}
+
 
 // ใช้สำหรับล้างตารางทดสอบ Mock การเขียนลง DB Table ใดๆ พร้อม Reset Auto Increment index ให้ด้วย
 func ResetTable(tableName string) error {
 	sql1 := `TRUNCATE  ` + tableName
-	res, err := DB.Exec(sql1)
+	res, err := db.Exec(sql1)
 	if err != nil {
 		return err
 	}
 	rows, _ := res.RowsAffected()
 	// Reset auto increment
 	sql2 := `ALTER TABLE ` + tableName + ` AUTO_INCREMENT = 1`
-	_, err = DB.Exec(sql2)
+	_, err = db.Exec(sql2)
 	if err != nil {
 		return err
 	}

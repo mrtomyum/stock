@@ -73,7 +73,7 @@ func (l *Location) All() ([]*Location, error) {
 	log.Println("call method Location.All()")
 	locations := []*Location{}
 	sql := `SELECT * FROM location`
-	err := DB.Select(&locations, sql)
+	err := db.Select(&locations, sql)
 	if err != nil {
 		log.Fatal("Error in model.Select..", err)
 		return nil, err
@@ -91,7 +91,7 @@ func (l *Location) Get() ([]*Location, error) {
 		OR parent_id = ?
 		`
 	locations := []*Location{}
-	err := DB.Select(&locations, sql, l.Id, l.Id)
+	err := db.Select(&locations, sql, l.Id, l.Id)
 	if err != nil {
 		log.Fatal("Error in model.Select..", err)
 		return nil, err
@@ -109,7 +109,7 @@ func (l *Location) Insert() (*Location, error) {
 		VALUES (?, ?, ?, ?)
 	`
 	log.Println("Test Location receiver:", l.Code, l.Type, l.ParentId)
-	res, err := DB.Exec(sql,
+	res, err := db.Exec(sql,
 		l.Code,
 		l.Type,
 		l.ParentId,
@@ -120,7 +120,7 @@ func (l *Location) Insert() (*Location, error) {
 	}
 	id, _ := res.LastInsertId()
 	newLoc := Location{}
-	err = DB.Get(&newLoc, "SELECT * FROM location WHERE id =?", id)
+	err = db.Get(&newLoc, "SELECT * FROM location WHERE id =?", id)
 	if err != nil {
 		log.Println("Error db.GET in model.Location.Show", err)
 	}

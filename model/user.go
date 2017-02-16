@@ -28,12 +28,12 @@ const (
 
 func (u *User) New() error {
 	sql := `INSERT INTO user(name, title) VALUES(?,?)`
-	_, err := DB.Exec(sql, u.Name, u.Title)
+	_, err := db.Exec(sql, u.Name, u.Title)
 	if err != nil {
 		return err
 	}
 	sql2 := `SELECT * FROM user WHERE name = ? LIMIT 1`
-	err = DB.Get(u, sql2, u.Name)
+	err = db.Get(u, sql2, u.Name)
 	if err != nil {
 		log.Println("error DB.Get:", err)
 	}

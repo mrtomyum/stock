@@ -2,7 +2,6 @@ package ctrl
 
 import (
 	"net/http"
-	"github.com/mrtomyum/sys/api"
 	"github.com/mrtomyum/stock/model"
 	//log "github.com/Sirupsen/logrus"
 	"log"
@@ -18,9 +17,9 @@ func PostNewMachine(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 
 	var m model.Machine
-	rs := api.Response{}
+	rs := Response{}
 	if err := c.BindJSON(&m); err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		c.JSON(http.StatusBadRequest, rs)
 		return
@@ -28,7 +27,7 @@ func PostNewMachine(c *gin.Context) {
 	//log.Info(m)
 	newMachine, err := m.New() // TODO: ให้ดัก New() ที่ m เป็นค่าว่างด้วย ต้อง Error
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		c.JSON(http.StatusConflict, rs)
 		return
@@ -38,7 +37,7 @@ func PostNewMachine(c *gin.Context) {
 	case model.CAN, model.SEE_THROUGH:
 		m.NewColumn(m.Selection)
 	}
-	rs.Status = api.SUCCESS
+	rs.Status = SUCCESS
 	rs.Data = newMachine
 	c.JSON(http.StatusOK, rs)
 }
@@ -49,14 +48,14 @@ func GetAllMachines(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	m := model.Machine{}
-	rs := api.Response{}
+	rs := Response{}
 	machines, err := m.GetAll()
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		ctx.Status(http.StatusNoContent)
 	} else {
-		rs.Status = api.SUCCESS
+		rs.Status = SUCCESS
 		rs.Data = machines
 		ctx.JSON(http.StatusOK, rs)
 	}
@@ -72,14 +71,14 @@ func GetThisMachine(ctx *gin.Context) {
 	id := ctx.Param("id")
 	m := model.Machine{}
 	m.Id, _ = strconv.ParseUint(id, 10, 64)
-	rs := api.Response{}
+	rs := Response{}
 	machine, err := m.Get()
 	// todo: แนบ MachineColumn มาด้วย
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 	} else {
-		rs.Status = api.SUCCESS
+		rs.Status = SUCCESS
 		rs.Data = machine
 	}
 	ctx.JSON(http.StatusOK, rs)
@@ -93,15 +92,15 @@ func GetMachineColumns(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 
 	var m model.Machine
-	rs := api.Response{}
+	rs := Response{}
 
 	machineColumns, err := m.GetColumns()
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		c.Status(http.StatusNoContent)
 	}
-	rs.Status = api.SUCCESS
+	rs.Status = SUCCESS
 	rs.Data = machineColumns
 	c.JSON(http.StatusOK, rs)
 	return
@@ -109,14 +108,14 @@ func GetMachineColumns(c *gin.Context) {
 
 func GetMachineTemplate(c *gin.Context) {
 	var m *model.Machine
-	rs := api.Response{}
+	rs := Response{}
 	templates, err := m.GetTemplate()
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 	}
-	rs.Status = api.SUCCESS
-	rs.Self = "api.nava.work/v1/machine/template"
+	rs.Status = SUCCESS
+	rs.Self = "nava.work/v1/machine/template"
 	rs.Data = templates
 	c.JSON(http.StatusOK, rs)
 }
@@ -127,9 +126,9 @@ func PutMachineColumn(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 
 	var col model.MachineColumn
-	rs := api.Response{}
+	rs := Response{}
 	if err := c.BindJSON(&col); err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		c.JSON(http.StatusBadRequest, rs)
 	} else {
@@ -137,15 +136,15 @@ func PutMachineColumn(c *gin.Context) {
 		//log.Info(mc)
 		switch col.ColumnNo {
 		case 0:
-			rs.Status = api.ERROR
+			rs.Status = ERROR
 			rs.Message = "No data in ColumnNo."
 		default:
 			err := col.Update()
 			if err != nil {
-				rs.Status = api.ERROR
+				rs.Status = ERROR
 				rs.Message = err.Error()
 			} else {
-				rs.Status = api.SUCCESS
+				rs.Status = SUCCESS
 				rs.Data = col
 			}
 			c.JSON(http.StatusOK, rs)
@@ -154,6 +153,7 @@ func PutMachineColumn(c *gin.Context) {
 	return
 }
 
+// สั่งเพิ่ม Column ที่ขาดให้กับ Machine จนครบตาม Machine.Selection
 func PostMachineColumnInit(ctx *gin.Context) {
 	ctx.Header("Server", "NAVA Stock")
 	ctx.Header("Content-Type", "application/json")
@@ -161,16 +161,16 @@ func PostMachineColumnInit(ctx *gin.Context) {
 	id := ctx.Param("id")
 	m := new(model.Machine)
 	m.Id, _ = strconv.ParseUint(id, 10, 64)
-	rs := api.Response{}
+	rs := Response{}
 	m, err := m.Get()
 	count, err := m.InitMachineColumn()
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		ctx.JSON(http.StatusConflict, rs)
 		return
 	}
-	rs.Status = api.SUCCESS
+	rs.Status = SUCCESS
 	sCount := strconv.Itoa(count)
 	rs.Message = "New Column Count = " + sCount
 	rs.Data = m

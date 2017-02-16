@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"log"
 	"strconv"
-	"github.com/mrtomyum/sys/api"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,17 +20,17 @@ func GetAllLocationTree(ctx *gin.Context) {
 	log.Println("call ShowLocationTree()")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	loc := new(m.Location)
-	rs := new(api.Response)
+	rs := new(Response)
 	locations, err := loc.All()
 	if err != nil {
 		log.Fatal("Error LocationsTreeAll()", err)
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = "Location not found or Error."
 		ctx.JSON(http.StatusBadRequest, rs)
 		return
 	}
 	tree := CreateLocationTree(locations)
-	rs.Status = api.SUCCESS
+	rs.Status = SUCCESS
 	rs.Data = tree.Child
 	ctx.JSON(http.StatusOK, rs)
 }
@@ -44,15 +43,15 @@ func GetLocationTreeByID(ctx *gin.Context) {
 	l.Id, _ = strconv.ParseUint(id, 10, 64)
 
 	locations, err := l.Get()
-	rs := new(api.Response)
+	rs := new(Response)
 	if err != nil {
 		log.Fatal("Error LocationsTreeByID()", err)
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = "Location not found or Error."
 		ctx.JSON(http.StatusNoContent, rs)
 	}
 	tree := CreateLocationTree(locations)
-	rs.Status = api.SUCCESS
+	rs.Status = SUCCESS
 	rs.Data = tree.Child
 	ctx.JSON(http.StatusOK, rs)
 }
@@ -68,14 +67,14 @@ func PostNewLocation(ctx *gin.Context) {
 	log.Println("Success decode JSON -> :", l, " Result location decoded -> ", l.Code)
 
 	newLoc, err := l.Insert()
-	rs := new(api.Response)
+	rs := new(Response)
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		ctx.JSON(http.StatusBadRequest, rs)
 		return
 	}
-	rs.Status = api.SUCCESS
+	rs.Status = SUCCESS
 	rs.Data = newLoc
 	ctx.JSON(http.StatusOK, rs)
 }

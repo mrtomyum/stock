@@ -3,7 +3,6 @@ package ctrl
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/mrtomyum/sys/api"
 	"github.com/mrtomyum/stock/model"
 	"log"
 	"net/http"
@@ -24,14 +23,14 @@ func NewBatchPrice(w http.ResponseWriter, r *http.Request) {
 	d := json.NewDecoder(r.Body)
 	err := d.Decode(&bp)
 
-	rs := api.Response{}
+	rs := Response{}
 	newPrice, err := bp.New()
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		w.WriteHeader(http.StatusNoContent)
 	} else {
-		rs.Status = api.SUCCESS
+		rs.Status = SUCCESS
 		rs.Data = newPrice
 		w.WriteHeader(http.StatusOK)
 	}
@@ -45,15 +44,15 @@ func AllBatchPrice(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	rs := api.Response{}
+	rs := Response{}
 	p := model.BatchPrice{}
 	prices, err := p.GetAll()
 	if err != nil {
-		rs.Status = api.ERROR
+		rs.Status = ERROR
 		rs.Message = err.Error()
 		w.WriteHeader(http.StatusNoContent)
 	} else {
-		rs.Status = api.SUCCESS
+		rs.Status = SUCCESS
 		rs.Data = prices
 		w.WriteHeader(http.StatusOK)
 	}
