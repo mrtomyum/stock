@@ -168,6 +168,7 @@ func PostMachineColumnInit(ctx *gin.Context) {
 		rs.Status = api.ERROR
 		rs.Message = err.Error()
 		ctx.JSON(http.StatusConflict, rs)
+		return
 	}
 	rs.Status = api.SUCCESS
 	sCount := strconv.Itoa(count)

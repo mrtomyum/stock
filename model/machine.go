@@ -163,6 +163,7 @@ func (m *Machine) New() (*Machine, error) {
 		m.ProfileId,
 		m.SerialNumber,
 		m.Selection,
+		m.PlaceId,
 	)
 	if err != nil {
 		return nil, err
@@ -171,6 +172,10 @@ func (m *Machine) New() (*Machine, error) {
 	sql = `SELECT * FROM machine WHERE id = ?`
 	id, _ := res.LastInsertId()
 	err = DB.Get(&newMachine, sql, uint64(id))
+	if err != nil {
+		return nil, err
+	}
+	_, err = newMachine.InitMachineColumn()
 	if err != nil {
 		return nil, err
 	}
@@ -224,27 +229,28 @@ func (m *Machine) InitMachineColumn() (count int, err error) {
 	sql1 := `INSERT INTO machine_column(machine_id, column_no) VALUES(?, ?)`
 	sql2 := `SELECT * FROM machine_column WHERE id =?`
 	fmt.Println("m.Selection =", m.Selection)
-	n := 1
-	for n > 25 {
-		fmt.Println("For...")
+
+	for n := 1; n <= m.Selection; n++ {
+		fmt.Println("Loop times= ", n)
 		if rowExists("SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ?", m.Id, n) {
-			fmt.Printf("Machine: %v Column: %v exist.", m.Id, n)
+			fmt.Printf("Machine: %v Column: %v exist.\n", m.Id, n)
 			continue
 		}
-		fmt.Printf("Machine: %v Column: %v Not Exist.", m.Id, n)
+		fmt.Printf("Machine: %v Column: %v Not Exist.\n", m.Id, n)
 		res, err := DB.Exec(sql1, m.Id, n)
 		if err != nil {
 			return 0, err
 		}
 		id, _ := res.LastInsertId()
+		fmt.Println("LastInsertId:", id)
 		count++
 		col := new(MachineColumn)
-		err = DB.Get(&col, sql2, id)
+		err = DB.Get(col, sql2, id)
 		if err != nil {
 			return 0, err
 		}
 		m.Sub = append(m.Sub, col)
-		n++
+		fmt.Println("count=", count)
 	}
 	fmt.Println("New MachineColumn initiated = ", count)
 	return count, nil
