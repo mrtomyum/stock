@@ -1,0 +1,8 @@
+{
+  "_comment": "Debug DB config ที่ Server ยังเปิด Port ให้ Debug // ระบบจริงจะต้องลบ root user และปิด port",
+  "db_host": "tcp(nava.work:3306)",
+  "db_name": "stock",
+  "db_user": "root",
+  "db_pass": "mypass",
+  "port": "8001"
+}

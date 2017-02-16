@@ -1,0 +1,8 @@
+{
+  "_comment": "Real DB Actual deploy use db_host: 172.17.0.3:3306",
+  "db_host": "tcp(172.17.0.3:3306)",
+  "db_name": "stock",
+  "db_user": "root",
+  "db_pass": "mypass",
+  "port": "8001"
+}

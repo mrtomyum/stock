@@ -21,7 +21,7 @@ type Config struct {
 	Port   string `json:"port"`
 }
 
-func getConfig(fileName string) string {
+func GetConfig(fileName string) string {
 	file, _ := os.Open(fileName)
 	decoder := json.NewDecoder(file)
 	config := Config{}
@@ -35,7 +35,8 @@ func getConfig(fileName string) string {
 
 func init() {
 	// Read configuration file from "cofig.json"
-	dsn := getConfig("../config.json")
+	//dsn := GetConfig("./model/config.json") // เปิดใช้งานจริงเมื่อ Docker Container run --link ตรงเข้า mariadb เท่านั้น
+	dsn := GetConfig("./model/config_debug.json")
 	DB = sqlx.MustConnect("mysql", dsn)
 	log.Println("Connected db: ", DB)
 }

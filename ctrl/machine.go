@@ -153,3 +153,26 @@ func PutMachineColumn(c *gin.Context) {
 	}
 	return
 }
+
+func PostMachineColumnInit(ctx *gin.Context) {
+	ctx.Header("Server", "NAVA Stock")
+	ctx.Header("Content-Type", "application/json")
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	id := ctx.Param("id")
+	m := new(model.Machine)
+	m.Id, _ = strconv.ParseUint(id, 10, 64)
+	rs := api.Response{}
+	m, err := m.Get()
+	count, err := m.InitMachineColumn()
+	if err != nil {
+		rs.Status = api.ERROR
+		rs.Message = err.Error()
+		ctx.JSON(http.StatusConflict, rs)
+	}
+	rs.Status = api.SUCCESS
+	sCount := strconv.Itoa(count)
+	rs.Message = "New Column Count = " + sCount
+	rs.Data = m
+	ctx.JSON(http.StatusOK, rs)
+}
+

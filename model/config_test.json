@@ -1,5 +1,5 @@
 {
-  "_comment": "Actual deploy use db_host: 172.17.0.3:3306",
+  "_comment": "Mock DB for test on Nava Host",
   "db_host": "tcp(nava.work:3306)",
   "db_name": "test_stock",
   "db_user": "root",

@@ -224,13 +224,11 @@ func (sub *SubCounter) Insert() error {
 
 func (c *Counter) GetAllByMachineCode(code string) (counters []*Counter, err error) {
 	// หา machine_id จาก machine code ที่ได้รับ
-	sql1 := `SELECT id FROM machine WHERE code = ?`
-	var id uint64
-	err = DB.Get(&id, sql1, code)
+	// todo: ควรเปลี่ยน args จาก code string -> m Machine
+	id, err := GetMachineIdFromCode(code)
 	if err != nil {
 		return nil, err
 	}
-
 	sql2 := `SELECT * FROM counter WHERE machine_id = ? ORDER BY created DESC`
 	err = DB.Select(&counters, sql2, id)
 	if err != nil {
@@ -249,9 +247,8 @@ func (c *Counter) GetAllByMachineCode(code string) (counters []*Counter, err err
 
 func (c *Counter) GetLastByMachineCode(code string) error {
 	// จากตู้ไหน? หา machine_id จาก machine code ที่ได้รับ
-	sql1 := `SELECT id FROM machine WHERE code = ?`
-	var id uint64
-	err := DB.Get(&id, sql1, code)
+	// todo: ควรเปลี่ยน args จาก code string -> m Machine
+	id, err := GetMachineIdFromCode(code)
 	if err != nil {
 		return err
 	}
@@ -270,9 +267,15 @@ func (c *Counter) GetLastByMachineCode(code string) error {
 		return err
 	}
 	// Todo: แปะ MaxCounter ให้ SubCounter โดยดึงจาก MachineColumn นั้นๆ
-	sql4 := `SELECT max_stock FROM machine_column WHERE machine_id = ?`
+	sql4 := `SELECT max_stock FROM machine_column WHERE machine_id =? AND column_no =?`
+	col := MachineColumn{}
 	for _, sub := range c.Sub {
 		//todo: Refactor เพิ่มฟิลด์ max_stock
+		err := DB.Get(&col, sql4, c.MachineId, sub.ColumnNo)
+		if err != nil {
+			fmt.Println("Error DB.Get")
+		}
+		sub.MaxCounter = col.MaxStock
 	}
 	return nil
 }

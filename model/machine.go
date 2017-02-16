@@ -218,10 +218,36 @@ func (m *Machine) GetTemplate() ([]*Machine, error) {
 	}
 	return templates, nil
 }
-func (m *Machine) InitMachineColumn() {
-	// Select all MachineColumn from this Machine
-	// Choose Delete old data or Create only missing one?
-	//
+
+func (m *Machine) InitMachineColumn() (count int, err error) {
+	// Create only missing one.
+	sql1 := `INSERT INTO machine_column(machine_id, column_no) VALUES(?, ?)`
+	sql2 := `SELECT * FROM machine_column WHERE id =?`
+	fmt.Println("m.Selection =", m.Selection)
+	n := 1
+	for n > 25 {
+		fmt.Println("For...")
+		if rowExists("SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ?", m.Id, n) {
+			fmt.Printf("Machine: %v Column: %v exist.", m.Id, n)
+			continue
+		}
+		fmt.Printf("Machine: %v Column: %v Not Exist.", m.Id, n)
+		res, err := DB.Exec(sql1, m.Id, n)
+		if err != nil {
+			return 0, err
+		}
+		id, _ := res.LastInsertId()
+		count++
+		col := new(MachineColumn)
+		err = DB.Get(&col, sql2, id)
+		if err != nil {
+			return 0, err
+		}
+		m.Sub = append(m.Sub, col)
+		n++
+	}
+	fmt.Println("New MachineColumn initiated = ", count)
+	return count, nil
 }
 
 func (m *Machine) GetMachineColumn(columnNo int) (*MachineColumn, error) {
@@ -258,6 +284,54 @@ func (m *Machine) NewColumn(selection int) error {
 	return nil
 }
 
+func (m *Machine) Update() (*Machine, error) {
+	// rowExists ตรวจสอบรหัสตู้ m.Code ว่าซ้ำอยู่หรือไม่?
+	log.Println("call model.Machine.New()")
+	if !rowExists("SELECT * FROM machine WHERE code = ?", m.Code) {
+		return nil, errors.New("ไม่มี Machine รหัสนี้ นี้อยู่ใน Database กรุณาเพิ่มใหม่")
+	}
+	sql := `UPDATE machine(
+		loc_id,
+		code,
+		type,
+		brand,
+		profile_id,
+		serial_number,
+		selection,
+		place_id
+		) VALUES(?,?,?,?,?,?,?,?)`
+	res, err := DB.Exec(sql,
+		m.LocId,
+		m.Code,
+		m.Type,
+		m.Brand,
+		m.ProfileId,
+		m.SerialNumber,
+		m.Selection,
+	)
+	if err != nil {
+		return nil, err
+	}
+	var newMachine Machine
+	sql = `SELECT * FROM machine WHERE id = ?`
+	id, _ := res.LastInsertId()
+	err = DB.Get(&newMachine, sql, uint64(id))
+	if err != nil {
+		return nil, err
+	}
+	log.Println("New Machine:", newMachine)
+	return &newMachine, nil
+}
+
+func GetMachineIdFromCode(code string) (uint64, error) {
+	sql1 := `SELECT id FROM machine WHERE code = ?`
+	var id uint64
+	err := DB.Get(&id, sql1, code)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
 
 //func (m *Machine) UpdateColumnCounter(columnNo int, counter int) error {
 //	mc, err := m.GetMachineColumn(columnNo)
