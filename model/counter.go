@@ -18,11 +18,12 @@ type Counter struct {
 
 type SubCounter struct {
 	Base
-	CounterId uint64          `json:"-" db:"counter_id"`    // FK
-	ColumnNo  int             `json:"column_no" db:"column_no"`
-	Counter   int             `json:"counter" db:"counter"`
-	ItemId    uint64          `json:"item_id" db:"item_id"` // Record as history data.
-	Price     decimal.Decimal `json:"price"`                // from Last updated Price of this Machine.Column
+	CounterId  uint64          `json:"-" db:"counter_id"`    // FK
+	ColumnNo   int             `json:"column_no" db:"column_no"`
+	Counter    int             `json:"counter" db:"counter"`
+	ItemId     uint64          `json:"item_id" db:"item_id"` // Record as history data.
+	Price      decimal.Decimal `json:"price" db:"price"`     // from Last updated Price of this Machine.Column
+	MaxCounter int `json:"max_counter"`                      // ทดยอดสูงสุดที่จะสต๊อคสินค้าขายได้ในแต่ละ Column
 }
 
 //-------------------------------------------------
@@ -247,26 +248,31 @@ func (c *Counter) GetAllByMachineCode(code string) (counters []*Counter, err err
 }
 
 func (c *Counter) GetLastByMachineCode(code string) error {
-	// หา machine_id จาก machine code ที่ได้รับ
+	// จากตู้ไหน? หา machine_id จาก machine code ที่ได้รับ
 	sql1 := `SELECT id FROM machine WHERE code = ?`
 	var id uint64
 	err := DB.Get(&id, sql1, code)
 	if err != nil {
 		return err
 	}
-
+	// คัดเคาท์เตอร์ที่บันทึกตามเวลาล่าสุดของตู้นี้
 	sql2 := `SELECT * FROM counter WHERE machine_id = ? ORDER BY created DESC LIMIT 1 `
 	err = DB.Get(c, sql2, id)
 	if err != nil {
 		log.Println("Error when select last counter: ", err)
 		return err
 	}
-
+	// ดึงเอา Sub Counter จากแต่ละคอลัมน์ขึ้นมา
 	sql3 := `SELECT * FROM counter_sub WHERE counter_id = ?`
 	err = DB.Select(&c.Sub, sql3, id)
 	if err != nil {
 		log.Println("Error when select counter_sub: ", err)
 		return err
+	}
+	// Todo: แปะ MaxCounter ให้ SubCounter โดยดึงจาก MachineColumn นั้นๆ
+	sql4 := `SELECT max_stock FROM machine_column WHERE machine_id = ?`
+	for _, sub := range c.Sub {
+		//todo: Refactor เพิ่มฟิลด์ max_stock
 	}
 	return nil
 }

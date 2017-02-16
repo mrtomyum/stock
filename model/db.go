@@ -40,6 +40,24 @@ func init() {
 	log.Println("Connected db: ", DB)
 }
 
+// ใช้สำหรับล้างตารางทดสอบ Mock การเขียนลง DB Table ใดๆ พร้อม Reset Auto Increment index ให้ด้วย
+func ResetTable(tableName string) error {
+	sql1 := `TRUNCATE  ` + tableName
+	res, err := DB.Exec(sql1)
+	if err != nil {
+		return err
+	}
+	rows, _ := res.RowsAffected()
+	// Reset auto increment
+	sql2 := `ALTER TABLE ` + tableName + ` AUTO_INCREMENT = 1`
+	_, err = DB.Exec(sql2)
+	if err != nil {
+		return err
+	}
+	log.Println("Truncate Table:", tableName, "rows = ", rows)
+	return nil
+}
+
 //type Status int
 //
 //const (

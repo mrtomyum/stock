@@ -16,6 +16,7 @@ type MachineColumn struct {
 	CurrCounter int             `json:"curr_counter" db:"curr_counter"`
 	Size        ColumnSize      `json:"size"`
 	Status      ColumnStatus    `json:"status"`
+	MaxStock    int            `json:"max_stock" db:"max_stock"` // จำนวนสต๊อคสูงสุดในแต่ละคอลัมน์ แปรผันตาม Size ของสินค้าที่นำมาใส่
 }
 
 type ColumnSize int
@@ -81,3 +82,10 @@ func (mc *MachineColumn) Update() error {
 	return nil
 }
 
+// ChangeItem() จะถูกเรียกเฉพาะตอน mc.Fulfill() ที่มีการเปลี่ยนสินค้าใหม่
+func (mc *MachineColumn) ChangeItem(item Item) error {
+	mc.ItemId = item.Id
+	// mc.MaxStock = ต้องทำตารางบันทึกผลทดสอบการหยอดสินค้าเข้าเก็บในตู้ทีละ Item ซึ่งต้องใช้เวลามาก ดังนั้นใส่ค่าประมาณการค่าเดียวไปก่อนคือ 30 ชิ้น
+	mc.MaxStock = 35
+	return nil
+}

@@ -41,8 +41,9 @@ func Router() *gin.Engine {
 
 	counterV1 := r.Group("/v1/counter/")
 	{
-		counterV1.POST("/new/machine_code/:code", PostNewCounter)
 		counterV1.GET("/last/machine_code/:code", GetLastCounterByMachineCode)
+		counterV1.POST("/", PostNewCounter)
+		counterV1.POST("/new/machine_code/:code", PostNewCounter)
 
 		// ยังไม่ใช้
 		counterV1.GET("/", GetAllCounter)

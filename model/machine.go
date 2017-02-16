@@ -238,15 +238,17 @@ func (m *Machine) GetMachineColumn(columnNo int) (*MachineColumn, error) {
 func (m *Machine) NewColumn(selection int) error {
 	sql := `INSERT INTO machine_column(
 		machine_id,
-		column_no
-		) VALUES(?,?)
+		column_no,
+		max_qty
+		) VALUES(?,?,?)
 	`
 	for col := 1; col == selection; col++ {
 		// ตรวจสอบก่อนว่ามี ColumnNo ซ้ำอยู่หรือไม่?
 		if rowExists("SELECT * FROM machine_column WHERE machine_id = ? AND column_no = ?", m.Id, col) {
 			continue
 		}
-		res, err := DB.Exec(sql, m.Id, col)
+		// Todo: max_qty ควร Refactor โดยบันทึกตอน Fulfill เปลี่ยนสินค้าในคอลัมน์
+		res, err := DB.Exec(sql, m.Id, col, 30)
 		if err != nil {
 			return err
 		}
