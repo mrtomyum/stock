@@ -2,29 +2,6 @@ package test
 
 import "github.com/mrtomyum/stock/model"
 
-var MockBatchSales string = `
-	[
-		{
-		  "recorded": "2016-08-22T00:00:10+07:00",
-		  "machine_id": 1,
-		  "column_no": 6,
-		  "counter": 100
-		},
-		{
-		  "recorded": "2016-08-22T00:00:11+07:00",
-		  "machine_id": 1,
-		  "column_no": 7,
-		  "counter": 100
-		},
-		{
-		  "recorded": "2016-08-22T00:00:12+07:00",
-		  "machine_id": 1,
-		  "column_no": 8,
-		  "counter": 100
-		}
-	]
-`
-
 // Mock User table
 var mockUsers = []*model.User{
 	{Name: "tom", Title: model.ADMIN},
@@ -33,5 +10,95 @@ var mockUsers = []*model.User{
 	{Name: "lek", Title: model.ROUTEMAN},
 	{Name: "tam", Title: model.ROUTEMAN},
 	{Name: "est", Title: model.ROUTEMAN},
+}
+
+var mockCounter = []*model.Counter{
+	{MachineId: 1, CounterSum: 250,
+		Sub: []*model.SubCounter{
+			{ColumnNo: 1, Counter: 10},
+			{ColumnNo: 2, Counter: 10},
+			{ColumnNo: 3, Counter: 10},
+			{ColumnNo: 4, Counter: 10},
+			{ColumnNo: 5, Counter: 10},
+			{ColumnNo: 6, Counter: 10},
+			{ColumnNo: 7, Counter: 10},
+			{ColumnNo: 8, Counter: 10},
+			{ColumnNo: 9, Counter: 10},
+			{ColumnNo: 10, Counter: 10},
+			{ColumnNo: 11, Counter: 10},
+			{ColumnNo: 12, Counter: 10},
+			{ColumnNo: 13, Counter: 10},
+			{ColumnNo: 14, Counter: 10},
+			{ColumnNo: 15, Counter: 10},
+			{ColumnNo: 16, Counter: 10},
+			{ColumnNo: 17, Counter: 10},
+			{ColumnNo: 18, Counter: 10},
+			{ColumnNo: 19, Counter: 10},
+			{ColumnNo: 20, Counter: 10},
+			{ColumnNo: 21, Counter: 10},
+			{ColumnNo: 22, Counter: 10},
+			{ColumnNo: 23, Counter: 10},
+			{ColumnNo: 24, Counter: 10},
+			{ColumnNo: 25, Counter: 10},
+		},
+	},
+	{MachineId: 2, CounterSum: 250,
+		Sub: []*model.SubCounter{
+			{ColumnNo: 1, Counter: 10},
+			{ColumnNo: 2, Counter: 10},
+			{ColumnNo: 3, Counter: 10},
+			{ColumnNo: 4, Counter: 10},
+			{ColumnNo: 5, Counter: 10},
+			{ColumnNo: 6, Counter: 10},
+			{ColumnNo: 7, Counter: 10},
+			{ColumnNo: 8, Counter: 10},
+			{ColumnNo: 9, Counter: 10},
+			{ColumnNo: 10, Counter: 10},
+			{ColumnNo: 11, Counter: 10},
+			{ColumnNo: 12, Counter: 10},
+			{ColumnNo: 13, Counter: 10},
+			{ColumnNo: 14, Counter: 10},
+			{ColumnNo: 15, Counter: 10},
+			{ColumnNo: 16, Counter: 10},
+			{ColumnNo: 17, Counter: 10},
+			{ColumnNo: 18, Counter: 10},
+			{ColumnNo: 19, Counter: 10},
+			{ColumnNo: 20, Counter: 10},
+			{ColumnNo: 21, Counter: 10},
+			{ColumnNo: 22, Counter: 10},
+			{ColumnNo: 23, Counter: 10},
+			{ColumnNo: 24, Counter: 10},
+			{ColumnNo: 25, Counter: 10},
+		},
+	},
+	{MachineId: 3, CounterSum: 250,
+		Sub: []*model.SubCounter{
+			{ColumnNo: 1, Counter: 10},
+			{ColumnNo: 2, Counter: 10},
+			{ColumnNo: 3, Counter: 10},
+			{ColumnNo: 4, Counter: 10},
+			{ColumnNo: 5, Counter: 10},
+			{ColumnNo: 6, Counter: 10},
+			{ColumnNo: 7, Counter: 10},
+			{ColumnNo: 8, Counter: 10},
+			{ColumnNo: 9, Counter: 10},
+			{ColumnNo: 10, Counter: 10},
+			{ColumnNo: 11, Counter: 10},
+			{ColumnNo: 12, Counter: 10},
+			{ColumnNo: 13, Counter: 10},
+			{ColumnNo: 14, Counter: 10},
+			{ColumnNo: 15, Counter: 10},
+			{ColumnNo: 16, Counter: 10},
+			{ColumnNo: 17, Counter: 10},
+			{ColumnNo: 18, Counter: 10},
+			{ColumnNo: 19, Counter: 10},
+			{ColumnNo: 20, Counter: 10},
+			{ColumnNo: 21, Counter: 10},
+			{ColumnNo: 22, Counter: 10},
+			{ColumnNo: 23, Counter: 10},
+			{ColumnNo: 24, Counter: 10},
+			{ColumnNo: 25, Counter: 10},
+		},
+	},
 }
 
