@@ -22,9 +22,9 @@ type SubCounter struct {
 	CounterId  uint64          `json:"-" db:"counter_id"`    // FK
 	ColumnNo   int             `json:"column_no" db:"column_no"`
 	Counter    int             `json:"counter" db:"counter"`
-	ItemId     uint64          `json:"item_id" db:"item_id"` // Record as history data.
-	Price      decimal.Decimal `json:"price" db:"price"`     // from Last updated Price of this Machine.Column
-	MaxCounter int `json:"max_counter"`                      // ทดยอดสูงสุดที่จะสต๊อคสินค้าขายได้ในแต่ละ Column
+	ItemId     *uint64          `json:"item_id" db:"item_id"` // Record as history data.
+	Price      decimal.Decimal `json:"price" db:"price"`      // from Last updated Price of this Machine.Column
+	MaxCounter int `json:"max_counter"`                       // ทดยอดสูงสุดที่จะสต๊อคสินค้าขายได้ในแต่ละ Column
 }
 
 //-------------------------------------------------

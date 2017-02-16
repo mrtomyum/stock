@@ -3,6 +3,7 @@ package model
 import (
 	"github.com/shopspring/decimal"
 	"log"
+	"github.com/jmoiron/sqlx"
 )
 
 type Item struct {
@@ -41,7 +42,7 @@ type Brand struct {
 	NameEn string
 }
 
-func (i *Item) GetAll() ([]*Item, error) {
+func (i *Item) GetAll(db *sqlx.DB) ([]*Item, error) {
 	sql := `
 	SELECT
 		id,
@@ -77,7 +78,7 @@ func (i *Item) GetAll() ([]*Item, error) {
 	return items, nil
 }
 
-func (i *Item) GetItemView() (*ItemView, error) {
+func (i *Item) GetItemView(db *sqlx.DB) (*ItemView, error) {
 	log.Println("call model.Item.GetItemView()")
 	var iv ItemView
 	sql := `
@@ -107,7 +108,7 @@ func (i *Item) GetItemView() (*ItemView, error) {
 	return &iv, nil
 }
 
-func (i *Item) Insert() (Item, error) {
+func (i *Item) Insert(db *sqlx.DB) (Item, error) {
 	sql := `
 		INSERT INTO item (
 			sku,
@@ -147,7 +148,7 @@ func (i *Item) Insert() (Item, error) {
 	return item, nil
 }
 
-func (i *Item) Update() (*Item, error) {
+func (i *Item) Update(db *sqlx.DB) (*Item, error) {
 	sql := `
 		UPDATE item
 		SET

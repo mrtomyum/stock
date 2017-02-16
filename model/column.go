@@ -11,7 +11,7 @@ type MachineColumn struct {
 	Base
 	MachineID   uint64          `json:"machine_id" db:"machine_id"`
 	ColumnNo    int             `json:"column_no" db:"column_no"`
-	ItemId      uint64          `json:"item_id" db:"item_id"`
+	ItemId      *uint64          `json:"item_id" db:"item_id"`
 	Price       decimal.Decimal `json:"price"`
 	LastCounter int             `json:"last_counter" db:"last_counter"`
 	CurrCounter int             `json:"curr_counter" db:"curr_counter"`
@@ -85,7 +85,7 @@ func (mc *MachineColumn) Update(db *sqlx.DB) error {
 
 // ChangeItem() จะถูกเรียกเฉพาะตอน mc.Fulfill() ที่มีการเปลี่ยนสินค้าใหม่
 func (mc *MachineColumn) ChangeItem(item Item) error {
-	mc.ItemId = item.Id
+	mc.ItemId = &item.Id
 	// mc.MaxStock = ต้องทำตารางบันทึกผลทดสอบการหยอดสินค้าเข้าเก็บในตู้ทีละ Item ซึ่งต้องใช้เวลามาก ดังนั้นใส่ค่าประมาณการค่าเดียวไปก่อนคือ 30 ชิ้น
 	mc.MaxStock = 35
 	return nil
