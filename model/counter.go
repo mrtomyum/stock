@@ -19,12 +19,13 @@ type Counter struct {
 
 type SubCounter struct {
 	Base
-	CounterId  uint64          `json:"-" db:"counter_id"`    // FK
-	ColumnNo   int             `json:"column_no" db:"column_no"`
-	Counter    int             `json:"counter" db:"counter"`
+	CounterId uint64            `json:"-" db:"counter_id"` // FK
+	ColumnNo  int                `json:"column_no" db:"column_no"`
+	Counter   int                `json:"counter" db:"counter"`
+	// ฟิลด์หลังจากนี้ Method New, Update etc ควรจะกรอกให้
 	ItemId     *uint64          `json:"item_id" db:"item_id"` // Record as history data.
-	Price      decimal.Decimal `json:"price" db:"price"`      // from Last updated Price of this Machine.Column
-	MaxCounter int `json:"max_counter"`                       // ทดยอดสูงสุดที่จะสต๊อคสินค้าขายได้ในแต่ละ Column
+	Price      decimal.Decimal    `json:"price" db:"price"`   // from Last updated Price of this Machine.Column
+	MaxCounter int                `json:"max_counter"`        // ทดยอดสูงสุดที่จะสต๊อคสินค้าขายได้ในแต่ละ Column
 }
 
 //-------------------------------------------------
@@ -185,6 +186,7 @@ func (c *Counter) Update(db *sqlx.DB) (*Counter, error) {
 	var updatedCounter Counter
 	return &updatedCounter, nil
 }
+
 //-----------------------------------------------------------------
 // Counter.Delete()
 // การยกเลิกบันทึก Counter โดยทำการ Update Counter.Deleted เพื่อลบรายการ และ
@@ -192,6 +194,18 @@ func (c *Counter) Update(db *sqlx.DB) (*Counter, error) {
 // โดยเขียนกลับลงไปใน MachineColumn.CurrCounter และ .LastCounter ตามลำดับ
 //-----------------------------------------------------------------
 func (c *Counter) Delete(db *sqlx.DB) error {
+	sql := `DELETE counter WHERE id =?`
+	_, err := db.Exec(sql, c.Id)
+	if err != nil {
+		return err
+	}
+	sql2 := `DELETE counter_sub WHERE id =?`
+	for _, sub := range c.Sub {
+		_, err := db.Exec(sql2, sub.Id)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -208,11 +222,11 @@ func (sub *SubCounter) Insert(db *sqlx.DB) error {
 			counter
 		) VALUES(?,?,?,?,?)`
 	res, err := db.Exec(sql,
-		sub.CounterId,
-		sub.ColumnNo,
-		sub.ItemId,
-		sub.Price,
-		sub.Counter,
+		&sub.CounterId,
+		&sub.ColumnNo,
+		&sub.ItemId,
+		&sub.Price,
+		&sub.Counter,
 	)
 	if err != nil {
 		log.Println("Error>> Exec() INSERT counter_sub = ", err)
@@ -343,7 +357,6 @@ func (c *Counter) GetLastByMachineCode(db *sqlx.DB, code string) error {
 //	}
 //	return readSales, nil
 //}
-
 
 // mysqlDriverErr
 //if driverErr, ok := err.(*mysql.MySQLError); ok {

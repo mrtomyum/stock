@@ -1,31 +1,27 @@
 package test
 
-//import (
-//	"testing"
-//	"github.com/jmoiron/sqlx"
-//	"github.com/mrtomyum/stock/model"
-//	"encoding/json"
-//	"os"
-//	"log"
-//)
-//
-//var url string = "http://localhost:8001"
-//
-//const (
-//	DB_HOST = "tcp(nava.work:3306)"
-//	DB_NAME = "test_stock"
-//	DB_USER = "root"
-//	DB_PASS = "mypass"
-//)
-//
-//var db *sqlx.DB
-//
-//func init() {
-//	var testDSN = DB_USER + ":" + DB_PASS + "@" + DB_HOST + "/" + DB_NAME + "?parseTime=true"
-//	db = sqlx.MustConnect("mysql", testDSN)
-//}
-//
-//func Test_ModelCounterInsert(t *testing.T) {
+import (
+	"testing"
+)
+
+func Test_CounterNew(t *testing.T) {
+	for _, counter := range mockCounter {
+		newCounter, err := counter.Insert(mockDB)
+		if err != nil {
+			t.Error(err)
+		}
+		println("Inserted counter id: ", newCounter.Id)
+	}
+	for _, counter := range mockCounter {
+		err := counter.Delete(mockDB)
+		if err != nil {
+			t.Error(err)
+		}
+	}
+	t.Log("Success Insert Counter to DB")
+}
+
+//func Test_JSONCounterInsert(t *testing.T) {
 //	var c model.Counter
 //	file, err := os.Open("counter.json")
 //	if err != nil {
