@@ -50,7 +50,7 @@ func (i *Item) GetAll(db *sqlx.DB) ([]*Item, error) {
 		updated,
 		deleted,
 		sku,
-		name_th,
+		name,
 		name_en,
 		std_price,
 		std_cost,
@@ -84,15 +84,15 @@ func (i *Item) GetItemView(db *sqlx.DB) (*ItemView, error) {
 	sql := `
 	SELECT
 		item.sku,
-		item.name_th,
+		item.name,
 		item.name_en,
 		item.std_price,
 		item.std_cost,
 		item.base_unit_id,
 		item.category_id,
-		unit.name_th as base_unit_th,
+		unit.name as base_unit_th,
 		unit.name_en as base_unit_en,
-		category.name_th as category_th,
+		category.name as category_th,
 		category.name_en as category_en
 	FROM item
 	LEFT JOIN unit ON item.base_unit_id = unit.id
@@ -112,7 +112,7 @@ func (i *Item) Insert(db *sqlx.DB) (Item, error) {
 	sql := `
 		INSERT INTO item (
 			sku,
-			name_th,
+			name,
 			name_en,
 			std_price,
 			std_cost,
@@ -153,7 +153,7 @@ func (i *Item) Update(db *sqlx.DB) (*Item, error) {
 		UPDATE item
 		SET
 			sku = ?,
-			name_th = ?,
+			name = ?,
 			name_en = ?,
 			std_price = ?,
 			std_cost = ?,

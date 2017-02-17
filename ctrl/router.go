@@ -30,7 +30,7 @@ func Router() *gin.Engine {
 		machineV1.POST("/", PostNewMachine)
 		machineV1.GET("/", GetAllMachines)
 		machineV1.GET("/:id", GetThisMachine)
-		machineV1.GET("/:id/columns", GetMachineColumns)
+		machineV1.GET("/:id/column", GetMachineColumns)
 		machineV1.GET("/:id/template", GetMachineTemplate)
 		machineV1.POST("/init_column/:id/", PostMachineColumnInit)
 	}

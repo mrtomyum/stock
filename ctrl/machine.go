@@ -56,11 +56,11 @@ func GetAllMachines(ctx *gin.Context) {
 		rs.Status = ERROR
 		rs.Message = err.Error()
 		ctx.Status(http.StatusNoContent)
-	} else {
-		rs.Status = SUCCESS
-		rs.Data = machines
-		ctx.JSON(http.StatusOK, rs)
+		return
 	}
+	rs.Status = SUCCESS
+	rs.Data = machines
+	ctx.JSON(http.StatusOK, rs)
 	return
 }
 
@@ -79,10 +79,10 @@ func GetThisMachine(ctx *gin.Context) {
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()
-	} else {
-		rs.Status = SUCCESS
-		rs.Data = machine
+		return
 	}
+	rs.Status = SUCCESS
+	rs.Data = machine
 	ctx.JSON(http.StatusOK, rs)
 	return
 }
@@ -93,14 +93,16 @@ func GetMachineColumns(c *gin.Context) {
 	c.Header("Content-Type", "application/json")
 	c.Header("Access-Control-Allow-Origin", "*")
 
-	var m model.Machine
+	id := c.Param("id")
+	m := model.Machine{}
+	m.Id, _ = strconv.ParseUint(id, 10, 64)
 	rs := Response{}
-
 	machineColumns, err := m.GetColumns(db)
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()
 		c.Status(http.StatusNoContent)
+		return
 	}
 	rs.Status = SUCCESS
 	rs.Data = machineColumns
@@ -115,6 +117,8 @@ func GetMachineTemplate(c *gin.Context) {
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()
+		c.JSON(http.StatusNotFound, rs)
+		return
 	}
 	rs.Status = SUCCESS
 	rs.Self = "nava.work/v1/machine/template"
@@ -134,25 +138,28 @@ func PutMachineColumn(c *gin.Context) {
 		rs.Status = ERROR
 		rs.Message = err.Error()
 		c.JSON(http.StatusBadRequest, rs)
-	} else {
-		//TODO: ให้ดัก Update() ที่ mc เป็นค่าว่างด้วย ต้อง Error
-		//log.Info(mc)
-		switch col.ColumnNo {
-		case 0:
-			rs.Status = ERROR
-			rs.Message = "No data in ColumnNo."
-		default:
-			err := col.Update(db)
-			if err != nil {
-				rs.Status = ERROR
-				rs.Message = err.Error()
-			} else {
-				rs.Status = SUCCESS
-				rs.Data = col
-			}
-			c.JSON(http.StatusOK, rs)
-		}
+		return
 	}
+	//TODO: ให้ดัก Update() ที่ mc เป็นค่าว่างด้วย ต้อง Error
+	//log.Info(mc)
+	switch col.ColumnNo {
+	case 0:
+		rs.Status = ERROR
+		rs.Message = "No data in ColumnNo."
+		c.JSON(http.StatusOK, rs)
+		return
+	default:
+		err := col.Update(db)
+		if err != nil {
+			rs.Status = ERROR
+			rs.Message = err.Error()
+			c.JSON(http.StatusOK, rs)
+			return
+		}
+		rs.Status = SUCCESS
+		rs.Data = col
+	}
+	c.JSON(http.StatusOK, rs)
 	return
 }
 
@@ -179,4 +186,3 @@ func PostMachineColumnInit(ctx *gin.Context) {
 	rs.Data = m
 	ctx.JSON(http.StatusOK, rs)
 }
-
