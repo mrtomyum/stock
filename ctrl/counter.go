@@ -7,6 +7,7 @@ import (
 	"github.com/mrtomyum/stock/model"
 	"github.com/gin-gonic/gin"
 	"strconv"
+	"fmt"
 )
 
 // PostNewCounter สร้างรายการจด Counter ใหม่ของแต่ละตู้
@@ -40,7 +41,7 @@ func PostNewCounter(ctx *gin.Context) {
 }
 
 func GetAllCounter(ctx *gin.Context) {
-	log.Println("call ctrl.Counter.GetAllCounter()")
+	fmt.Println("call ctrl.Counter.GetAllCounter()")
 	ctx.Header("Server", "NAVA Stock")
 	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
@@ -51,12 +52,13 @@ func GetAllCounter(ctx *gin.Context) {
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()
-		ctx.Status(http.StatusNoContent)
-	} else {
-		rs.Status = SUCCESS
-		rs.Data = counters
-		ctx.JSON(http.StatusOK, rs)
+		ctx.JSON(http.StatusNotFound, rs)
+		log.Println("Error bad Return")
+		return
 	}
+	rs.Status = SUCCESS
+	rs.Data = counters
+	ctx.JSON(http.StatusOK, rs)
 	return
 }
 
@@ -94,7 +96,7 @@ func GetLastCounterByMachineCode(ctx *gin.Context) {
 	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	machineCode := ctx.Param("code")
-	c := model.Counter{}
+	c := &model.Counter{}
 	err := c.GetLastByMachineCode(db, machineCode)
 	if err != nil {
 		rs.Status = ERROR
@@ -102,8 +104,8 @@ func GetLastCounterByMachineCode(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, c)
 		return
 	}
-	rs.Status = SUCCESS
-	rs.Data = c
+	//rs.Status = SUCCESS
+	//rs.Data = c
 	ctx.JSON(http.StatusOK, rs)
 	return
 }

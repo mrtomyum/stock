@@ -13,8 +13,8 @@ var mockUsers = []*model.User{
 }
 
 var mockCounter = []*model.Counter{
-	{MachineId: 1, CounterSum: 250,
-		Sub: []*model.SubCounter{
+	{RecDate: "2017-01-01T09:00:00+07:00", MachineId: 1, CounterSum: 250,
+		Sub: []*model.CounterSub{
 			{ColumnNo: 1, Counter: 10},
 			{ColumnNo: 2, Counter: 10},
 			{ColumnNo: 3, Counter: 10},
@@ -43,7 +43,7 @@ var mockCounter = []*model.Counter{
 		},
 	},
 	{MachineId: 2, CounterSum: 250,
-		Sub: []*model.SubCounter{
+		Sub: []*model.CounterSub{
 			{ColumnNo: 1, Counter: 10},
 			{ColumnNo: 2, Counter: 10},
 			{ColumnNo: 3, Counter: 10},
@@ -72,7 +72,7 @@ var mockCounter = []*model.Counter{
 		},
 	},
 	{MachineId: 3, CounterSum: 250,
-		Sub: []*model.SubCounter{
+		Sub: []*model.CounterSub{
 			{ColumnNo: 1, Counter: 10},
 			{ColumnNo: 2, Counter: 10},
 			{ColumnNo: 3, Counter: 10},

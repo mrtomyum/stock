@@ -14,18 +14,18 @@ type Counter struct {
 	RecDate    Date   `json:"rec_date" db:"rec_date"`
 	MachineId  uint64 `json:"machine_id" db:"machine_id"`
 	CounterSum int    `json:"counter_sum" db:"counter_sum"`
-	Sub        []*SubCounter `json:"sub"`
+	Sub        []*CounterSub `json:"sub"`
 }
 
-type SubCounter struct {
+type CounterSub struct {
 	Base
 	CounterId uint64            `json:"-" db:"counter_id"` // FK
 	ColumnNo  int                `json:"column_no" db:"column_no"`
 	Counter   int                `json:"counter" db:"counter"`
 	// ฟิลด์หลังจากนี้ Method New, Update etc ควรจะกรอกให้
-	ItemId     *uint64          `json:"item_id" db:"item_id"` // Record as history data.
-	Price      decimal.Decimal    `json:"price" db:"price"`   // from Last updated Price of this Machine.Column
-	MaxCounter int                `json:"max_counter"`        // ทดยอดสูงสุดที่จะสต๊อคสินค้าขายได้ในแต่ละ Column
+	ItemId *uint64          `json:"item_id" db:"item_id"` // Record as history data.
+	Price  decimal.Decimal  `json:"price" db:"price"`     // from Last updated Price of this Machine.Column
+	Max    int              `json:"max" db:"max"`         // ทดยอดสูงสุดที่จะสต๊อคสินค้าขายได้ในแต่ละ Column
 }
 
 //-------------------------------------------------
@@ -80,8 +80,7 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		log.Println("Error>>1.tx.Exec() INSERT INTO counter Error: ", err)
 		return nil, err
 	}
-	log.Println("Pass>>1.tx.Exec() INSERT INTO counter")
-	log.Println(c)
+	log.Println("Pass>>1.tx.Exec() INSERT INTO counter:", c)
 
 	id, _ := res.LastInsertId()
 	c.Id = uint64(id)
@@ -94,16 +93,16 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 		}
 		column.LastCounter = column.CurrCounter
 		column.CurrCounter = sub.Counter
-		// update SubCounter.ItemId with last fulfill ItemId
+		// update CounterSub.ItemId with last fulfill ItemId
 		sub.ItemId = column.ItemId
-		// update SubCounter.Price with last update Price
+		// update CounterSub.Price with last update Price
 		sub.Price = column.Price
 		err = column.Update(db)
 		if err != nil {
 			log.Println("Error mc.Update(db)", err)
 			return nil, errors.New("Error Update MachineColumn" + err.Error())
 		}
-		// Insert new SubCounter
+		// Insert new CounterSub
 		sub.CounterId = c.Id
 		err = sub.Insert(db)
 		if err != nil {
@@ -118,8 +117,8 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 //--------------------------------------------------
 // Return New CounterSub of this Counter
 //--------------------------------------------------
-func (c *Counter) GetSub(db *sqlx.DB) ([]*SubCounter, error) {
-	var sub []*SubCounter
+func (c *Counter) GetSub(db *sqlx.DB) ([]*CounterSub, error) {
+	var sub []*CounterSub
 	sql := `SELECT * FROM counter_sub WHERE counter_id = ? AND deleted IS NULL`
 	err := db.Select(&sub, sql, c.Id)
 	if err != nil {
@@ -134,24 +133,24 @@ func (c *Counter) GetSub(db *sqlx.DB) ([]*SubCounter, error) {
 // All will return only []Counter
 // ถ้าต้องการ CounterSub จะต้องคอล Counter.Get() ทีละตัว
 //--------------------------------------------------
-func (c *Counter) GetAll(db *sqlx.DB) ([]*Counter, error) {
-	log.Println("call model.Counter.All()")
+func (c *Counter) GetAll(db *sqlx.DB) (counters []*Counter, err error) {
+	log.Println("call model.Counter.GetAll()")
 	// กรอง WHERE deleted <> null
 	sql := `SELECT * FROM counter WHERE deleted IS NULL`
-	//err := db.Select(&counters, sql)
-	row, err := db.Queryx(sql)
-	defer row.Close()
-	counters := []*Counter{} //<<-- น่าจะต้องไม่ใช่ Pointer นะ
-	if row.Next() {
-		err = row.Scan(
-			&c.Id, &c.Created, &c.Updated, &c.Deleted,
-			&c.RecDate, &c.MachineId, &c.CounterSum,
-		)
-		counters = append(counters, c)
-	}
+	err = db.Select(&counters, sql)
+	//row, err := db.Queryx(sql)
 	if err != nil {
-		log.Println(err)
 		return nil, err
+	}
+	sqlSub := `SELECT * FROM counter_sub WHERE counter_id = ? AND deleted IS NULL`
+	//counterSub := &CounterSub{}
+	for _, counter := range counters {
+		err = db.Select(&counter.Sub, sqlSub, counter.Id)
+		if err != nil {
+			return nil, err
+		}
+		//counter.Sub = append(counter.Sub, counterSub)
+		fmt.Println("Get:", counter)
 	}
 	log.Println(counters)
 	return counters, nil
@@ -170,9 +169,9 @@ func (c *Counter) Get(db *sqlx.DB) (*Counter, error) {
 		return nil, err
 	}
 	log.Println("Success>>1.db.QueryRowx")
-	subCounter, err := c.GetSub(db)
-	log.Println("subCounter=", subCounter)
-	c.Sub = subCounter
+	counterSub, err := c.GetSub(db)
+	log.Println("counterSub=", counterSub)
+	c.Sub = counterSub
 	log.Println(c.Sub)
 	return c, nil
 }
@@ -209,7 +208,7 @@ func (c *Counter) Delete(db *sqlx.DB) error {
 	return nil
 }
 
-func (sub *SubCounter) Insert(db *sqlx.DB) error {
+func (sub *CounterSub) Insert(db *sqlx.DB) error {
 	//--------------------------------------------------
 	// Insert CounterSub{}
 	//--------------------------------------------------
@@ -244,7 +243,7 @@ func (c *Counter) GetAllByMachineCode(db *sqlx.DB, code string) (counters []*Cou
 	if err != nil {
 		return nil, err
 	}
-	sql2 := `SELECT * FROM counter WHERE machine_id = ? ORDER BY created DESC`
+	sql2 := `SELECT * FROM counter WHERE machine_id = ? AND deleted IS NULL ORDER BY created DESC`
 	err = db.Select(&counters, sql2, id)
 	if err != nil {
 		return nil, err
@@ -268,7 +267,7 @@ func (c *Counter) GetLastByMachineCode(db *sqlx.DB, code string) error {
 		return err
 	}
 	// คัดเคาท์เตอร์ที่บันทึกตามเวลาล่าสุดของตู้นี้
-	sql2 := `SELECT * FROM counter WHERE machine_id = ? ORDER BY created DESC LIMIT 1 `
+	sql2 := `SELECT * FROM counter WHERE machine_id = ? AND deleted IS NULL ORDER BY created DESC LIMIT 1 `
 	err = db.Get(c, sql2, id)
 	if err != nil {
 		log.Println("Error when select last counter: ", err)
@@ -281,16 +280,16 @@ func (c *Counter) GetLastByMachineCode(db *sqlx.DB, code string) error {
 		log.Println("Error when select counter_sub: ", err)
 		return err
 	}
-	// Todo: แปะ MaxCounter ให้ SubCounter โดยดึงจาก MachineColumn นั้นๆ
+	// Todo: แปะ Max ให้ CounterSub โดยดึงจาก MachineColumn นั้นๆ
 	sql4 := `SELECT max_stock FROM machine_column WHERE machine_id =? AND column_no =?`
 	col := MachineColumn{}
 	for _, sub := range c.Sub {
 		//todo: Refactor เพิ่มฟิลด์ max_stock
 		err := db.Get(&col, sql4, c.MachineId, sub.ColumnNo)
 		if err != nil {
-			fmt.Println("Error DB.Get")
+			fmt.Println("Error DB.Get column from sub")
 		}
-		sub.MaxCounter = col.MaxStock
+		sub.Max = col.MaxStock
 	}
 	return nil
 }

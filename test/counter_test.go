@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func Test_CounterNew(t *testing.T) {
+func Test_CounterInsert(t *testing.T) {
 	for _, counter := range mockCounter {
 		newCounter, err := counter.Insert(mockDB)
 		if err != nil {

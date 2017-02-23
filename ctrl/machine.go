@@ -113,7 +113,7 @@ func GetMachineColumns(c *gin.Context) {
 func GetMachineTemplate(c *gin.Context) {
 	var m *model.Machine
 	rs := Response{}
-	templates, err := m.GetTemplate(db)
+	templates, err := m.GetProfiles(db)
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()

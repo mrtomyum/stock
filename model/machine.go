@@ -214,15 +214,15 @@ func (m *Machine) Init(template *Machine) error {
 	return nil
 }
 
-func (m *Machine) GetTemplate(db *sqlx.DB) ([]*Machine, error) {
-	var templates []*Machine
-	sql := `SELECT * FROM machine
-	WHERE is_template = true`
-	err := db.Select(templates, sql)
+// GetProfiles คืน  Slice ของตู้ที่ถูกกำหนดให้เป็น Template
+func (m *Machine) GetProfiles(db *sqlx.DB) ([]*Machine, error) {
+	var profiles []*Machine
+	sql := `SELECT * FROM machine WHERE is_profile = true`
+	err := db.Select(profiles, sql)
 	if err != nil {
 		return nil, err
 	}
-	return templates, nil
+	return profiles, nil
 }
 
 func (m *Machine) InitMachineColumn(db *sqlx.DB) (count int, err error) {
