@@ -90,9 +90,9 @@ func (i *Item) GetItemView(db *sqlx.DB) (*ItemView, error) {
 		item.std_cost,
 		item.base_unit_id,
 		item.category_id,
-		unit.name as base_unit_th,
+		unit.name as base_unit,
 		unit.name_en as base_unit_en,
-		category.name as category_th,
+		category.name as category,
 		category.name_en as category_en
 	FROM item
 	LEFT JOIN unit ON item.base_unit_id = unit.id

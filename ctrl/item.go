@@ -21,11 +21,11 @@ func GetAllItem(ctx *gin.Context) {
 		rs.Status = ERROR
 		rs.Message = err.Error()
 		ctx.JSON(http.StatusBadRequest, rs)
-	} else {
-		rs.Status = SUCCESS
-		rs.Data = items
-		ctx.JSON(http.StatusFound, rs)
+		return
 	}
+	rs.Status = SUCCESS
+	rs.Data = items
+	ctx.JSON(http.StatusFound, rs)
 }
 
 func PostNewItem(ctx *gin.Context) {
@@ -40,19 +40,19 @@ func PostNewItem(ctx *gin.Context) {
 		rs.Status = ERROR
 		rs.Message = "Cannot Bind JSON requested."
 		ctx.JSON(http.StatusBadRequest, rs)
-	} else {
-		newItem, err := i.Insert(db)
-		log.Println("i= ", i)
-		if err != nil {
-			rs.Status = ERROR
-			rs.Message = "CANNOT_UPDATE >>" + err.Error()
-			ctx.JSON(http.StatusConflict, rs)
-		} else {
-			rs.Status = SUCCESS
-			rs.Data = newItem
-			ctx.JSON(http.StatusOK, rs)
-		}
+		return
 	}
+	newItem, err := i.Insert(db)
+	log.Println("i= ", i)
+	if err != nil {
+		rs.Status = ERROR
+		rs.Message = "CANNOT_UPDATE >>" + err.Error()
+		ctx.JSON(http.StatusConflict, rs)
+		return
+	}
+	rs.Status = SUCCESS
+	rs.Data = newItem
+	ctx.JSON(http.StatusOK, rs)
 	return
 }
 
@@ -70,10 +70,10 @@ func GetItem(ctx *gin.Context) {
 		log.Println(err)
 		rs.Status = ERROR
 		rs.Message = err.Error()
-	} else {
-		rs.Status = SUCCESS
-		rs.Data = iv
+		return
 	}
+	rs.Status = SUCCESS
+	rs.Data = iv
 	ctx.JSON(200, rs)
 	return
 }
