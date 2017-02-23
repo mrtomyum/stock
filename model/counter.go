@@ -138,18 +138,15 @@ func (c *Counter) GetAll(db *sqlx.DB) (counters []*Counter, err error) {
 	// กรอง WHERE deleted <> null
 	sql := `SELECT * FROM counter WHERE deleted IS NULL`
 	err = db.Select(&counters, sql)
-	//row, err := db.Queryx(sql)
 	if err != nil {
 		return nil, err
 	}
 	sqlSub := `SELECT * FROM counter_sub WHERE counter_id = ? AND deleted IS NULL`
-	//counterSub := &CounterSub{}
 	for _, counter := range counters {
 		err = db.Select(&counter.Sub, sqlSub, counter.Id)
 		if err != nil {
 			return nil, err
 		}
-		//counter.Sub = append(counter.Sub, counterSub)
 		fmt.Println("Get:", counter)
 	}
 	log.Println(counters)
@@ -172,7 +169,6 @@ func (c *Counter) Get(db *sqlx.DB) (*Counter, error) {
 	counterSub, err := c.GetSub(db)
 	log.Println("counterSub=", counterSub)
 	c.Sub = counterSub
-	log.Println(c.Sub)
 	return c, nil
 }
 
@@ -261,7 +257,7 @@ func (c *Counter) GetAllByMachineCode(db *sqlx.DB, code string) (counters []*Cou
 
 func (c *Counter) GetLastByMachineCode(db *sqlx.DB, code string) error {
 	// จากตู้ไหน? หา machine_id จาก machine code ที่ได้รับ
-	// todo: ควรเปลี่ยน args จาก code string -> m Machine
+	// todo: ควรเปลี่ยน args จาก code string -> m Machine ไหม?
 	id, err := GetMachineIdFromCode(db, code)
 	if err != nil {
 		return err
@@ -273,24 +269,24 @@ func (c *Counter) GetLastByMachineCode(db *sqlx.DB, code string) error {
 		log.Println("Error when select last counter: ", err)
 		return err
 	}
-	// ดึงเอา Sub Counter จากแต่ละคอลัมน์ขึ้นมา
-	sql3 := `SELECT * FROM counter_sub WHERE counter_id = ?`
-	err = db.Select(&c.Sub, sql3, id)
+	// ดึงเอา CounterSub จากแต่ละคอลัมน์ขึ้นมา
+	sql3 := `SELECT * FROM counter_sub WHERE counter_id = ? AND deleted IS NULL`
+	err = db.Select(&c.Sub, sql3, c.Id)
 	if err != nil {
 		log.Println("Error when select counter_sub: ", err)
 		return err
 	}
 	// Todo: แปะ Max ให้ CounterSub โดยดึงจาก MachineColumn นั้นๆ
-	sql4 := `SELECT max_stock FROM machine_column WHERE machine_id =? AND column_no =?`
-	col := MachineColumn{}
-	for _, sub := range c.Sub {
-		//todo: Refactor เพิ่มฟิลด์ max_stock
-		err := db.Get(&col, sql4, c.MachineId, sub.ColumnNo)
-		if err != nil {
-			fmt.Println("Error DB.Get column from sub")
-		}
-		sub.Max = col.MaxStock
-	}
+	//sql4 := `SELECT max_stock FROM machine_column WHERE machine_id =? AND column_no =?`
+	//col := MachineColumn{}
+	//for _, sub := range c.Sub {
+	//	//todo: Refactor เพิ่มฟิลด์ max_stock
+	//	err := db.Get(&col, sql4, c.MachineId, sub.ColumnNo)
+	//	if err != nil {
+	//		fmt.Println("Error DB.Get column from sub")
+	//	}
+	//	sub.Max = col.MaxStock
+	//}
 	return nil
 }
 
