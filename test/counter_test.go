@@ -12,13 +12,18 @@ func Test_CounterInsert(t *testing.T) {
 		}
 		println("Inserted counter id: ", newCounter.Id)
 	}
+	t.Log("Success Insert Counter to DB")
 	for _, counter := range mockCounter {
 		err := counter.Delete(mockDB)
 		if err != nil {
 			t.Error(err)
 		}
 	}
-	t.Log("Success Insert Counter to DB")
+	t.Log("Success Deleted Counter from DB")
+}
+
+func Test_CounterGet(t *testing.T) {
+	list
 }
 
 //func Test_JSONCounterInsert(t *testing.T) {

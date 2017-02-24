@@ -277,16 +277,16 @@ func (c *Counter) GetLastByMachineCode(db *sqlx.DB, code string) (lastCounter *C
 		return nil, err
 	}
 	// Todo: แปะ Max ให้ CounterSub โดยดึงจาก MachineColumn นั้นๆ
-	//sql4 := `SELECT max_stock FROM machine_column WHERE machine_id =? AND column_no =?`
-	//col := MachineColumn{}
-	//for _, sub := range c.Sub {
-	//	//todo: Refactor เพิ่มฟิลด์ max_stock
-	//	err := db.Get(&col, sql4, c.MachineId, sub.ColumnNo)
-	//	if err != nil {
-	//		fmt.Println("Error DB.Get column from sub")
-	//	}
-	//	sub.Max = col.MaxStock
-	//}
+	sql4 := `SELECT max_stock FROM machine_column WHERE machine_id =? AND column_no =?`
+	col := MachineColumn{}
+	for _, sub := range c.Sub {
+		//todo: Refactor เพิ่มฟิลด์ max_stock
+		err := db.Get(&col, sql4, c.MachineId, sub.ColumnNo)
+		if err != nil {
+			fmt.Println("Error DB.Get column from sub")
+		}
+		sub.Max = col.MaxStock
+	}
 	return lastCounter, err
 }
 
