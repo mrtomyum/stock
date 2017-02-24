@@ -72,6 +72,7 @@ func GetCounter(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	//ctx.Header("Authorization", "Baerer" + jwt)
 
+	rs := Response{}
 	id := ctx.Param("id")
 	c := model.Counter{}
 	c.Id, _ = strconv.ParseUint(id, 10, 64)
@@ -97,6 +98,7 @@ func GetLastCounterByMachineCode(ctx *gin.Context) {
 	log.Println("call ctrl.Counter.GetCounterByMachineCode()")
 	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
+	rs := Response{}
 	machineCode := ctx.Param("code")
 	c := &model.Counter{}
 	lastCounter, err := c.GetLastByMachineCode(db, machineCode)

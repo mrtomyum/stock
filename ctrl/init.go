@@ -7,7 +7,7 @@ import (
 )
 
 var db *sqlx.DB
-var rs *Response
+//var rs *Response
 
 func init() {
 	// Read configuration file from "config.json"
