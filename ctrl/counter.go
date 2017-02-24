@@ -101,7 +101,7 @@ func GetLastCounterByMachineCode(ctx *gin.Context) {
 	rs := Response{}
 	machineCode := ctx.Param("code")
 	c := &model.Counter{}
-	lastCounter, err := c.GetLastByMachineCode(db, machineCode)
+	err := c.GetLastByMachineCode(db, machineCode)
 	if err != nil {
 		rs.Status = ERROR
 		rs.Message = err.Error()
@@ -109,7 +109,7 @@ func GetLastCounterByMachineCode(ctx *gin.Context) {
 		return
 	}
 	rs.Status = ERROR
-	rs.Data = lastCounter
+	rs.Data = c
 	ctx.JSON(http.StatusOK, rs)
 	fmt.Println("GetLastCounterByMachineCode")
 	return

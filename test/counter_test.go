@@ -23,7 +23,7 @@ func Test_CounterInsert(t *testing.T) {
 }
 
 func Test_CounterGet(t *testing.T) {
-	list
+
 }
 
 //func Test_JSONCounterInsert(t *testing.T) {
