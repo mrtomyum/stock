@@ -84,8 +84,8 @@ func GetCounter(ctx *gin.Context) {
 		return
 	}
 	log.Println("Happy Return:", counter)
-	//rs.Status = SUCCESS
-	//rs.Data = counter
+	rs.Status = SUCCESS
+	rs.Data = counter
 	ctx.JSON(http.StatusOK, rs)
 	return
 }
@@ -97,17 +97,17 @@ func GetLastCounterByMachineCode(ctx *gin.Context) {
 	log.Println("call ctrl.Counter.GetCounterByMachineCode()")
 	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
-	//machineCode := ctx.Param("code")
-	//c := &model.Counter{}
-	//err := c.GetLastByMachineCode(db, machineCode)
-	//if err != nil {
-	//	rs.Status = ERROR
-	//	rs.Message = err.Error()
-	//	ctx.JSON(http.StatusNotFound, c)
-	//	return
-	//}
+	machineCode := ctx.Param("code")
+	c := &model.Counter{}
+	lastCounter, err := c.GetLastByMachineCode(db, machineCode)
+	if err != nil {
+		rs.Status = ERROR
+		rs.Message = err.Error()
+		ctx.JSON(http.StatusNotFound, c)
+		return
+	}
 	rs.Status = ERROR
-	//rs.Data = c
+	rs.Data = lastCounter
 	ctx.JSON(http.StatusOK, rs)
 	fmt.Println("GetLastCounterByMachineCode")
 	return

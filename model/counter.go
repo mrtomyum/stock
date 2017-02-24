@@ -255,26 +255,26 @@ func (c *Counter) GetAllByMachineCode(db *sqlx.DB, code string) (counters []*Cou
 	return counters, nil
 }
 
-func (c *Counter) GetLastByMachineCode(db *sqlx.DB, code string) error {
+func (c *Counter) GetLastByMachineCode(db *sqlx.DB, code string) (lastCounter *Counter, err error) {
 	// จากตู้ไหน? หา machine_id จาก machine code ที่ได้รับ
 	// todo: ควรเปลี่ยน args จาก code string -> m Machine ไหม?
-	id, err := GetMachineIdFromCode(db, code)
+	machineId, err := GetMachineIdFromCode(db, code)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// คัดเคาท์เตอร์ที่บันทึกตามเวลาล่าสุดของตู้นี้
 	sql2 := `SELECT * FROM counter WHERE machine_id = ? AND deleted IS NULL ORDER BY created DESC LIMIT 1 `
-	err = db.Get(c, sql2, id)
+	err = db.Get(lastCounter, sql2, machineId)
 	if err != nil {
 		log.Println("Error when select last counter: ", err)
-		return err
+		return nil, err
 	}
 	// ดึงเอา CounterSub จากแต่ละคอลัมน์ขึ้นมา
 	sql3 := `SELECT * FROM counter_sub WHERE counter_id = ? AND deleted IS NULL`
-	err = db.Select(&c.Sub, sql3, c.Id)
+	err = db.Select(&lastCounter.Sub, sql3, lastCounter.Id)
 	if err != nil {
 		log.Println("Error when select counter_sub: ", err)
-		return err
+		return nil, err
 	}
 	// Todo: แปะ Max ให้ CounterSub โดยดึงจาก MachineColumn นั้นๆ
 	//sql4 := `SELECT max_stock FROM machine_column WHERE machine_id =? AND column_no =?`
@@ -287,7 +287,7 @@ func (c *Counter) GetLastByMachineCode(db *sqlx.DB, code string) error {
 	//	}
 	//	sub.Max = col.MaxStock
 	//}
-	return nil
+	return lastCounter, err
 }
 
 //func GetCounter(db *sqlx.DB, ids []uint64) ([]*Counter, error) {

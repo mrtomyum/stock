@@ -86,17 +86,19 @@ func UpdateItem(ctx *gin.Context) {
 	rs := Response{}
 	if ctx.BindJSON(&i) != nil {
 		ctx.JSON(http.StatusBadRequest, i)
-	} else {
-		updatedItem, err := i.Update(db)
-		if err != nil {
-			rs.Status = ERROR
-			rs.Message = err.Error()
-		} else {
-			rs.Status = SUCCESS
-			rs.Data = updatedItem
-		}
-		ctx.JSON(http.StatusOK, rs)
+		return
 	}
+	updatedItem, err := i.Update(db)
+	if err != nil {
+		rs.Status = ERROR
+		rs.Message = err.Error()
+		ctx.JSON(http.StatusNotModified, rs)
+		return
+	}
+	rs.Status = SUCCESS
+	rs.Data = updatedItem
+	ctx.JSON(http.StatusOK, rs)
+	return
 }
 
 func DelItem(ctx *gin.Context) {
