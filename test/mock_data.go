@@ -13,7 +13,9 @@ var mockUsers = []*model.User{
 }
 
 var mockCounter = []*model.Counter{
-	{RecDate: "2017-01-01T09:00:00+07:00", MachineId: 1, CounterSum: 250,
+	{
+		//RecDate: "2017-01-01T09:00:00+07:00",
+		MachineId: 1, CounterSum: 250,
 		Sub: []*model.CounterSub{
 			{ColumnNo: 1, Counter: 10},
 			{ColumnNo: 2, Counter: 10},

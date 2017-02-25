@@ -6,12 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	//"time"
 )
 
 type Counter struct {
 	Base
 	//RecDate    *time.Time `json:"rec_date" db:"rec_date"`
-	RecDate    Date   `json:"rec_date" db:"rec_date"`
+	//RecDate    Date   `json:"rec_date" db:"rec_date"`
 	MachineId  uint64 `json:"machine_id" db:"machine_id"`
 	CounterSum int    `json:"counter_sum" db:"counter_sum"`
 	Sub        []*CounterSub `json:"sub"`
@@ -66,13 +67,12 @@ func (c *Counter) Insert(db *sqlx.DB) (*Counter, error) {
 	//---------------------
 	sql := `
 		INSERT INTO counter (
-		rec_date,
 		machine_id,
 		counter_sum
 		) VALUES(?,?,?)
 	`
 	res, err := db.Exec(sql,
-		c.RecDate.Time,
+		//c.RecDate.Time,
 		c.MachineId,
 		c.CounterSum,
 	)

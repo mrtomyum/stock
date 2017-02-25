@@ -22,8 +22,14 @@ func Test_CounterInsert(t *testing.T) {
 	t.Log("Success Deleted Counter from DB")
 }
 
-func Test_CounterGet(t *testing.T) {
-
+func TestCounter_GetLastByMachineCode(t *testing.T) {
+	for _, c := range mockCounter {
+		err := c.GetLastByMachineCode(mockDB, c.MachineCode)
+		if err != nil {
+			t.Error(err.Error())
+		}
+		t.Logf("Get Last Counter from MachineId:", c.Id)
+	}
 }
 
 //func Test_JSONCounterInsert(t *testing.T) {
