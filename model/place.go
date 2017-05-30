@@ -24,3 +24,7 @@ type Place struct {
 	Lat      float64   `json:"lat"`
 	Lng      float64   `json:"lng"`
 }
+
+func (p *Place) GetByMachineCode() string {
+	return p.NameTh
+}

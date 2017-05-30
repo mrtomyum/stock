@@ -10,7 +10,7 @@ func TestNewColumn(t *testing.T) {
 	m := model.Machine{
 		Type:      model.CAN,
 		Selection: 30,
-		Sub:       columns,
+		Columns:   columns,
 	}
 	err := m.NewColumn(mockDB, m.Selection)
 	if err != nil {

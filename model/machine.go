@@ -24,7 +24,7 @@ type Machine struct {
 	Note         null.String      `json:"note"`
 	IsProfile    bool             `json:"is_profile"` // Profile template for Initialize New Machine each column data such as item, price
 	PriceLevel   int              `json:"price_level" db:"price_level"`
-	Sub          []*MachineColumn `json:"sub"`
+	Columns      []*MachineColumn `json:"columns"`
 }
 
 type machineType uint8
@@ -191,6 +191,11 @@ func (m *Machine) Get(db *sqlx.DB) (*Machine, error) {
 	if err != nil {
 		return nil, err
 	}
+	sql = `SELECT * FROM machine_column WHERE machine_id = ? AND deleted IS NULL`
+	err = db.Select(&m.Columns, sql, m.Id)
+	if err != nil {
+		return nil, err
+	}
 	return m, nil
 }
 
@@ -250,7 +255,7 @@ func (m *Machine) InitMachineColumn(db *sqlx.DB) (count int, err error) {
 		if err != nil {
 			return 0, err
 		}
-		m.Sub = append(m.Sub, col)
+		m.Columns = append(m.Columns, col)
 		fmt.Println("count=", count)
 	}
 	fmt.Println("New MachineColumn initiated = ", count)

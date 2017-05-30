@@ -7,36 +7,6 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type LocType int
-
-const (
-	ROOT LocType = iota
-	STORE
-	VAN
-	MACHINE
-	COLUMN
-	VENDOR
-	INSPECTION
-	DAMAGE
-)
-
-func (lt LocType) MarshalJSON() ([]byte, error) {
-	typeStr, ok := map[LocType]string{
-		ROOT:       "ROOT",
-		STORE:      "STORE",
-		VAN:        "VAN",
-		MACHINE:    "MACHINE",
-		COLUMN:     "COLUMN",
-		VENDOR:     "VENDOR",
-		INSPECTION: "INSPECTION",
-		DAMAGE:     "DAMAGE",
-	}[lt]
-	if !ok {
-		return nil, fmt.Errorf("invalid Location Type value %v", lt)
-	}
-	return json.Marshal(typeStr)
-}
-
 type Location struct {
 	Base
 	Code     string      `json:"code"`
@@ -46,28 +16,28 @@ type Location struct {
 	Child    []*Location `json:"nodes,omitempty" db:"-"`
 }
 
-func (this *Location) Size() int {
-	var size int = len(this.Child)
-	for _, c := range this.Child {
+func (l *Location) Size() int {
+	var size int = len(l.Child)
+	for _, c := range l.Child {
 		size += c.Size()
 	}
 	return size
 }
 
-func (this *Location) AddTree(nodes ...*Location) bool {
-	var size = this.Size()
+func (l *Location) AddTree(nodes ...*Location) bool {
+	var size = l.Size()
 	for _, node := range nodes {
-		if node.ParentId == this.Id {
-			this.Child = append(this.Child, node)
+		if node.ParentId == l.Id {
+			l.Child = append(l.Child, node)
 		} else {
-			for _, c := range this.Child {
+			for _, c := range l.Child {
 				if c.AddTree(node) {
 					break
 				}
 			}
 		}
 	}
-	return this.Size() == size + len(nodes)
+	return l.Size() == size+len(nodes)
 }
 
 func (l *Location) All(db *sqlx.DB) ([]*Location, error) {
@@ -126,4 +96,34 @@ func (l *Location) Insert(db *sqlx.DB) (*Location, error) {
 		log.Println("Error db.GET in model.Location.Show", err)
 	}
 	return &newLoc, nil
+}
+
+type LocType int
+
+const (
+	ROOT       LocType = iota
+	STORE
+	VAN
+	MACHINE
+	COLUMN
+	VENDOR
+	INSPECTION
+	DAMAGE
+)
+
+func (lt LocType) MarshalJSON() ([]byte, error) {
+	typeStr, ok := map[LocType]string{
+		ROOT:       "ROOT",
+		STORE:      "STORE",
+		VAN:        "VAN",
+		MACHINE:    "MACHINE",
+		COLUMN:     "COLUMN",
+		VENDOR:     "VENDOR",
+		INSPECTION: "INSPECTION",
+		DAMAGE:     "DAMAGE",
+	}[lt]
+	if !ok {
+		return nil, fmt.Errorf("invalid Location Type value %v", lt)
+	}
+	return json.Marshal(typeStr)
 }

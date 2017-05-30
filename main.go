@@ -17,7 +17,7 @@ func main() {
 	//log.WithFields(log.Fields{
 	//	"name": "Tom NAVA Stock",
 	//}).Info("Start Logrus")
-
+	//gin.SetMode(gin.ReleaseMode)
 	server := ctrl.Router()
 	server.Run(":8001")
 }

@@ -95,7 +95,7 @@ func GetCounter(ctx *gin.Context) {
 // GetLastCounterByMachineCode ขอข้อมูลเคาท์เตอร์ล่าสุดของแต่ละตู้ตาม MachineCode
 //====================================
 func GetLastCounterByMachineCode(ctx *gin.Context) {
-	log.Println("call ctrl.Counter.GetCounterByMachineCode()")
+	log.Println("call ctrl.Counter.GetLastCounterByMachineCode()")
 	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	rs := Response{}
